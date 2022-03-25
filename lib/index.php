@@ -20,10 +20,12 @@ class Table {
     }
 }
 
+
 #[Attribute]
 class Field {
-    private string $field;
-    private string $type;
+    protected string $field;
+    protected string $type;
+    protected string $constraint;
 
     public function __construct(string $field, string $type)
     {
@@ -31,14 +33,45 @@ class Field {
         $this->type = $type;
     }
 
-    public function getField(): string
+    protected function getField(): string
     {
         return $this->field;
     }
 
-    public function getType(): string
+    protected function getType(): string
     {
         return $this->type;
+    }
+
+    protected function getConstraint(): string {
+        return $this->constraint;
+    }
+}
+
+#[Attribute]
+class Id {
+    protected string $field;
+    protected string $type;
+    protected string $constraint;
+
+    public function __construct(string $field, string $type)
+    {
+        $this->field = $field;
+        $this->type = $type;
+    }
+
+    protected function getField(): string
+    {
+        return $this->field;
+    }
+
+    protected function getType(): string
+    {
+        return $this->type;
+    }
+
+    protected function getConstraint(): string {
+        return $this->constraint;
     }
 }
 
@@ -56,7 +89,8 @@ class AvocadoORMSettings {
 
 class AvocadoORMModel extends AvocadoORMSettings {
     private ReflectionClass $childRef;
-    private static string $tableName = '';
+    private static string $tableName;
+    private static Id $primaryKey;
     private static array $fields = [];
 
     public function __construct() {
@@ -80,25 +114,37 @@ class AvocadoORMModel extends AvocadoORMSettings {
                 $attributes = $property->getAttributes();
 
                 foreach ($attributes as $attribute) {
-                    $this->fields[] = new Field(
-                        $attribute->getArguments()[0] ?? $property->name,
-                        $property -> getType()
-                    );
+                    $nameAttr = $attribute->getName();
+
+                    if ($nameAttr == 'Id') {
+                        self::$primaryKey= new Id(
+                            $attribute->getArguments()[0] ?? $property->name,
+                            $property -> getType()
+                        );
+                    } else if ($nameAttr == 'Field') {
+                        self::$fields[] = new Field(
+                            $attribute->getArguments()[0] ?? $property->name,
+                            $property -> getType()   
+                        );
+                    }
+                    
                 }
             }
         } catch (ReflectionException $e) {}
     }
 
-    private function getTableName(): string{
-        return $this->getTableName();
+    public static function getTableName(): string{
+        return self::$tableName;
     }
 
     public static function findAll() {
-        $sql = "SELECT * FROM :TABLE_NAME";
-        $tableName = call_user_func(array('this', 'getTableName'));
+        $sql = "SELECT * FROM :table";
         $stmt = self::_getConnection()->prepare($sql);
-        $stmt -> bindParam(':TABLE_NAME', $tableName);
-        $stmt -> execute();
+        $table = strval(self::$tableName);
+
+        $stmt -> execute(array(
+            ":table" => $table
+        ));
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
