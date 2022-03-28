@@ -88,69 +88,6 @@ class AvocadoORMSettings {
 }
 
 class AvocadoORMModel extends AvocadoORMSettings {
-    private ReflectionClass $childRef;
-    private static string $tableName;
-    private static Id $primaryKey;
-    private static array $fields = [];
-
-    public function __construct() {
-        $child = get_class($this);
-        try {
-            $this->childRef = new ReflectionClass($child);
-
-            // GET TABLE NAME
-            foreach ($this->childRef->getAttributes() as $attribute) {
-                $args = $attribute->getArguments();
-
-                if ($attribute->getName() == 'Table') {
-                    self::$tableName = $args[0] ?? $child;
-                }
-            }
-
-            // GET FIELDS
-            $properties = $this->childRef->getProperties();
-
-            foreach ($properties as $property) {
-                $attributes = $property->getAttributes();
-
-                foreach ($attributes as $attribute) {
-                    $nameAttr = $attribute->getName();
-
-                    if ($nameAttr == 'Id') {
-                        self::$primaryKey= new Id(
-                            $attribute->getArguments()[0] ?? $property->name,
-                            $property -> getType()
-                        );
-                    } else if ($nameAttr == 'Field') {
-                        self::$fields[] = new Field(
-                            $attribute->getArguments()[0] ?? $property->name,
-                            $property -> getType()   
-                        );
-                    }
-                    
-                }
-            }
-        } catch (ReflectionException $e) {}
-    }
-
-    public static function getTableName(): string{
-        return self::$tableName;
-    }
-
-    public static function findAll() {
-        $sql = "SELECT * FROM :table";
-        $stmt = self::_getConnection()->prepare($sql);
-        $table = strval(self::$tableName);
-
-        $stmt -> execute(array(
-            ":table" => $table
-        ));
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-}
-
-class AvocadoRepository  {
     private string $model;
     private ReflectionClass $ref;
     private array $attrs;
@@ -165,7 +102,7 @@ class AvocadoRepository  {
         $this -> attrs = $this -> ref -> getAttributes();
     }
 
-    private function getTableName() {
+    protected function getTableName() {
         $tableName = '';
 
         foreach($this->attrs as $attr) {
@@ -183,5 +120,21 @@ class AvocadoRepository  {
         }
 
         return $tableName;
+    }
+}
+
+class AvocadoRepository extends AvocadoORMModel {
+    public function __construct($model) {
+        parent::__construct($model);
+    }
+
+    public function findMany() {
+        $table = $this->getTableName();
+        $sql = "SELECT * FROM $table";
+        $stmt = self::_getConnection()->prepare($sql);
+        $stmt -> execute();
+
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

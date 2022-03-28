@@ -8,40 +8,14 @@ require "./lib/index.php";
 
 AvocadoORMSettings::useDatabase('mysql:host=localhost;dbname=egzamin;', 'root', '');
 
-#[Table('blogs')]
-class Blog extends AvocadoORMModel {
+#[Table('ryby')]
+class Blog {
     #[Field]
     private int $id;
     #[Field]
     private string $title;
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): Blog
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    public function getTitle(): string {
-        return $this->title;
-    }
-
-    public function setTitle(string $title): Blog
-    {
-        $this->title = $title;
-        return $this;
-    }
 }
 
 $blogRepository = new AvocadoRepository(Blog::class);
 
-var_dump($blogRepository->getTableName());
+var_dump($blogRepository->findMany());
