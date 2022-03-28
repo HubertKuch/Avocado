@@ -96,6 +96,10 @@ class AvocadoORMModel extends AvocadoORMSettings {
     private string $model;
     private ReflectionClass $ref;
     private array $attrs;
+    private array $properties;
+
+    protected string $primaryKey;
+    protected string $tableName;
 
     public function __construct($model) {
         if (!is_string($model)) {
@@ -105,12 +109,15 @@ class AvocadoORMModel extends AvocadoORMSettings {
         $this -> model = $model;
         $this -> ref = new ReflectionClass($model);
         $this -> attrs = $this -> ref -> getAttributes();
+        $this -> properties = $this -> ref -> getProperties();
+        $this -> tableName = $this->getTableName();
+        $this -> primaryKey = $this->getPrimaryKey();
     }
 
     /**
      * @throws TableNameException
      */
-    protected function getTableName() {
+    private function getTableName() {
         $tableName = '';
 
         foreach($this->attrs as $attr) {
@@ -129,18 +136,48 @@ class AvocadoORMModel extends AvocadoORMSettings {
 
         return $tableName;
     }
+
+    /**
+     * @throws ReflectionException
+     * @throws AvocadoModelException
+     */
+    private function getPrimaryKey() {
+        $prop = null;
+
+        foreach($this->properties as $property) {
+            $ref = new ReflectionProperty($this->model, $property->getName());
+            $idProp = $ref->getAttributes('Id');
+
+            if (!empty($idProp)) {
+                if (count($idProp) > 1) {
+                    throw new AvocadoModelException(sprintf("Primary key must one for model. %s has %s primary keys.", $this->model, count($idProp)));
+                }
+
+                $prop = $idProp[0];
+            }
+        }
+
+        if (!$prop) {
+            throw new AvocadoModelException("Missing primary key on $this->model model.");
+        }
+
+        if (!empty($prop->getArguments())) {
+            return $prop->getArguments()[0];
+        }
+
+        return $prop -> getName();
+    }
 }
 
 interface AvocadoRepositoryMethods {
     public function findMany(array $criteria);
     public function findOne(array $criteria);
+    public function findOneById(string|int $id);
 }
 
 class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryMethods {
-    private string $tableName;
     public function __construct($model) {
         parent::__construct($model);
-        $this->tableName = $this->getTableName();
     }
 
     private function provideCriteria(string &$sql, array $criteria): void {
@@ -158,27 +195,50 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryMeth
     /**
      * @throws TableNameException
      */
-    public function findMany(array $criteria = []) {
-        $sql = "SELECT * FROM $this->tableName";
 
-        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
-
-
+    private function query($sql) {
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @throws TableNameException
+     */
+    public function findMany(array $criteria = []) {
+        $sql = "SELECT * FROM $this->tableName";
+
+        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
+        return $this->query($sql);
+    }
+
+    /**
+     * @throws TableNameException
+     */
     public function findOne(array $criteria = []) {
         $sql = "SELECT * FROM $this->tableName";
 
         if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
         $sql.= " LIMIT 1";
 
-        $stmt = self::_getConnection()->prepare($sql);
-        $stmt -> execute();
+        $res = $this->query($sql);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return empty($res) ? null : $res[0];
+    }
+
+    /**
+     * @throws TableNameException
+     */
+    public function findOneById($id) {
+        $sql = "SELECT * FROM $this->tableName";
+
+        $this->provideCriteria($sql, array(
+            $this->primaryKey => $id
+        ));
+
+        $res = $this->query($sql);
+
+        return empty($res) ? null : $res[0];
     }
 }

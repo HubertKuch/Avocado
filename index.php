@@ -10,11 +10,12 @@ AvocadoORMSettings::useDatabase('mysql:host=localhost;dbname=blog;', 'root', '')
 
 #[Table('blogs')]
 class Blog {
-    #[Field]
-    private int $id;
-    #[Field]
-    private string $title;
+    #[Id]
+    private string $id;
 }
 
 $blogRepository = new AvocadoRepository(Blog::class);
 
+print_r(
+    $blogRepository -> findOneById(3)
+);
