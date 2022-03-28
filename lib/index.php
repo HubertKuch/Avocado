@@ -357,5 +357,25 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $output;
     }
 
+    public function save(object $entity) {
+        $sql = "INSERT INTO $this->tableName VALUES (NULL, ";
+        $sql.=$this->getObjectAttributesAsSQLString($entity);
+        $sql.=")";
 
+        $this->query($sql);
+    }
+
+    public function saveMany(...$entities) {
+        $sql = "INSERT INTO $this->tableName VALUES ";
+
+        foreach ($entities as $entity) {
+            $sql .= "(NULL, ";
+            $sql .= $this->getObjectAttributesAsSQLString($entity);
+            $sql .= "),";
+        }
+
+        $sql = substr($sql, 0, -1);
+
+        $this->query($sql);
+    }
 }
