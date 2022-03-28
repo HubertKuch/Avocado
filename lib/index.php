@@ -330,5 +330,32 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $this->query($sql);
     }
 
+    private function getObjectAttributesAsSQLString(object $object): string {
+        $ref = new ReflectionClass($object);
+        $output = "";
+        $isFirstProperty = true;
+
+        foreach ($ref->getProperties() as $property) {
+            $refToProperty = new ReflectionProperty(get_class($object), $property->getName());
+            $isEntityField = !empty($refToProperty->getAttributes('Field'));
+
+            if ($isEntityField) {
+                $valueOfProperty = $refToProperty->getValue($object);
+                $propertyType = gettype($valueOfProperty);
+
+                if ($propertyType == "string") {
+                    $output .= $isFirstProperty ? " \"$valueOfProperty\" " : " , \"$valueOfProperty\"";
+                } else {
+                    $output .= $isFirstProperty ? " $valueOfProperty " : " , $valueOfProperty";
+                }
+
+                $isFirstProperty = false;
+
+            }
+        }
+
+        return $output;
+    }
+
 
 }
