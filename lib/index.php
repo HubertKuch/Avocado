@@ -1,5 +1,8 @@
 <?php
 
+const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
+
+
 // ATTRIBUTES
 
 #[Attribute]
@@ -209,9 +212,16 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $sql = substr($sql, 0,-4);
     }
 
-    /**
-     * @throws TableNameException
-     */
+    private function provideUpdateCriteria(string &$sql, array $criteria): void {
+        foreach ($criteria as $key => $value) {
+            $valueType = gettype($value);
+
+            if ($valueType === "integer" || $valueType === "boolean") $sql.=" $key = $value, ";
+            else if ($valueType === "string") $sql.= " $key = \"$value\" , ";
+        }
+
+        $sql = substr($sql, 0, -2);
+    }
 
     private function query($sql) {
         $stmt = self::_getConnection()->prepare($sql);
@@ -220,9 +230,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $stmt->fetchAll(self::_getFetchOption());
     }
 
-    /**
-     * @throws TableNameException
-     */
+
     public function findMany(array $criteria = []) {
         $sql = "SELECT * FROM $this->tableName";
 
@@ -230,9 +238,6 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $this->query($sql);
     }
 
-    /**
-     * @throws TableNameException
-     */
     public function findOne(array $criteria = []) {
         $sql = "SELECT * FROM $this->tableName";
 
