@@ -7,6 +7,7 @@ error_reporting(E_ALL);
 require "./lib/index.php";
 
 AvocadoORMSettings::useDatabase('mysql:host=localhost;dbname=blog;', 'root', '');
+AvocadoORMSettings::useFetchOption(PDO::FETCH_CLASS);
 
 #[Table('blogs')]
 class Blog {

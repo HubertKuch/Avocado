@@ -1,12 +1,5 @@
 <?php
 
-// UTILS
-
-function endsWith(string $string, string $criteria) {
-    if (strlen($string) == 0) return true;
-    return (substr($string, -strlen($string)) === $criteria);
-}
-
 // ATTRIBUTES
 
 #[Attribute]
@@ -81,14 +74,25 @@ class Id {
 }
 
 class AvocadoORMSettings {
-    private static array $settings;
+    private static array $settings = array(
+        "FETCH_OPTION" => 2,
+        "CONNECTION" => null
+    );
 
     public static function useDatabase(string $dsn, string $user, string $pass) {
         self::$settings['CONNECTION'] = new \PDO($dsn, $user, $pass);
     }
 
+    public static function useFetchOption(int $option) {
+        self::$settings['FETCH_OPTION'] = $option;
+    }
+
     protected static function _getConnection(): PDO {
         return self::$settings['CONNECTION'];
+    }
+
+    protected static function _getFetchOption(): int {
+        return self::$settings['FETCH_OPTION'];
     }
 }
 
@@ -200,7 +204,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryMeth
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(self::_getFetchOption());
     }
 
     /**
