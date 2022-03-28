@@ -314,4 +314,21 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     }
 
 
+    public function deleteMany(array $criteria) {
+        $sql = "DELETE FROM $this->tableName ";
+        $this->provideCriteria($sql, $criteria);
+
+        $this->query($sql);
+    }
+
+    public function deleteOneById(int|string $id) {
+        $sql = "DELETE FROM $this->tableName ";
+        $this->provideCriteria($sql, array(
+            $this->primaryKey => $id
+        ));
+
+        $this->query($sql);
+    }
+
+
 }
