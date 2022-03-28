@@ -383,4 +383,8 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $this->query("TRUNCATE TABLE $this->tableName");
     }
 
+
+    public function renameTo(string $to) {
+        $this->query("ALTER TABLE $this->tableName RENAME TO $to");
+    }
 }
