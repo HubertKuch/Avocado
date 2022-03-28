@@ -4,7 +4,6 @@ const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empt
 
 
 // ATTRIBUTES
-
 #[Attribute]
 class Table {
     private string $table;
@@ -249,9 +248,6 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return empty($res) ? null : $res[0];
     }
 
-    /**
-     * @throws TableNameException
-     */
     public function findOneById($id) {
         $sql = "SELECT * FROM $this->tableName";
 
@@ -263,4 +259,23 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
 
         return empty($res) ? null : $res[0];
     }
+
+
+    /**
+     * @throws AvocadoRepositoryException
+     */
+    public function updateMany(array $updateCriteria, array $criteria = []) {
+        if (empty($updateCriteria)) {
+            throw new AvocadoRepositoryException(EXCEPTION_UPDATE_CRITERIA_MESSAGE);
+        }
+
+        $sql = "UPDATE $this->tableName SET ";
+
+        $this->provideUpdateCriteria($sql, $updateCriteria);
+        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
+
+        $this->query($sql);
+    }
+
+
 }
