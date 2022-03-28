@@ -18,6 +18,3 @@ class Blog {
 
 $blogRepository = new AvocadoRepository(Blog::class);
 
-print_r($blogRepository->findMany(array(
-    "img_src" => "%auto=format%"
-)));

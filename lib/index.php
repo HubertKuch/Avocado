@@ -170,5 +170,15 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryMeth
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function findOne(array $criteria) {}
+    public function findOne(array $criteria = []) {
+        $sql = "SELECT * FROM $this->tableName";
+
+        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
+        $sql.= " LIMIT 1";
+
+        $stmt = self::_getConnection()->prepare($sql);
+        $stmt -> execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
