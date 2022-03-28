@@ -378,4 +378,9 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
 
         $this->query($sql);
     }
+
+    public function truncate() {
+        $this->query("TRUNCATE TABLE $this->tableName");
+    }
+
 }
