@@ -277,5 +277,41 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $this->query($sql);
     }
 
+    /**
+     * @throws AvocadoRepositoryException
+     */
+    public function updateOne(array $updateCriteria, array $criteria = []) {
+        if (empty($updateCriteria)) {
+            throw new AvocadoRepositoryException(EXCEPTION_UPDATE_CRITERIA_MESSAGE);
+        }
+
+        $sql = "UPDATE $this->tableName SET ";
+
+        $this->provideUpdateCriteria($sql, $updateCriteria);
+        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
+
+        $sql .= " LIMIT 1";
+
+        $this->query($sql);
+    }
+
+    /**
+     * @throws AvocadoModelException
+     */
+    public function updateOneById(array $updateCriteria, string|int $id) {
+        if (empty($updateCriteria)) {
+            throw new AvocadoModelException(EXCEPTION_UPDATE_CRITERIA_MESSAGE);
+        }
+
+        $sql = "UPDATE $this->tableName SET ";
+
+        $this->provideUpdateCriteria($sql, $updateCriteria);
+        $this->provideCriteria($sql, array(
+            $this->primaryKey => $id
+        ));
+
+        $this->query($sql);
+    }
+
 
 }
