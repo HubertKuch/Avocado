@@ -43,3 +43,5 @@ class Blog extends AvocadoORMModel {
 }
 
 $blogRepository = new AvocadoRepository(Blog::class);
+
+var_dump($blogRepository->getTableName());
