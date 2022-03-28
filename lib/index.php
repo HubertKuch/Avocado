@@ -149,3 +149,17 @@ class AvocadoORMModel extends AvocadoORMSettings {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+
+class AvocadoRepository  {
+    private $model;
+    private $ref;
+
+    public function __construct($model) {
+        if (!is_string($model)) {
+            throw new TypeError(sprintf("Model must be string who referent to class definition, passed %s", gettype($model)));
+        }
+
+        $this -> model = $model;
+        $this -> ref = new ReflectionClass($model);
+    }
+}

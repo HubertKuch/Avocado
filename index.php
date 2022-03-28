@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 require "./lib/index.php";
 
-AvocadoORMSettings::useDatabase('mysql:host=localhost;dbname=blog;', 'root', '');
+AvocadoORMSettings::useDatabase('mysql:host=localhost;dbname=egzamin;', 'root', '');
 
 #[Table('blogs')]
 class Blog extends AvocadoORMModel {
@@ -42,4 +42,4 @@ class Blog extends AvocadoORMModel {
     }
 }
 
-
+$blogRepository = new AvocadoRepository(Blog::class);
