@@ -6,9 +6,9 @@ error_reporting(E_ALL);
 
 require "./lib/index.php";
 
-AvocadoORMSettings::useDatabase('mysql:host=localhost;dbname=egzamin;', 'root', '');
+AvocadoORMSettings::useDatabase('mysql:host=localhost;dbname=blog;', 'root', '');
 
-#[Table('ryby')]
+#[Table('blogs')]
 class Blog {
     #[Field]
     private int $id;
@@ -18,4 +18,6 @@ class Blog {
 
 $blogRepository = new AvocadoRepository(Blog::class);
 
-var_dump($blogRepository->findMany());
+print_r($blogRepository->findMany(array(
+    "img_src" => "%auto=format%"
+)));

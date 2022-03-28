@@ -1,8 +1,13 @@
 <?php
 
-/**
- * SETTINGS: { CONNECTION }
- * */
+// UTILS
+
+function endsWith(string $string, string $criteria) {
+    if (strlen($string) == 0) return true;
+    return (substr($string, -strlen($string)) === $criteria);
+}
+
+// ATTRIBUTES
 
 #[Attribute]
 class Table {
@@ -102,6 +107,9 @@ class AvocadoORMModel extends AvocadoORMSettings {
         $this -> attrs = $this -> ref -> getAttributes();
     }
 
+    /**
+     * @throws TableNameException
+     */
     protected function getTableName() {
         $tableName = '';
 
@@ -123,18 +131,44 @@ class AvocadoORMModel extends AvocadoORMSettings {
     }
 }
 
-class AvocadoRepository extends AvocadoORMModel {
+interface AvocadoRepositoryMethods {
+    public function findMany(array $criteria);
+    public function findOne(array $criteria);
+}
+
+class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryMethods {
+    private string $tableName;
     public function __construct($model) {
         parent::__construct($model);
+        $this->tableName = $this->getTableName();
     }
 
-    public function findMany() {
-        $table = $this->getTableName();
-        $sql = "SELECT * FROM $table";
+    private function provideCriteria(string &$sql, array $criteria): void {
+        $sql.= " WHERE ";
+        foreach ($criteria as $key => $value) {
+            $valueType = gettype($value);
+
+            if ($valueType === "integer" || $valueType === "boolean") $sql.=" $key = $value AND ";
+            else if ($valueType === "string") $sql.= " $key LIKE \"$value\" AND";
+        }
+
+        $sql = substr($sql, 0,-4);
+    }
+
+    /**
+     * @throws TableNameException
+     */
+    public function findMany(array $criteria = []) {
+        $sql = "SELECT * FROM $this->tableName";
+
+        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
+
+
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
 
-
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function findOne(array $criteria) {}
 }
