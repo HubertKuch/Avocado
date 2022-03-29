@@ -6,6 +6,7 @@ interface AvocadoRepositoryActions {
     public function findMany(array $criteria);
     public function findOne(array $criteria);
     public function findOneById(string|int $id);
+    public function findOneToManyRelation(array $findCriteria, ?array $criteria);
 
     public function updateMany(array $updateCriteria, array $criteria);
     public function updateOne(array $updateCriteria, array $criteria);

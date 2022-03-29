@@ -33,6 +33,29 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $sql = substr($sql, 0, -2);
     }
 
+    private function formatSubQuery(array|FindForeign $findCriteria): string {
+        if ($findCriteria instanceof FindForeign) {
+            $findCriteria = $findCriteria->criteria;
+        }
+
+        $findCriteria = array_change_key_case($findCriteria, CASE_UPPER);
+
+        $foreignKey = $findCriteria['FOREIGNKEY'] ?? null;
+        $reference = $findCriteria['REFERENCE'] ?? null;
+        $by = $findCriteria['BY'] ?? null;
+        $equals = $findCriteria['EQ'] ?? null;
+        $equalsType = gettype($equals);
+
+        $sql = "SELECT * FROM $this->tableName WHERE $foreignKey IN (SELECT $reference.$by FROM $reference WHERE $reference.$by ?)";
+
+        $sql = str_replace(
+            "?",
+            $equalsType === "integer" ? " = $equals ": "LIKE \"$equals\"",
+            $sql);
+
+        return $sql;
+    }
+
     private function query($sql) {
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
@@ -71,6 +94,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return empty($res) ? null : $res[0];
     }
 
+
+    public function findOneToManyRelation(array|FindForeign $findCriteria, ?array $criteria = []) {
+        $sql = $this->formatSubQuery($findCriteria);
+
+        return $this->query($sql);
+    }
 
     /**
      * @throws AvocadoRepositoryException
