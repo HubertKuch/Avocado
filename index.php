@@ -1,7 +1,10 @@
 <?php
 
 require "./vendor/autoload.php";
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 use Avocado\ORM\AvocadoORMSettings;
 use Avocado\ORM\AvocadoRepository;
@@ -9,14 +12,15 @@ use Avocado\ORM\Field;
 use Avocado\ORM\Id;
 use Avocado\ORM\Table;
 use Avocado\Router\AvocadoRouter;
-use Avocado\Router\Request;
-use Avocado\Router\Response;
+use Avocado\Router\AvocadoRequest;
+use Avocado\Router\AvocadoResponse;
 
-AvocadoORMSettings::useDatabase('mysql:host=localhost;dbname=egzamin', 'root', '');
+AvocadoORMSettings::useDatabase('mysql:host=localhost;dbname=notebook', 'root', '');
 AvocadoORMSettings::useFetchOption(PDO::FETCH_ASSOC);
 AvocadoRouter::useJSON();
 
-#[Table('uzytkownik')]
+
+#[Table('users')]
 class User {
     #[Id('id')]
     private int $id;
@@ -33,18 +37,9 @@ class User {
 
 $usersRepository = new AvocadoRepository(User::class);
 
-AvocadoRouter::GET('/api/v1/users', [], function(Request $req, Response $res) use ($usersRepository) {
+AvocadoRouter::GET('/api/v1/users', [], function(AvocadoRequest $req, AvocadoResponse $res) use ($usersRepository) {
     $users = $usersRepository -> findMany();
     $res -> json($users) -> withStatus(200);
-});
-
-AvocadoRouter::POST('/api/v1/users', [], function(Request $req, Response $res) use ($usersRepository) {
-    $username = $req->body['username'] ?? null;
-    $password = $req->body['password'] ?? null;
-
-    $user = new User($username, $password);
-
-    $usersRepository -> save($user);
 });
 
 AvocadoRouter::listen();

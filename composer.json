@@ -1,13 +1,16 @@
 {
-    "name": "cad/avocado",
+    "name": "hubert/avocado",
     "autoload": {
         "classmap": ["lib"]
+
     },
     "authors": [
         {
-            "name": "HubertKuch",
+            "name": "hubert",
             "email": "kuchhubert@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+
+    }
 }
