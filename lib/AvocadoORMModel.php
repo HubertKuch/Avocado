@@ -1,10 +1,10 @@
 <?php
 
-require "AvocadoORMSettings.php";
+namespace Avocado\ORM;
 
 class AvocadoORMModel extends AvocadoORMSettings {
     private string $model;
-    private ReflectionClass $ref;
+    private \ReflectionClass $ref;
     private array $attrs;
     private array $properties;
 
@@ -13,11 +13,11 @@ class AvocadoORMModel extends AvocadoORMSettings {
 
     public function __construct($model) {
         if (!is_string($model)) {
-            throw new TypeError(sprintf("Model must be string who referent to class definition, passed %s", gettype($model)));
+            throw new \TypeError(sprintf("Model must be string who referent to class definition, passed %s", gettype($model)));
         }
 
         $this -> model = $model;
-        $this -> ref = new ReflectionClass($model);
+        $this -> ref = new \ReflectionClass($model);
         $this -> attrs = $this -> ref -> getAttributes();
         $this -> properties = $this -> ref -> getProperties();
         $this -> tableName = $this->getTableName();
@@ -31,7 +31,7 @@ class AvocadoORMModel extends AvocadoORMSettings {
         $tableName = '';
 
         foreach($this->attrs as $attr) {
-            if ($attr->getName() == "Table") {
+            if ($attr->getName() == "Avocado\ORM\Table") {
                 $val = $attr->getArguments();
                 if (!empty($val)) {
                     $tableName = $val[0];
@@ -55,8 +55,8 @@ class AvocadoORMModel extends AvocadoORMSettings {
         $prop = null;
 
         foreach($this->properties as $property) {
-            $ref = new ReflectionProperty($this->model, $property->getName());
-            $idProp = $ref->getAttributes('Id');
+            $ref = new \ReflectionProperty($this->model, $property->getName());
+            $idProp = $ref->getAttributes('Avocado\ORM\Id');
 
             if (!empty($idProp)) {
                 if (count($idProp) > 1) {

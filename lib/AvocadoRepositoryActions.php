@@ -1,5 +1,7 @@
 <?php
 
+namespace Avocado\ORM;
+
 interface AvocadoRepositoryActions {
     public function findMany(array $criteria);
     public function findOne(array $criteria);

@@ -1,5 +1,7 @@
 <?php
 
+namespace Avocado\ORM;
+
 class AvocadoORMSettings {
     private static array $settings = array(
         "FETCH_OPTION" => 2,
@@ -14,7 +16,7 @@ class AvocadoORMSettings {
         self::$settings['FETCH_OPTION'] = $option;
     }
 
-    protected static function _getConnection(): PDO {
+    protected static function _getConnection(): \PDO {
         return self::$settings['CONNECTION'];
     }
 

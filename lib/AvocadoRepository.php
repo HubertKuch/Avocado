@@ -1,9 +1,9 @@
 <?php
 
+namespace Avocado\ORM;
+
 const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
 
-require "AvocadoORMModel.php";
-require "AvocadoRepositoryActions.php";
 
 class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActions {
     public function __construct($model) {
@@ -142,12 +142,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     }
 
     private function getObjectAttributesAsSQLString(object $object): string {
-        $ref = new ReflectionClass($object);
+        $ref = new \ReflectionClass($object);
         $output = "";
         $isFirstProperty = true;
 
         foreach ($ref->getProperties() as $property) {
-            $refToProperty = new ReflectionProperty(get_class($object), $property->getName());
+            $refToProperty = new \ReflectionProperty(get_class($object), $property->getName());
             $isEntityField = !empty($refToProperty->getAttributes('Field'));
 
             if ($isEntityField) {

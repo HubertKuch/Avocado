@@ -1,7 +1,9 @@
 <?php
 
+namespace Avocado\ORM;
+
 // ATTRIBUTES
-#[Attribute]
+#[\Attribute]
 class Table {
     private string $table;
     public function __construct(string $name) {
@@ -17,7 +19,7 @@ class Table {
     }
 }
 
-#[Attribute]
+#[\Attribute]
 class Field {
     protected string $field;
     protected string $type;
@@ -44,7 +46,7 @@ class Field {
     }
 }
 
-#[Attribute]
+#[\Attribute]
 class Id {
     protected string $field;
     protected string $type;
