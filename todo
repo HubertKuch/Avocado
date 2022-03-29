@@ -1,2 +1,5 @@
 Create cli
 Refactor 
+Error handling:
+  - check is .htaccess is correct
+  - check db connection
