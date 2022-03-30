@@ -1,16 +1,28 @@
 {
     "name": "hubert/avocado",
+    "description": "Avocado is hobbyist PHP framework which implements routing and ORM",
     "autoload": {
-        "classmap": ["lib"]
-
+        "classmap": [
+            "src"
+        ],
+        "psr-4": {
+            "Avocado\\": "src/",
+            "Avocado\\ORM\\": "src/AvocadoORM/",
+            "Avocado\\Router\\": "src/AvocadoRouter/"
+        }
     },
+    "license": "Apache-2.0",
+    "type": "framework",
     "authors": [
         {
-            "name": "hubert",
+            "name": "Hubert Kuch",
             "email": "kuchhubert@gmail.com"
         }
     ],
+    "minimum-stability": "dev",
+    "homepage": "https://avocadoframework.com",
+    "version": "1.0.0",
     "require": {
-      "ext-pdo": "*"
+      "php": "8.1"
     }
 }
