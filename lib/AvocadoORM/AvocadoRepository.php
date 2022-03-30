@@ -3,11 +3,13 @@
 namespace Avocado\ORM;
 
 const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
-
+const FIELD = 'Avocado\ORM\Field';
+const ID = 'Avocado\ORM\Id';
 
 class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActions {
     public function __construct($model) {
         parent::__construct($model);
+        var_dump($this->primaryKey);
     }
 
     private function provideCriteria(string &$sql, array $criteria): void {
@@ -177,7 +179,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
 
         foreach ($ref->getProperties() as $property) {
             $refToProperty = new \ReflectionProperty(get_class($object), $property->getName());
-            $isEntityField = !empty($refToProperty->getAttributes('Field'));
+            $isEntityField = !empty($refToProperty->getAttributes(FIELD));
 
             if ($isEntityField) {
                 $valueOfProperty = $refToProperty->getValue($object);
@@ -190,8 +192,11 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
                 }
 
                 $isFirstProperty = false;
-
             }
+        }
+
+        if ($output == "") {
+            throw new AvocadoRepositoryException('Model must have fields if you want save it.');
         }
 
         return $output;

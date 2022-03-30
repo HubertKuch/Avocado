@@ -2,6 +2,8 @@
 
 namespace Avocado\ORM;
 
+const TABLE = 'Avocado\ORM\Table';
+
 class AvocadoORMModel extends AvocadoORMSettings {
     private string $model;
     private \ReflectionClass $ref;
@@ -31,7 +33,7 @@ class AvocadoORMModel extends AvocadoORMSettings {
         $tableName = '';
 
         foreach($this->attrs as $attr) {
-            if ($attr->getName() == "Avocado\ORM\Table") {
+            if ($attr->getName() == TABLE) {
                 $val = $attr->getArguments();
                 if (!empty($val)) {
                     $tableName = $val[0];
@@ -52,29 +54,31 @@ class AvocadoORMModel extends AvocadoORMSettings {
      * @throws AvocadoModelException
      */
     private function getPrimaryKey() {
-        $prop = null;
+        $attr = null;
+        $propertyTarget = null;
 
         foreach($this->properties as $property) {
             $ref = new \ReflectionProperty($this->model, $property->getName());
-            $idProp = $ref->getAttributes('Avocado\ORM\Id');
+            $idAttr = $ref->getAttributes(ID);
 
-            if (!empty($idProp)) {
-                if (count($idProp) > 1) {
-                    throw new AvocadoModelException(sprintf("Primary key must one for model. %s has %s primary keys.", $this->model, count($idProp)));
+            if (!empty($idAttr)) {
+                if (count($idAttr) > 1) {
+                    throw new AvocadoModelException(sprintf("Primary key must one for model. %s has %s primary keys.", $this->model, count($idAttr)));
                 }
 
-                $prop = $idProp[0];
+                $attr = $idAttr[0];
+                $propertyTarget = $property;
             }
         }
 
-        if (!$prop) {
+        if (!$attr) {
             throw new AvocadoModelException("Missing primary key on $this->model model.");
         }
 
-        if (!empty($prop->getArguments())) {
-            return $prop->getArguments()[0];
+        if (!empty($attr->getArguments())) {
+            return $attr->getArguments()[0];
         }
 
-        return $prop -> getName();
+        return $propertyTarget->getName();
     }
 }
