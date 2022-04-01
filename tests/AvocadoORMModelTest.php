@@ -43,4 +43,11 @@ class AvocadoORMModelTest extends TestCase {
         self::assertSame('id', $primaryKey);
     }
 
+    public function testTableName(): void {
+        $model = new AvocadoORMModel(TestModelWithIdAsString::class);
+        $ref = new \ReflectionClass($model);
+        $tableName = $ref->getProperty('tableName')->getValue($model);
+
+        self::assertSame('table', $tableName);
+    }
 }
