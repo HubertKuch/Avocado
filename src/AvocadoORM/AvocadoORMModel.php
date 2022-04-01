@@ -3,6 +3,7 @@
 namespace Avocado\ORM;
 
 const TABLE = 'Avocado\ORM\Table';
+const ID = 'Avocado\ORM\ID';
 
 class AvocadoORMModel extends AvocadoORMSettings {
     private string $model;
