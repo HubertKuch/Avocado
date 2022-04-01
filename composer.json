@@ -23,6 +23,7 @@
     "homepage": "https://avocadoframework.com",
     "version": "1.0.0",
     "require": {
-      "php": "8.1"
+        "phpunit/phpunit": "9.5.18",
+        "ext-dom": "*"
     }
 }
