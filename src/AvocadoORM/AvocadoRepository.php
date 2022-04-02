@@ -9,7 +9,6 @@ const ID = 'Avocado\ORM\Id';
 class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActions {
     public function __construct($model) {
         parent::__construct($model);
-        var_dump($this->primaryKey);
     }
 
     private function provideCriteria(string &$sql, array $criteria): void {
