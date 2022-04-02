@@ -8,8 +8,15 @@ class AvocadoORMSettings {
         "CONNECTION" => null
     );
 
+    /**
+     * @throws AvocadoRepositoryException
+     */
     public static function useDatabase(string $dsn, string $user, string $pass) {
-        self::$settings['CONNECTION'] = new \PDO($dsn, $user, $pass);
+        try {
+            self::$settings['CONNECTION'] = new \PDO($dsn, $user, $pass);
+        } catch (\PDOException $e) {
+            throw new AvocadoRepositoryException("Database connection fail: $e->errorInfo");
+        }
     }
 
     public static function useFetchOption(int $option) {
