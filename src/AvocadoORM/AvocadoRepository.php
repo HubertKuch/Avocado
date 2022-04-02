@@ -15,7 +15,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         foreach ($criteria as $key => $value) {
             $valueType = gettype($value);
 
-            if ($valueType === "integer" || $valueType === "boolean") $sql.=" $key = $value AND ";
+            if ($valueType === "integer" || $valueType === "double" || $valueType === "boolean") $sql.=" $key = $value AND ";
             else if ($valueType === "string") $sql.= " $key LIKE \"$value\" AND";
         }
 
@@ -26,7 +26,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         foreach ($criteria as $key => $value) {
             $valueType = gettype($value);
 
-            if ($valueType === "integer" || $valueType === "boolean") $sql.=" $key = $value, ";
+            if ($valueType === "integer" || $valueType === "double" || $valueType === "boolean") $sql.=" $key = $value, ";
             else if ($valueType === "string") $sql.= " $key = \"$value\" , ";
         }
 
@@ -50,7 +50,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
 
         $sql = str_replace(
             "?",
-            $equalsType === "integer" ? " = $equals ": "LIKE \"$equals\"",
+            ($equalsType === "integer" || $equalsType === "double" || $equalsType === "boolean") ? " = $equals ": "LIKE \"$equals\"",
             $sql);
 
         return $sql;
