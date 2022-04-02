@@ -35,7 +35,7 @@ function provideCriteriaToTestQuery(string &$query, array $criteria): void {
     $query = trim($query);
 }
 
-class AvocadoRepositoryTest extends TestCase {
+class AvocadoRepositoryCriteriaTest extends TestCase {
     public function testProvidingSingleCriteriaToQuery() {
         $testSQL = "SELECT * FROM users";
         $criteria = array(
