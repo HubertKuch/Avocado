@@ -6,7 +6,7 @@ const TABLE = 'Avocado\ORM\Table';
 const ID = 'Avocado\ORM\ID';
 
 class AvocadoORMModel extends AvocadoORMSettings {
-    private string $model;
+    protected string $model;
     private \ReflectionClass $ref;
     private array $attrs;
     private array $properties;
@@ -81,5 +81,20 @@ class AvocadoORMModel extends AvocadoORMSettings {
         }
 
         return $propertyTarget->getName();
+    }
+
+    protected function isModelHasProperty(string $property): bool {
+        try {
+            new \ReflectionProperty($this->model, $property);
+            return true;
+        } catch (\ReflectionException $e) {
+            return false;
+        }
+    }
+
+    protected function isModelPropertyIsType(string $property, string $type): bool {
+        $reflectionProperty = new \ReflectionProperty($this->model, $property);
+
+        return $reflectionProperty -> getType()->getName() === $type;
     }
 }

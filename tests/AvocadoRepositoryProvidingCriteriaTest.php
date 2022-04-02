@@ -35,7 +35,7 @@ function provideCriteriaToTestQuery(string &$query, array $criteria): void {
     $query = trim($query);
 }
 
-class AvocadoRepositoryTest extends TestCase{
+class AvocadoRepositoryTest extends TestCase {
     public function testProvidingSingleCriteriaToQuery() {
         $testSQL = "SELECT * FROM users";
         $criteria = array(
@@ -111,6 +111,35 @@ class AvocadoRepositoryTest extends TestCase{
         self::assertStringContainsString($sql, $excepted);
     }
 
+    public function testShouldThrowAvocadoRepositoryExceptionIfCriteriaHasDifferentKeysThanModelFields() {
+        self::expectException(AvocadoRepositoryException::class);
+
+        $userRepository = new AvocadoRepository(TestUserModel::class);
+        $reflectionToProvideCriteriaMethod = new \ReflectionMethod($userRepository::class, 'provideCriteria');
+
+        $sql = "";
+
+        $criteria = array(
+            "friend" => "s"
+        );
+
+        $reflectionToProvideCriteriaMethod -> invokeArgs($userRepository, array(&$sql, $criteria));
+    }
+
+    public function testShouldThrowAvocadoRepositoryExceptionIfCriteriaTypeIsDifferentThanModelFieldType() {
+        self::expectException(AvocadoRepositoryException::class);
+
+        $userRepository = new AvocadoRepository(TestUserModel::class);
+        $reflectionToProvideCriteriaMethod = new \ReflectionMethod($userRepository::class, 'provideCriteria');
+
+        $sql = "";
+        $criteria = array(
+            "username" => 1
+        );
+
+        $reflectionToProvideCriteriaMethod -> invokeArgs($userRepository, array(&$sql, $criteria));
+    }
+
     public function testProvidingMixedTypeValuesToQuery() {
         $sql = "SELECT * FROM users";
         $criteria = array(
@@ -124,4 +153,5 @@ class AvocadoRepositoryTest extends TestCase{
 
         self::assertStringContainsString($sql, $excepted);
     }
+
 }

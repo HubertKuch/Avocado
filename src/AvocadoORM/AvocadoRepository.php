@@ -10,7 +10,27 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         parent::__construct($model);
     }
 
+    /**
+     * @throws AvocadoRepositoryException
+     */
+    private function checkIsCriteriaTypesAreCompatibleWithModel(array $criteria) {
+        foreach ($criteria as $key => $value) {
+            $propertyNotFoundMessage = sprintf("%s model does not have %s property. Add it to model with #[Field] attribute", $this->model, $key);
+            $propertyTypeIsDifferentMessage = sprintf("%s property is not %s type on %s model", $key, gettype($value), $this->model);
+
+            if (!self::isModelHasProperty($key)) {
+                throw new AvocadoRepositoryException($propertyNotFoundMessage);
+            }
+
+            if (!self::isModelPropertyIsType($key, gettype($value))) {
+                throw new AvocadoRepositoryException($propertyTypeIsDifferentMessage);
+            }
+        }
+    }
+
     private function provideCriteria(string &$sql, array $criteria): void {
+        $this->checkIsCriteriaTypesAreCompatibleWithModel($criteria);
+
         $sql.= " WHERE ";
         foreach ($criteria as $key => $value) {
             $valueType = gettype($value);
@@ -23,6 +43,8 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     }
 
     private function provideUpdateCriteria(string &$sql, array $criteria): void {
+        $this->checkIsCriteriaTypesAreCompatibleWithModel($criteria);
+
         foreach ($criteria as $key => $value) {
             $valueType = gettype($value);
 
