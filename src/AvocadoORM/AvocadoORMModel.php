@@ -2,6 +2,8 @@
 
 namespace Avocado\ORM;
 
+use ReflectionException;
+
 const TABLE = 'Avocado\ORM\Table';
 const ID = 'Avocado\ORM\ID';
 
@@ -16,7 +18,7 @@ class AvocadoORMModel extends AvocadoORMSettings {
 
     public function __construct($model) {
         if (!is_string($model)) {
-            throw new \TypeError(sprintf("Model must be string who referent to class definition, passed %s", gettype($model)));
+            throw new \TypeError(sprintf("Model must be string who referent to class ddefinition, passed %s", gettype($model)));
         }
 
         $this -> model = $model;
@@ -94,7 +96,15 @@ class AvocadoORMModel extends AvocadoORMSettings {
 
     protected function isModelPropertyIsType(string $property, string $type): bool {
         $reflectionProperty = new \ReflectionProperty($this->model, $property);
+        $propertyType = $reflectionProperty -> getType()->getName();
+        $type = match ($type) {
+            "integer" => "int",
+            "double" => "float",
+            "string" => "string",
+            "boolean" => "bool",
+            default => "null"
+        };
 
-        return $reflectionProperty -> getType()->getName() === $type;
+        return $propertyType === $type;
     }
 }
