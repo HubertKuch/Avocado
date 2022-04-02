@@ -4,7 +4,6 @@ namespace Avocado\ORM;
 
 const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
 const FIELD = 'Avocado\ORM\Field';
-const ID = 'Avocado\ORM\Id';
 
 class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActions {
     public function __construct($model) {
