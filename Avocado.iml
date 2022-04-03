@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" packagePrefix="Avocado\" />
       <sourceFolder url="file://$MODULE_DIR$/src/AvocadoORM" isTestSource="false" packagePrefix="Avocado\ORM\" />
       <sourceFolder url="file://$MODULE_DIR$/src/AvocadoRouter" isTestSource="false" packagePrefix="Avocado\Router\" />
+      <sourceFolder url="file://$MODULE_DIR$/src/AvocadoView" isTestSource="false" packagePrefix="Avocado\AvocadoView\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-ctype" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian/environment" />
