@@ -8,6 +8,7 @@ class View {
     private string $parsedView = "";
 
     private string $variablePattern = '/@var\((.*?)\)/';
+    private string $eachPattern = '@each\((.*?)\)\)\s*{\s*(.*)\s*\s*}/gm';
 
     /**
      * @param string $filename
@@ -37,11 +38,12 @@ class View {
     }
 
     private function parseLineToHTML(string $line) {
-        preg_match_all($this->variablePattern, $line, $matches);
+        preg_match_all($this->variablePattern, $line, $variableMatches);
 
-        if (!empty($matches[0])) {
-            $statements = $matches[0];
-            $variablesNames = $matches[1];
+        // variables
+        if (!empty($variableMatches[0])) {
+            $statements = $variableMatches[0];
+            $variablesNames = $variableMatches[1];
 
             for ($statementIndex = 0; $statementIndex < count($statements); $statementIndex++) {
                 $statement = $statements[$statementIndex];
