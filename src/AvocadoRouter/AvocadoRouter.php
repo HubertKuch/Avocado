@@ -72,7 +72,7 @@ class AvocadoRouter {
         $method = $_SERVER['REQUEST_METHOD'];
 
         if (count($_GET) > 0) {
-            $actPath = explode("?", $actPath)[0]."/";
+            $actPath = explode("?", $actPath)[0];
         }
 
         // LISTEN ROUTES
