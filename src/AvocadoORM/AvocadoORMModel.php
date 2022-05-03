@@ -6,6 +6,7 @@ use ReflectionException;
 
 const TABLE = 'Avocado\ORM\Table';
 const ID = 'Avocado\ORM\ID';
+const IGNORE_FIELD_TYPE = __NAMESPACE__."\IgnoreFieldType";
 
 class AvocadoORMModel extends AvocadoORMSettings {
     protected string $model;
@@ -94,8 +95,16 @@ class AvocadoORMModel extends AvocadoORMSettings {
         }
     }
 
+    /**
+     * @throws ReflectionException
+     */
     protected function isModelPropertyIsType(string $property, string $type): bool {
         $reflectionProperty = new \ReflectionProperty($this->model, $property);
+
+        if (!empty($reflectionProperty->getAttributes(IGNORE_FIELD_TYPE))) {
+            return true;
+        }
+
         $propertyType = $reflectionProperty -> getType()->getName();
         $type = match ($type) {
             "integer" => "int",

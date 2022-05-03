@@ -2,6 +2,8 @@
 
 namespace Avocado\ORM;
 
+use ReflectionException;
+
 const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
 const FIELD = 'Avocado\ORM\Field';
 
@@ -12,6 +14,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
 
     /**
      * @throws AvocadoRepositoryException
+     * @throws ReflectionException
      */
     private function checkIsCriteriaTypesAreCompatibleWithModel(array $criteria) {
         foreach ($criteria as $key => $value) {
@@ -28,6 +31,10 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         }
     }
 
+    /**
+     * @throws ReflectionException
+     * @throws AvocadoRepositoryException
+     */
     private function provideCriteria(string &$sql, array $criteria): void {
         $this->checkIsCriteriaTypesAreCompatibleWithModel($criteria);
 
@@ -42,6 +49,10 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $sql = substr($sql, 0,-4);
     }
 
+    /**
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
     private function provideUpdateCriteria(string &$sql, array $criteria): void {
         $this->checkIsCriteriaTypesAreCompatibleWithModel($criteria);
 
@@ -78,7 +89,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $sql;
     }
 
-    private function query($sql) {
+    private function query($sql): bool|array {
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
 
@@ -86,7 +97,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     }
 
 
-    public function findMany(array $criteria = []) {
+    public function findMany(array $criteria = []): bool|array {
         $sql = "SELECT * FROM $this->tableName";
 
         if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
@@ -117,7 +128,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     }
 
 
-    public function findOneToManyRelation(array|FindForeign $findCriteria, ?array $criteria = []) {
+    public function findOneToManyRelation(array|FindForeign $findCriteria, ?array $criteria = []): bool|array {
         $sql = $this->formatSubQuery($findCriteria);
 
         return $this->query($sql);

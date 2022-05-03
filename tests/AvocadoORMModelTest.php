@@ -2,8 +2,12 @@
 
 namespace Avocado\Tests\Unit;
 
+use Avocado\ORM\AvocadoORMSettings;
+use Avocado\ORM\AvocadoRepository;
+use Avocado\ORM\AvocadoRepositoryException;
 use Avocado\ORM\Field;
 use Avocado\ORM\Id;
+use Avocado\ORM\IgnoreFieldType;
 use Avocado\ORM\Table;
 use PHPUnit\Framework\TestCase;
 use Avocado\ORM\AvocadoORMModel;
@@ -22,6 +26,19 @@ class TestModelWithoutPassedId {
     private int $id;
     #[Field]
     private string $field;
+}
+
+enum UserRole: string {
+    case ADMIN = 'ADMIN';
+    case USER = 'USER';
+}
+
+#[Table('table3')]
+class TableWithIgnoringType{
+    #[Id]
+    private int $id;
+    #[IgnoreFieldType]
+    private UserRole $role;
 }
 
 class AvocadoORMModelTest extends TestCase {

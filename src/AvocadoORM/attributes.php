@@ -72,3 +72,6 @@ class Id {
         return $this->constraint;
     }
 }
+
+#[\Attribute]
+class IgnoreFieldType {}
