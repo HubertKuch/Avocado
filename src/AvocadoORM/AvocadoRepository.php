@@ -90,6 +90,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     }
 
     private function query($sql): bool|array {
+        echo $sql;
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
 
@@ -216,7 +217,9 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
                 $valueOfProperty = $refToProperty->getValue($object);
                 $propertyType = gettype($valueOfProperty);
 
-                if ($propertyType == "string") {
+                if (is_null($valueOfProperty)) {
+                    $output .= $isFirstProperty ? " NULL " : ", NULL";
+                } else if ($propertyType == "string") {
                     $output .= $isFirstProperty ? " \"$valueOfProperty\" " : " , \"$valueOfProperty\"";
                 } else {
                     $output .= $isFirstProperty ? " $valueOfProperty " : " , $valueOfProperty";
