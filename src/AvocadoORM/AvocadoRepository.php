@@ -90,7 +90,6 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     }
 
     private function query($sql): bool|array {
-        echo $sql;
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
 
