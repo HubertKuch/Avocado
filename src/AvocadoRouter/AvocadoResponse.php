@@ -2,6 +2,8 @@
 
 namespace Avocado\Router;
 
+use Avocado\AvocadoRouter\HTTPStatus;
+
 class AvocadoResponse {
     public function write($data): AvocadoResponse {
         if (is_array($data) || is_object($data)) {
@@ -14,8 +16,8 @@ class AvocadoResponse {
         return $this;
     }
 
-    public function withStatus(int $status): AvocadoResponse{
-        http_response_code($status);
+    public function withStatus(HTTPStatus|int $status): AvocadoResponse{
+        http_response_code($status instanceof HTTPStatus ? $status->value : $status);
 
         return $this;
     }
