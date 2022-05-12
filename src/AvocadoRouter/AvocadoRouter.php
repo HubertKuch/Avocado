@@ -2,6 +2,8 @@
 
 namespace Avocado\Router;
 
+use Avocado\AvocadoRouter\utils\HTTPMethod;
+
 class AvocadoRouter {
     private static array $routesStack = array();
     private static array $middlewareStack = array();
@@ -25,36 +27,36 @@ class AvocadoRouter {
         self::$isNext = false;
     }
 
-    private static function addEndpointToStack(string $method, string $endpoint, array $middleware, callable $callback){
+    private static function addEndpointToStack(HTTPMethod|string $method, string $endpoint, array $middleware, callable $callback){
         if ($endpoint[0] === "/") $endpoint = substr($endpoint, 1);
         if (strlen($endpoint > 0) && $endpoint[-1] === "/") $endpoint = substr($endpoint, 0, -1);
         $endpoint = trim($endpoint);
 
         self::$routesStack[] = array(
-            "ROUTE" => new AvocadoRoute(strtoupper($method), $endpoint),
+            "ROUTE" => new AvocadoRoute(strtoupper($method instanceof HTTPMethod ? $method->value : $method), $endpoint),
             "CALLBACK" => $callback,
             "MIDDLEWARE" => $middleware
         );
     }
 
     public static function GET(string $endpoint, array $middleware, callable $callback): void {
-        self::addEndpointToStack("GET", $endpoint, $middleware, $callback);
+        self::addEndpointToStack(HTTPMethod::GET, $endpoint, $middleware, $callback);
     }
 
     public static function POST(string $endpoint, array $middleware, callable $callback): void {
-        self::addEndpointToStack("POST", $endpoint, $middleware, $callback);
+        self::addEndpointToStack(HTTPMethod::POST, $endpoint, $middleware, $callback);
     }
 
     public static function DELETE(string $endpoint, array $middleware, callable $callback): void {
-        self::addEndpointToStack("DELETE", $endpoint, $middleware, $callback);
+        self::addEndpointToStack(HTTPMethod::DELETE, $endpoint, $middleware, $callback);
     }
 
     public static function PATCH(string $endpoint, array $middleware, callable $callback): void {
-        self::addEndpointToStack("PATCH", $endpoint, $middleware, $callback);
+        self::addEndpointToStack(HTTPMethod::PATCH, $endpoint, $middleware, $callback);
     }
 
     public static function ANY(string $endpoint, array $middleware, callable $callback): void {
-        self::addEndpointToStack("PATCH", $endpoint, $middleware, $callback);
+        self::addEndpointToStack("*", $endpoint, $middleware, $callback);
     }
 
     private static function provideSettings(AvocadoRequest $req, AvocadoResponse $res): void {
@@ -63,11 +65,25 @@ class AvocadoRouter {
         }
     }
 
+    private static function setRequestMethod(): void {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $postBodyCopy = json_decode(json_encode($_POST), true);
+        $postBodyCopy = array_change_key_case($postBodyCopy, CASE_LOWER);
+
+        if (array_key_exists("_method", $postBodyCopy)) $method = $_POST['_method'];
+
+        $_SERVER['REQUEST_METHOD'] = $method;
+    }
+
     public static function listen(): void {
+        self::setRequestMethod();
+        echo $_SERVER['REQUEST_METHOD'];
+
         $actPath = str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['PHP_SELF']);
         $actPath = trim($actPath);
         if ($actPath && $actPath[0] === "/") $actPath = substr($actPath, 1);
         if (strlen($actPath) > 0 && $actPath[-1] === "/") $actPath = substr($actPath, 0, -1);
+
 
         $method = $_SERVER['REQUEST_METHOD'];
 
@@ -96,6 +112,7 @@ class AvocadoRouter {
             $isMiddlewareThrowNext = true;
 
             $req = new AvocadoRequest($params);
+            $req->method = $method;
             $res = new AvocadoResponse();
 
             self::provideSettings($req, $res);

@@ -15,6 +15,7 @@ class AvocadoRequest {
         $this->query = $_GET;
         $this->cookies = $_COOKIE;
         $this->params = $params;
-        $this->headers = getallheaders();
+        $this->headers = self::getAllHeaders();
+        $this->method = $_SERVER['REQUEST_METHOD'];
     }
 }
