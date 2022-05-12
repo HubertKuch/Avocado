@@ -77,7 +77,6 @@ class AvocadoRouter {
 
     public static function listen(): void {
         self::setRequestMethod();
-        echo $_SERVER['REQUEST_METHOD'];
 
         $actPath = str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['PHP_SELF']);
         $actPath = trim($actPath);
