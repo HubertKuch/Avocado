@@ -240,11 +240,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $columnStatement = "(";
 
         foreach ($ref->getProperties() as $property) {
-            $isSetAlternativeFieldName = !empty($property->getAttributes(FIELD));
             $propertyName = $property->getName();
 
-            if(!$isSetAlternativeFieldName && !empty($property->getAttributes()[0]->getArguments())) {
-                $propertyName = $property->getAttributes()[0]->getArguments()[0];
+            if (!empty($property->getAttributes(FIELD))) {
+                if(!empty($property->getAttributes(FIELD)[0]->getArguments())) {
+                    $propertyName = $property->getAttributes(FIELD)[0]->getArguments()[0];
+                }
             }
 
             $columnStatement.="$propertyName,";
