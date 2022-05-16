@@ -235,8 +235,31 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $output;
     }
 
+    private function getInsertColumns(object $object): string {
+        $ref = new \ReflectionClass($object);
+        $columnStatement = "(";
+
+        foreach ($ref->getProperties() as $property) {
+            $isSetAlternativeFieldName = !empty($property->getAttributes(FIELD));
+            $propertyName = $property->getName();
+
+            if(!$isSetAlternativeFieldName && !empty($property->getAttributes()[0]->getArguments())) {
+                $propertyName = $property->getAttributes()[0]->getArguments()[0];
+            }
+
+            $columnStatement.="$propertyName,";
+        }
+
+        if (str_ends_with($columnStatement, ",")) {
+            $columnStatement = substr($columnStatement, 0, -1);
+        }
+
+        return $columnStatement.")";
+    }
+
     public function save(object $entity) {
-        $sql = "INSERT INTO $this->tableName VALUES (NULL, ";
+        $insertColumnStatement = $this->getInsertColumns($entity);
+        $sql = "INSERT INTO $this->tableName $insertColumnStatement VALUES (NULL, ";
         $sql.=$this->getObjectAttributesAsSQLString($entity);
         $sql.=")";
 
@@ -244,7 +267,8 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     }
 
     public function saveMany(...$entities) {
-        $sql = "INSERT INTO $this->tableName VALUES ";
+        $insertColumnStatement = $this->getInsertColumns((object)$entities[0]);
+        $sql = "INSERT INTO $this->tableName $insertColumnStatement VALUES ";
 
         foreach ($entities as $entity) {
             $sql .= "(NULL, ";
