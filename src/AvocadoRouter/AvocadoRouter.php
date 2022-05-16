@@ -55,6 +55,10 @@ class AvocadoRouter {
         self::addEndpointToStack(HTTPMethod::PATCH, $endpoint, $middleware, $callback);
     }
 
+    public static function PUT(string $endpoint, array $middleware, callable $callable): void {
+        self::addEndpointToStack(HTTPMethod::PUT, $endpoint, $middleware, $callable);
+    }
+
     public static function ANY(string $endpoint, array $middleware, callable $callback): void {
         self::addEndpointToStack("*", $endpoint, $middleware, $callback);
     }
@@ -66,13 +70,7 @@ class AvocadoRouter {
     }
 
     private static function setRequestMethod(): void {
-        $method = $_SERVER['REQUEST_METHOD'];
-        $postBodyCopy = json_decode(json_encode($_POST), true);
-        $postBodyCopy = array_change_key_case($postBodyCopy, CASE_LOWER);
 
-        if (array_key_exists("_method", $postBodyCopy)) $method = $_POST['_method'];
-
-        $_SERVER['REQUEST_METHOD'] = $method;
     }
 
     public static function listen(): void {
