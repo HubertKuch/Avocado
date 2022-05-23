@@ -20,7 +20,7 @@
             "email": "kuchhubert@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "homepage": "https://avocadoframework.com",
     "version": "1.0.0",
     "require": {
