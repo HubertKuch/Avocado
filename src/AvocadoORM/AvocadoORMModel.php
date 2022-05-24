@@ -19,7 +19,7 @@ class AvocadoORMModel extends AvocadoORMSettings {
 
     public function __construct($model) {
         if (!is_string($model)) {
-            throw new \TypeError(sprintf("Model must be string who referent to class ddefinition, passed %s", gettype($model)));
+            throw new \TypeError(sprintf("Model must be string who referent to class definition, passed %s", gettype($model)));
         }
 
         $this -> model = $model;

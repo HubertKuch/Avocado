@@ -22,7 +22,7 @@
     ],
     "minimum-stability": "stable",
     "homepage": "https://avocadoframework.com",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "require": {
         "phpunit/phpunit": "9.5.18",
         "ext-dom": "*",

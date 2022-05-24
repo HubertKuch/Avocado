@@ -5,8 +5,6 @@ namespace Avocado\Tests\Unit;
 use Avocado\ORM\Field;
 use Avocado\ORM\Id;
 use Avocado\ORM\Table;
-use phpDocumentor\Reflection\Types\Void_;
-use PhpParser\Builder\Use_;
 use PHPUnit\Framework\TestCase;
 use Avocado\ORM\AvocadoRepository;
 use Avocado\ORM\AvocadoORMSettings;
@@ -24,7 +22,7 @@ class TestUser {
     private string $username;
     #[Field]
     private string $password;
-    #[Field]
+    #[Field('amount')]
     private float $amount;
 
     public function __construct(string $username, string $password, float $amount) {
@@ -32,9 +30,21 @@ class TestUser {
         $this->password = $password;
         $this->amount = $amount;
     }
+
+    public function getAmount(): float {
+        return $this->amount;
+    }
 }
 
 class AvocadoRepositoryTest extends TestCase {
+    public function testCreatingNewModelInstancesByEntity() {
+        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+
+        $usersRepo = new AvocadoRepository(TestUser::class);
+
+        self::assertTrue((($usersRepo -> findMany())[0]) instanceof TestUser);
+    }
+
     public function testFindManyActionWithoutCriteria(): void {
         AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
         $usersRepo = new AvocadoRepository(TestUser::class);
@@ -56,7 +66,7 @@ class AvocadoRepositoryTest extends TestCase {
 
         $usersRepo = new AvocadoRepository(TestUser::class);
 
-        self::assertIsArray($usersRepo -> findOne(array(
+        self::assertIsObject($usersRepo -> findOne(array(
             "username" => "test1"
         )));
     }
@@ -66,12 +76,13 @@ class AvocadoRepositoryTest extends TestCase {
 
         $usersRepo = new AvocadoRepository(TestUser::class);
 
-        self::assertIsArray($usersRepo -> findOne(array(
+        self::assertIsObject($usersRepo -> findOne(array(
             "username" => "%test%"
         )));
     }
 
-    public function testUpdateMany(): void {
+    public function testUpdateMany() {
+
         AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
 
         $usersRepo = new AvocadoRepository(TestUser::class);
@@ -81,7 +92,7 @@ class AvocadoRepositoryTest extends TestCase {
 
         $excepted = 10.0;
 
-        self::assertSame($excepted, $updatedUsers[0]['amount']);
+        self::assertSame($excepted, $updatedUsers[0]->getAmount());
         $usersRepo -> updateMany(array("amount" => 2.0));
     }
 

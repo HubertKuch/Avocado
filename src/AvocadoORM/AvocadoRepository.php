@@ -92,10 +92,49 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     private function query($sql): bool|array {
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
+        $data = $stmt->fetchAll(\PDO::FETCH_CLASS);
+        $entities = [];
 
-        return $stmt->fetchAll(self::_getFetchOption());
+        foreach ($data as $entity) {
+            $entities[] = $this->sqlEntityToObject($entity);
+        }
+
+        return $entities;
     }
 
+    private function sqlEntityToObject(object $entity): object {
+        $modelReflection = new \ReflectionClass($this->model);
+        $modelProperties = $modelReflection->getProperties();
+
+        $entityReflection = new \ReflectionObject($entity);
+        $entityProperties = $entityReflection->getProperties();
+
+        $instance = $modelReflection->newInstanceWithoutConstructor();
+        $instanceReflection = new \ReflectionObject($instance);
+
+        foreach ($modelProperties as $modelProperty) {
+            $field = $modelProperty->getAttributes(FIELD)[0] ?? null;
+            $primaryKey = $modelProperty->getAttributes(ID)[0] ?? null;
+            $modelPropertyName = $modelProperty->getName();
+            $entityPropertyName = $modelProperty->getName();
+
+            if (($field && empty($field->getArguments())) || ($primaryKey && empty($primaryKey->getArguments()))) {
+                $entityPropertyName = $modelProperty->getName();
+            } else if ($field && !empty($field->getArguments())) {
+                $entityPropertyName = $field->getArguments()[0];
+            } else if ($primaryKey && !empty($primaryKey->getArguments())) {
+                $entityPropertyName = $primaryKey->getArguments()[0];
+            }
+
+            $entityPropertyValue = $entityReflection -> getProperty($entityPropertyName) -> getValue($entity);
+
+            $instanceProperty = $instanceReflection -> getProperty($modelPropertyName);
+            $instanceProperty -> setAccessible(true);
+            $instanceProperty -> setValue($instance, $entityPropertyValue);
+        }
+
+        return $instance;
+    }
 
     public function findMany(array $criteria = []): bool|array {
         $sql = "SELECT * FROM $this->tableName";
@@ -127,12 +166,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return empty($res) ? null : $res[0];
     }
 
-
     public function findOneToManyRelation(array|FindForeign $findCriteria, ?array $criteria = []): bool|array {
         $sql = $this->formatSubQuery($findCriteria);
 
         return $this->query($sql);
     }
+
 
     /**
      * @throws AvocadoRepositoryException
