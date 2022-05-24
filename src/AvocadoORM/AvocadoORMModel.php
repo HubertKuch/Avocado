@@ -4,12 +4,14 @@ namespace Avocado\ORM;
 
 use ReflectionException;
 
-const TABLE = 'Avocado\ORM\Table';
-const ID = 'Avocado\ORM\ID';
-const IGNORE_FIELD_TYPE = __NAMESPACE__."\IgnoreFieldType";
 
 class AvocadoORMModel extends AvocadoORMSettings {
+    const TABLE = __NAMESPACE__."\Attributes\Table";
+    const ID = __NAMESPACE__."\Attributes\Id";
+    const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
+
     protected string $model;
+
     private \ReflectionClass $ref;
     private array $attrs;
     private array $properties;
@@ -37,7 +39,7 @@ class AvocadoORMModel extends AvocadoORMSettings {
         $tableName = '';
 
         foreach($this->attrs as $attr) {
-            if ($attr->getName() == TABLE) {
+            if ($attr->getName() == self::TABLE) {
                 $val = $attr->getArguments();
                 if (!empty($val)) {
                     $tableName = $val[0];
@@ -63,7 +65,7 @@ class AvocadoORMModel extends AvocadoORMSettings {
 
         foreach($this->properties as $property) {
             $ref = new \ReflectionProperty($this->model, $property->getName());
-            $idAttr = $ref->getAttributes(ID);
+            $idAttr = $ref->getAttributes(self::ID);
 
             if (!empty($idAttr)) {
                 if (count($idAttr) > 1) {
@@ -101,7 +103,7 @@ class AvocadoORMModel extends AvocadoORMSettings {
     protected function isModelPropertyIsType(string $property, string $type): bool {
         $reflectionProperty = new \ReflectionProperty($this->model, $property);
 
-        if (!empty($reflectionProperty->getAttributes(IGNORE_FIELD_TYPE))) {
+        if (!empty($reflectionProperty->getAttributes(self::IGNORE_FIELD_TYPE))) {
             return true;
         }
 

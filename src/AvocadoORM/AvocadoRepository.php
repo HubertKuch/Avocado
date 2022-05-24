@@ -4,10 +4,16 @@ namespace Avocado\ORM;
 
 use ReflectionException;
 
-const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
-const FIELD = 'Avocado\ORM\Field';
-
 class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActions {
+    const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
+    const TABLE = __NAMESPACE__."\Attributes\Table";
+    const ID = __NAMESPACE__."\Attributes\Id";
+    const FIELD = __NAMESPACE__."\Attributes\Field";
+    const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
+
+    /**
+     * @param $model
+     */
     public function __construct($model) {
         parent::__construct($model);
     }
@@ -66,6 +72,10 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $sql = substr($sql, 0, -2);
     }
 
+    /**
+     * @param array|FindForeign $findCriteria
+     * @return string
+     */
     private function formatSubQuery(array|FindForeign $findCriteria): string {
         if ($findCriteria instanceof FindForeign) {
             $findCriteria = $findCriteria->criteria;
@@ -89,6 +99,10 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $sql;
     }
 
+    /**
+     * @param $sql
+     * @return bool|array
+     */
     private function query($sql): bool|array {
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
@@ -102,6 +116,11 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $entities;
     }
 
+    /**
+     * @param object $entity
+     * @return object
+     * @throws ReflectionException
+     */
     private function sqlEntityToObject(object $entity): object {
         $modelReflection = new \ReflectionClass($this->model);
         $modelProperties = $modelReflection->getProperties();
@@ -113,8 +132,8 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $instanceReflection = new \ReflectionObject($instance);
 
         foreach ($modelProperties as $modelProperty) {
-            $field = $modelProperty->getAttributes(FIELD)[0] ?? null;
-            $primaryKey = $modelProperty->getAttributes(ID)[0] ?? null;
+            $field = $modelProperty->getAttributes(self::FIELD)[0] ?? null;
+            $primaryKey = $modelProperty->getAttributes(self::ID)[0] ?? null;
             $modelPropertyName = $modelProperty->getName();
             $entityPropertyName = $modelProperty->getName();
 
@@ -136,6 +155,13 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $instance;
     }
 
+
+    /**
+     * @param array $criteria
+     * @return bool|array
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
     public function findMany(array $criteria = []): bool|array {
         $sql = "SELECT * FROM $this->tableName";
 
@@ -143,6 +169,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $this->query($sql);
     }
 
+    /**
+     * @param array $criteria
+     * @return array|bool
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
     public function findOne(array $criteria = []) {
         $sql = "SELECT * FROM $this->tableName";
 
@@ -154,6 +186,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return empty($res) ? null : $res[0];
     }
 
+    /**
+     * @param $id
+     * @return mixed|null
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
     public function findOneById($id) {
         $sql = "SELECT * FROM $this->tableName";
 
@@ -166,6 +204,11 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return empty($res) ? null : $res[0];
     }
 
+    /**
+     * @param array|FindForeign $findCriteria
+     * @param array|null $criteria
+     * @return bool|array
+     */
     public function findOneToManyRelation(array|FindForeign $findCriteria, ?array $criteria = []): bool|array {
         $sql = $this->formatSubQuery($findCriteria);
 
@@ -174,11 +217,11 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
 
 
     /**
-     * @throws AvocadoRepositoryException
+     * @throws AvocadoRepositoryException|ReflectionException
      */
     public function updateMany(array $updateCriteria, array $criteria = []) {
         if (empty($updateCriteria)) {
-            throw new AvocadoRepositoryException(EXCEPTION_UPDATE_CRITERIA_MESSAGE);
+            throw new AvocadoRepositoryException(self::EXCEPTION_UPDATE_CRITERIA_MESSAGE);
         }
 
         $sql = "UPDATE $this->tableName SET ";
@@ -194,7 +237,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
      */
     public function updateOne(array $updateCriteria, array $criteria = []) {
         if (empty($updateCriteria)) {
-            throw new AvocadoRepositoryException(EXCEPTION_UPDATE_CRITERIA_MESSAGE);
+            throw new AvocadoRepositoryException(self::EXCEPTION_UPDATE_CRITERIA_MESSAGE);
         }
 
         $sql = "UPDATE $this->tableName SET ";
@@ -212,7 +255,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
      */
     public function updateOneById(array $updateCriteria, string|int $id) {
         if (empty($updateCriteria)) {
-            throw new AvocadoModelException(EXCEPTION_UPDATE_CRITERIA_MESSAGE);
+            throw new AvocadoModelException(self::EXCEPTION_UPDATE_CRITERIA_MESSAGE);
         }
 
         $sql = "UPDATE $this->tableName SET ";
@@ -226,6 +269,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
     }
 
 
+    /**
+     * @param array $criteria
+     * @return void
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
     public function deleteMany(array $criteria) {
         $sql = "DELETE FROM $this->tableName ";
         $this->provideCriteria($sql, $criteria);
@@ -233,6 +282,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $this->query($sql);
     }
 
+    /**
+     * @param int|string $id
+     * @return void
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
     public function deleteOneById(int|string $id) {
         $sql = "DELETE FROM $this->tableName ";
         $this->provideCriteria($sql, array(
@@ -242,6 +297,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $this->query($sql);
     }
 
+    /**
+     * @param object $object
+     * @return string
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
     private function getObjectAttributesAsSQLString(object $object): string {
         $ref = new \ReflectionClass($object);
         $output = "";
@@ -249,7 +310,7 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
 
         foreach ($ref->getProperties() as $property) {
             $refToProperty = new \ReflectionProperty(get_class($object), $property->getName());
-            $isEntityField = !empty($refToProperty->getAttributes(FIELD));
+            $isEntityField = !empty($refToProperty->getAttributes(self::FIELD));
 
             if ($isEntityField) {
                 $valueOfProperty = $refToProperty->getValue($object);
@@ -274,6 +335,10 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $output;
     }
 
+    /**
+     * @param object $object
+     * @return string
+     */
     private function getInsertColumns(object $object): string {
         $ref = new \ReflectionClass($object);
         $columnStatement = "(";
@@ -281,9 +346,9 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         foreach ($ref->getProperties() as $property) {
             $propertyName = $property->getName();
 
-            if (!empty($property->getAttributes(FIELD))) {
-                if(!empty($property->getAttributes(FIELD)[0]->getArguments())) {
-                    $propertyName = $property->getAttributes(FIELD)[0]->getArguments()[0];
+            if (!empty($property->getAttributes(self::FIELD))) {
+                if(!empty($property->getAttributes(self::FIELD)[0]->getArguments())) {
+                    $propertyName = $property->getAttributes(self::FIELD)[0]->getArguments()[0];
                 }
             }
 
@@ -297,6 +362,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         return $columnStatement.")";
     }
 
+    /**
+     * @param object $entity
+     * @return void
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
     public function save(object $entity) {
         $insertColumnStatement = $this->getInsertColumns($entity);
         $sql = "INSERT INTO $this->tableName $insertColumnStatement VALUES (NULL, ";
@@ -306,6 +377,12 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $this->query($sql);
     }
 
+    /**
+     * @param ...$entities
+     * @return void
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
     public function saveMany(...$entities) {
         $insertColumnStatement = $this->getInsertColumns((object)$entities[0]);
         $sql = "INSERT INTO $this->tableName $insertColumnStatement VALUES ";
@@ -321,11 +398,18 @@ class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActi
         $this->query($sql);
     }
 
+    /**
+     * @return void
+     */
     public function truncate() {
         $this->query("TRUNCATE TABLE $this->tableName");
     }
 
 
+    /**
+     * @param string $to
+     * @return void
+     */
     public function renameTo(string $to) {
         $this->query("ALTER TABLE $this->tableName RENAME TO $to");
     }

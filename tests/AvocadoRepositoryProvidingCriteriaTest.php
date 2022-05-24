@@ -2,9 +2,9 @@
 
 namespace Avocado\Tests\Unit;
 
-use Avocado\ORM\Field;
-use Avocado\ORM\Id;
-use Avocado\ORM\Table;
+use Avocado\ORM\Attributes\Field;
+use Avocado\ORM\Attributes\Table;
+use Avocado\ORM\Attributes\Id;
 use PHPUnit\Framework\TestCase;
 use Avocado\ORM\AvocadoRepository;
 use Avocado\ORM\AvocadoRepositoryException;
