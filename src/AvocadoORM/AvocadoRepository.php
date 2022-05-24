@@ -4,7 +4,7 @@ namespace Avocado\ORM;
 
 use ReflectionException;
 
-class AvocadoRepository extends AvocadoORMModel implements AvocadoRepositoryActions {
+class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions {
     const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
     const TABLE = __NAMESPACE__."\Attributes\Table";
     const ID = __NAMESPACE__."\Attributes\Id";

@@ -10,7 +10,7 @@ class AvocadoORMSettings {
     /**
      * @throws AvocadoRepositoryException
      */
-    public static function useDatabase(string $dsn, string $user, string $pass) {
+    public static function useDatabase(string $dsn, string $user, string $pass): void {
         try {
             self::$settings['CONNECTION'] = new \PDO($dsn, $user, $pass);
         } catch (\PDOException $e) {

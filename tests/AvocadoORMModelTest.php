@@ -2,7 +2,7 @@
 
 namespace Avocado\Tests\Unit;
 
-use Avocado\ORM\AvocadoORMModel;
+use Avocado\ORM\AvocadoModel;
 use Avocado\ORM\Attributes\IgnoreFieldType;
 use Avocado\ORM\Attributes\Field;
 use Avocado\ORM\Attributes\Table;
@@ -40,7 +40,7 @@ class TableWithIgnoringType{
 
 class AvocadoORMModelTest extends TestCase {
     public function testModelPrimaryKeyWithPassedItAsString(): void {
-        $model = new AvocadoORMModel(TestModelWithIdAsString::class);
+        $model = new AvocadoModel(TestModelWithIdAsString::class);
 
         $reflectionToModel = new \ReflectionClass($model);
         $primaryKey = $reflectionToModel->getProperty('primaryKey')->getValue($model);
@@ -49,7 +49,7 @@ class AvocadoORMModelTest extends TestCase {
     }
 
     public function testModelPrimaryKeyWithoutPassingIt(): void {
-        $model = new AvocadoORMModel(TestModelWithoutPassedId::class);
+        $model = new AvocadoModel(TestModelWithoutPassedId::class);
 
         $reflectionToModel = new \ReflectionClass($model);
         $primaryKey = $reflectionToModel->getProperty('primaryKey')->getValue($model);
@@ -58,7 +58,7 @@ class AvocadoORMModelTest extends TestCase {
     }
 
     public function testTableName(): void {
-        $model = new AvocadoORMModel(TestModelWithIdAsString::class);
+        $model = new AvocadoModel(TestModelWithIdAsString::class);
         $ref = new \ReflectionClass($model);
         $tableName = $ref->getProperty('tableName')->getValue($model);
 

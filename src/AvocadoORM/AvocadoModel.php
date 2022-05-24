@@ -5,7 +5,7 @@ namespace Avocado\ORM;
 use ReflectionException;
 
 
-class AvocadoORMModel extends AvocadoORMSettings {
+class AvocadoModel extends AvocadoORMSettings {
     const TABLE = __NAMESPACE__."\Attributes\Table";
     const ID = __NAMESPACE__."\Attributes\Id";
     const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
