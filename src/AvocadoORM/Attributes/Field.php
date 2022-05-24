@@ -8,7 +8,7 @@ class Field {
     protected string $type;
     protected string $constraint;
 
-    public function __construct(string $field, string $type) {
+    public function __construct(string $field = "", string $type = "") {
         $this->field = $field;
         $this->type = $type;
     }
