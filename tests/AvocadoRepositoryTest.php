@@ -36,6 +36,8 @@ class TestUser {
     }
 }
 
+$usersRepo = new AvocadoRepository(TestUser::class);
+
 class AvocadoRepositoryTest extends TestCase {
     public function testCreatingNewModelInstancesByEntity() {
         AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
@@ -55,6 +57,8 @@ class AvocadoRepositoryTest extends TestCase {
     public function testFindManyActionWithCriteria(): void {
         AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
         $usersRepo = new AvocadoRepository(TestUser::class);
+
+
 
         self::assertIsArray($usersRepo -> findMany(array(
             "username" => "test1"

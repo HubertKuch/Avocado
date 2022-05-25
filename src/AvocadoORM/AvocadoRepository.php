@@ -2,8 +2,12 @@
 
 namespace Avocado\ORM;
 
+use PDO;
 use ReflectionException;
 
+/**
+ * @template T
+ */
 class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions {
     const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
     const TABLE = __NAMESPACE__."\Attributes\Table";
@@ -12,7 +16,8 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
     const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
 
     /**
-     * @param $model
+     * @param class-string<T> $model
+     * @return void
      */
     public function __construct($model) {
         parent::__construct($model);
@@ -100,13 +105,14 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
     }
 
     /**
-     * @param $sql
-     * @return bool|array
+     * @param string $sql
+     * @return array<T>
+     * @throws ReflectionException
      */
-    private function query($sql): bool|array {
+    private function query(string $sql): array {
         $stmt = self::_getConnection()->prepare($sql);
         $stmt -> execute();
-        $data = $stmt->fetchAll(\PDO::FETCH_CLASS);
+        $data = $stmt->fetchAll(PDO::FETCH_CLASS);
         $entities = [];
 
         foreach ($data as $entity) {
@@ -158,20 +164,20 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
 
     /**
      * @param array $criteria
-     * @return bool|array
+     * @return array<T>
      * @throws AvocadoRepositoryException
      * @throws ReflectionException
      */
-    public function findMany(array $criteria = []): bool|array {
+    public function findMany(array $criteria = []): array {
         $sql = "SELECT * FROM $this->tableName";
 
         if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
-        return $this->query($sql);
+        return ($this->query($sql)) ?: [];
     }
 
     /**
      * @param array $criteria
-     * @return array|bool
+     * @return T|null
      * @throws AvocadoRepositoryException
      * @throws ReflectionException
      */
@@ -187,12 +193,12 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
     }
 
     /**
-     * @param $id
-     * @return mixed|null
+     * @param int|string $id
+     * @return T|null
      * @throws AvocadoRepositoryException
      * @throws ReflectionException
      */
-    public function findOneById($id) {
+    public function findOneById(int|string $id) {
         $sql = "SELECT * FROM $this->tableName";
 
         $this->provideCriteria($sql, array(
@@ -215,6 +221,10 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
         return $this->query($sql);
     }
 
+    public function paginate(int $limit, int $offset): array {
+        $sql = "SELECT * FROM $this->tableName LIMIT $limit OFFSET $offset";
+        return $this->query($sql);
+    }
 
     /**
      * @throws AvocadoRepositoryException|ReflectionException
@@ -369,6 +379,12 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
      * @throws ReflectionException
      */
     public function save(object $entity) {
+        $isUserExists = $this->ref->getProperty($this->primaryKey)->isInitialized($entity);
+
+        if($isUserExists) {
+            $id = $this->ref->getProperty($this->primaryKey)->getValue($entity);
+        }
+
         $insertColumnStatement = $this->getInsertColumns($entity);
         $sql = "INSERT INTO $this->tableName $insertColumnStatement VALUES (NULL, ";
         $sql.=$this->getObjectAttributesAsSQLString($entity);
