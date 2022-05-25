@@ -7,7 +7,10 @@ use Avocado\AvocadoRouter\HTTPStatus;
 class AvocadoResponse {
     public function write($data): AvocadoResponse {
         if (is_array($data) || is_object($data)) {
+            echo "<pre>";
             var_dump($data);
+            echo "</pre>";
+
             return $this;
         }
 
