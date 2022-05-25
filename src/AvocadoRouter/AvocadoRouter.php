@@ -2,7 +2,7 @@
 
 namespace Avocado\Router;
 
-use Avocado\AvocadoRouter\utils\HTTPMethod;
+use Avocado\HTTP\HTTPMethod;
 
 class AvocadoRouter {
     private static array $routesStack = array();

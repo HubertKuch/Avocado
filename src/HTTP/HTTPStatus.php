@@ -1,6 +1,6 @@
 <?php
 
-namespace Avocado\AvocadoRouter;
+namespace Avocado\HTTP;
 
 enum HTTPStatus: int {
     case CONTINUE = 100;

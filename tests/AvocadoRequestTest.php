@@ -2,7 +2,7 @@
 
 namespace Avocado\Tests\Unit;
 
-use Avocado\AvocadoRouter\utils\HTTPMethod;
+use Avocado\HTTP\HTTPMethod;
 use Avocado\Router\AvocadoRouter;
 use PHPUnit\Framework\TestCase;
 

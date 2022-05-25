@@ -1,6 +1,6 @@
 <?php
 
-namespace Avocado\AvocadoRouter\utils;
+namespace Avocado\HTTP;
 
 enum HTTPMethod: string {
     case GET = "GET";

@@ -3,8 +3,11 @@
 namespace Avocado\ORM;
 
 use ReflectionException;
+use ReflectionClass;
 
-
+/**
+ * @template T
+ */
 class AvocadoModel extends AvocadoORMSettings {
     const TABLE = __NAMESPACE__."\Attributes\Table";
     const ID = __NAMESPACE__."\Attributes\Id";
@@ -12,24 +15,25 @@ class AvocadoModel extends AvocadoORMSettings {
 
     protected string $model;
 
-    private \ReflectionClass $ref;
+    protected ReflectionClass $ref;
     private array $attrs;
     private array $properties;
 
     protected string $primaryKey;
     protected string $tableName;
 
-    public function __construct($model) {
-        if (!is_string($model)) {
-            throw new \TypeError(sprintf("Model must be string who referent to class definition, passed %s", gettype($model)));
-        }
-
-        $this -> model = $model;
-        $this -> ref = new \ReflectionClass($model);
-        $this -> attrs = $this -> ref -> getAttributes();
-        $this -> properties = $this -> ref -> getProperties();
-        $this -> tableName = $this->getTableName();
-        $this -> primaryKey = $this->getPrimaryKey();
+    /**
+     * @param class-string<T> $model
+     */
+    public function __construct(string $model) {
+        try {
+            $this -> model = $model;
+            $this -> ref = new ReflectionClass($model);
+            $this -> attrs = $this -> ref -> getAttributes();
+            $this -> properties = $this -> ref -> getProperties();
+            $this -> tableName = $this->getTableName();
+            $this -> primaryKey = $this->getPrimaryKey();
+        } catch (\Exception $e) {}
     }
 
     /**

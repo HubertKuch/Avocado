@@ -2,7 +2,7 @@
 
 namespace Avocado\Tests\Unit;
 
-use Avocado\AvocadoRouter\HTTPStatus;
+use Avocado\HTTP\HTTPStatus;
 use Avocado\Router\AvocadoResponse;
 use PHPUnit\Framework\TestCase;
 
