@@ -3,6 +3,7 @@
 namespace Avocado\Tests\Unit;
 
 use Avocado\HTTP\HTTPMethod;
+use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoRouter;
 use PHPUnit\Framework\TestCase;
 
@@ -25,5 +26,14 @@ class AvocadoRequestTest extends TestCase {
         $excepted = HTTPMethod::PUT->value;
 
         self::assertSame($excepted, $_SERVER['REQUEST_METHOD']);
+    }
+
+    public function testGettingAuthorizationToken() {
+        $excepted = "123.456.789";
+
+        $req = new AvocadoRequest();
+        $req->headers['Authorization'] = "Bearer   $excepted";
+
+        self::assertSame($excepted, $req->getAuthorizationToken());
     }
 }

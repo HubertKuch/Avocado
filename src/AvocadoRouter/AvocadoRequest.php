@@ -21,6 +21,23 @@ class AvocadoRequest {
         return $headers;
     }
 
+    /**
+     * <p>Get authorization token from headers.</p>
+     * <p>For example from `Authorization: Bearer 123.456.789` get `123.456.789`.</p>
+     * <p>If token was not set then return null.
+     * @return string|null
+     * */
+    public function getAuthorizationToken(): string|null {
+        $authorizationHeader = $this->headers['Authorization'] ?? null;
+        $bearerLength = 7;
+
+        if ($authorizationHeader) {
+            return trim(substr($authorizationHeader, $bearerLength, strlen($authorizationHeader)));
+        }
+
+        return null;
+    }
+
     public function __construct(array $params = array()) {
         $this->body = $_POST;
         $this->query = $_GET;
