@@ -2,6 +2,8 @@
 
 namespace Avocado\Router;
 
+use phpDocumentor\Reflection\DocBlock\Tags\Since;
+
 class AvocadoRequest {
     public array $body;
     public array $query;
@@ -10,6 +12,8 @@ class AvocadoRequest {
     public array $headers;
     public array $locals;
     public string $method;
+    public string $fullURL;
+    public string $fullURLWithoutQuery;
 
     private function getAllHeaders(): array{
         $headers = [];
@@ -36,6 +40,16 @@ class AvocadoRequest {
         }
 
         return null;
+    }
+
+    public function getClientIP(): string {
+        $ipAddress = "";
+
+        if (array_key_exists("HTTP_CLIENT_IP", $_SERVER)) $ipAddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if (array_key_exists("HTTP_X_FORWARDED_FOR", $_SERVER)) $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if (array_key_exists("REMOTE_ADDR", $_SERVER)) $ipAddress = $_SERVER['REMOTE_ADDR'];
+
+        return $ipAddress;
     }
 
     public function __construct(array $params = array()) {

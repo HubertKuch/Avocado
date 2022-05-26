@@ -36,4 +36,20 @@ class AvocadoRequestTest extends TestCase {
 
         self::assertSame($excepted, $req->getAuthorizationToken());
     }
+
+    public function testGettingPassedClientIPAddress() {
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = "192.168.1.8";
+        $req = new AvocadoRequest();
+
+        self::assertSame($_SERVER['HTTP_X_FORWARDED_FOR'], $req->getClientIP());
+        unset($_SERVER['HTTP_X_FORWARDED_FOR']);
+    }
+
+    public function testGettingUndefinedClientIPAddress() {
+        $req = new AvocadoRequest();
+
+        var_dump($req->getClientIP());
+
+        self::assertEmpty($req->getClientIP());
+    }
 }
