@@ -52,4 +52,31 @@ class AvocadoRequestTest extends TestCase {
 
         self::assertEmpty($req->getClientIP());
     }
+
+    public function testHeaderWasSet() {
+        $req = new AvocadoRequest();
+        $req->headers['TEST_HEADER'] = "TEST_VALUE";
+
+        self::assertTrue($req->hasHeader('TEST_HEADER'));
+    }
+
+    public function testHeaderWasNotSet() {
+        $req = new AvocadoRequest();
+
+        self::assertFalse($req->hasHeader('TEST_HEADER'));
+    }
+
+    public function testCookieWasSet() {
+        $req = new AvocadoRequest();
+        $req->cookies['TEST_COOKIE'] = "TEST_VALUE";
+
+        self::assertTrue($req->hasCookie('TEST_COOKIE'));
+    }
+
+    public function testParamWasSet() {
+        $req = new AvocadoRequest();
+        $req->params['TEST_PARAM'] = "TEST_VALUE";
+
+        self::assertTrue($req->hasParam('TEST_PARAM'));
+    }
 }

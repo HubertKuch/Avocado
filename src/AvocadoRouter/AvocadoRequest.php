@@ -52,6 +52,18 @@ class AvocadoRequest {
         return $ipAddress;
     }
 
+    public function hasHeader(string $header): bool {
+        return isset($this->headers[$header]);
+    }
+
+    public function hasCookie(string $cookie): bool {
+        return isset($this->cookies[$cookie]);
+    }
+
+    public function hasParam(string $param): bool {
+        return isset($this->params[$param]);
+    }
+
     public function __construct(array $params = array()) {
         $this->body = $_POST;
         $this->query = $_GET;
