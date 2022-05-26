@@ -27,10 +27,10 @@ class JSONFactory {
         if (gettype($data) === "array") {
             $serializedData .= "[";
             foreach ($data as $object) {
-                $serializedData .= self::serializeObject($object, $withPrivateProperties);
+                $serializedData .= self::serializeObject($object, $withPrivateProperties).",";
             }
 
-            return $serializedData."]";
+            return preg_replace("/,$/", '', $serializedData)."]";
         }
 
         $serializedData .= self::serializeObject($data, $withPrivateProperties);
@@ -44,7 +44,7 @@ class JSONFactory {
      * @return string
      */
     private static function processProperty(object $object, ReflectionProperty $property): string {
-        return match ($property->getType()->getName()) {
+        return match ($property->getType()?->getName()) {
             "bool" => sprintf('"%s": %s', $property->getName(), $property->isInitialized($object) ? ($property->getValue($object) == 1 ? "true" : "false") : "null"),
             "null", "int", "double" => sprintf('"%s": %s', $property->getName(), $property->isInitialized($object) ? $property->getValue($object) : "null"),
             default => sprintf('"%s": "%s"', $property->getName(), $property->isInitialized($object) ? $property->getValue($object) : null),

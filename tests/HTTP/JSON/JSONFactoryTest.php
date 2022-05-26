@@ -2,7 +2,6 @@
 
 namespace HTTP\JSON;
 
-use Avocado\HTTP\JSON\JSON;
 use Avocado\HTTP\JSON\JSONFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -35,7 +34,7 @@ class JSONFactoryTest extends TestCase {
         self::assertSame('{"id": 1,"username": "testName","isAdmin": true}', JSONFactory::serializeObjects($user, true));
     }
 
-    public function testSerializeAssiociativeArray(): void {
+    public function testSerializeAssociativeArray(): void {
         $array = [
             "username" => "test",
             "password" => "Test"
