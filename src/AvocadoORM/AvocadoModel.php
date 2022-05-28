@@ -133,7 +133,7 @@ class AvocadoModel extends AvocadoORMSettings {
         return $propertyType === $type;
     }
 
-    public function getPropertyByAlias(string $alias): ReflectionProperty {
+    protected function getPropertyByAlias(string $alias): ReflectionProperty {
         $targetProperty = null;
 
         foreach ($this->properties as $property) {
