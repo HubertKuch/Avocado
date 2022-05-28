@@ -4,6 +4,7 @@ namespace Avocado\ORM;
 
 use ReflectionException;
 use ReflectionClass;
+use ReflectionProperty;
 
 /**
  * @template T
@@ -11,6 +12,7 @@ use ReflectionClass;
 class AvocadoModel extends AvocadoORMSettings {
     const TABLE = __NAMESPACE__."\Attributes\Table";
     const ID = __NAMESPACE__."\Attributes\Id";
+    const FIELD = __NAMESPACE__."\Attributes\Field";
     const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
 
     protected string $model;
@@ -93,25 +95,33 @@ class AvocadoModel extends AvocadoORMSettings {
     }
 
     protected function isModelHasProperty(string $property): bool {
-        try {
-            new \ReflectionProperty($this->model, $property);
-            return true;
-        } catch (\ReflectionException $e) {
-            return false;
+        $hasProperty = $this->ref->hasProperty($property);
+
+        if (!$hasProperty) {
+            foreach ($this->ref->getProperties() as $reflectionProperty) {
+                $attr = $reflectionProperty->getAttributes(self::FIELD);
+                if (!empty($attr) && !empty($attr[0]->getArguments())) {
+                    $hasProperty = ($attr[0] -> getArguments()[0] == $property);
+                }
+            }
         }
+
+        return $hasProperty;
     }
 
-    /**
-     * @throws ReflectionException
-     */
     protected function isModelPropertyIsType(string $property, string $type): bool {
-        $reflectionProperty = new \ReflectionProperty($this->model, $property);
+        if (!$this->ref->hasProperty($property)) {
+            $property = $this->getPropertyByAlias($property)->getName();
+        }
+
+        $reflectionProperty = new ReflectionProperty($this->model, $property);
 
         if (!empty($reflectionProperty->getAttributes(self::IGNORE_FIELD_TYPE))) {
             return true;
         }
 
-        $propertyType = $reflectionProperty -> getType()->getName();
+        $propertyType = $reflectionProperty -> getType() -> getName();
+
         $type = match ($type) {
             "integer" => "int",
             "double" => "float",
@@ -121,5 +131,25 @@ class AvocadoModel extends AvocadoORMSettings {
         };
 
         return $propertyType === $type;
+    }
+
+    public function getPropertyByAlias(string $alias): ReflectionProperty {
+        $targetProperty = null;
+
+        foreach ($this->properties as $property) {
+            $propertyFieldAttribute = $property->getAttributes(self::FIELD);
+            $propertyFieldAttribute = !empty($propertyFieldAttribute) ? $propertyFieldAttribute[0] : null;
+
+            $propertyIDAttribute = $property->getAttributes(self::ID);
+            $propertyIDAttribute = !empty($propertyIDAttribute) ? $propertyIDAttribute[0] : null;
+
+            if ($propertyFieldAttribute && !empty($propertyFieldAttribute->getArguments()) && $propertyFieldAttribute->getArguments()[0] === $alias) {
+                $targetProperty = $property;
+            } else if ($propertyIDAttribute && !empty($propertyIDAttribute->getArguments()) && $propertyIDAttribute->getArguments()[0] === $alias) {
+                $targetProperty = $property;
+            }
+        }
+
+        return $targetProperty;
     }
 }

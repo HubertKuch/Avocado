@@ -16,13 +16,13 @@ const PASSWORD = "";
 
 #[Table('users')]
 class TestUser {
-    #[Id]
+    #[Id('id')]
     private int $id;
     #[Field]
     private string $username;
     #[Field]
     private string $password;
-    #[Field('amount')]
+    #[Field('amount2')]
     private float $amount;
 
     public function __construct(string $username, string $password, float $amount) {
@@ -35,8 +35,6 @@ class TestUser {
         return $this->amount;
     }
 }
-
-$usersRepo = new AvocadoRepository(TestUser::class);
 
 class AvocadoRepositoryTest extends TestCase {
     public function testCreatingNewModelInstancesByEntity() {
@@ -86,18 +84,17 @@ class AvocadoRepositoryTest extends TestCase {
     }
 
     public function testUpdateMany() {
-
         AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
 
         $usersRepo = new AvocadoRepository(TestUser::class);
-        $usersRepo -> updateMany(array("amount" => 10.0));
+        $usersRepo -> updateMany(array("amount2" => 10.0));
 
         $updatedUsers = $usersRepo -> findMany();
 
         $excepted = 10.0;
 
         self::assertSame($excepted, $updatedUsers[0]->getAmount());
-        $usersRepo -> updateMany(array("amount" => 2.0));
+        $usersRepo -> updateMany(array("amount2" => 2.0));
     }
 
     public function testDelete(): void {
