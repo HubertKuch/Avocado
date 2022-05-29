@@ -2,12 +2,15 @@
 
 namespace Avocado\Tests\Unit;
 
-use Avocado\ORM\AvocadoModel;
-use Avocado\ORM\Attributes\IgnoreFieldType;
 use Avocado\ORM\Attributes\Field;
-use Avocado\ORM\Attributes\Table;
 use Avocado\ORM\Attributes\Id;
+use Avocado\ORM\Attributes\Table;
+use Avocado\ORM\AvocadoModel;
+use Avocado\ORM\AvocadoORMSettings;
+use Avocado\ORM\AvocadoRepository;
 use PHPUnit\Framework\TestCase;
+use ReflectionObject;
+use stdClass;
 
 #[Table('table')]
 class TestModelWithIdAsString {
@@ -26,16 +29,25 @@ class TestModelWithoutPassedId {
 }
 
 enum UserRole: string {
-    case ADMIN = 'ADMIN';
-    case USER = 'USER';
+    case ADMIN = 'admin';
+    case USER = 'user';
 }
 
-#[Table('table3')]
+#[Table('users')]
 class TableWithIgnoringType{
     #[Id]
     private int $id;
-    #[IgnoreFieldType]
+    #[Field]
     private UserRole $role;
+
+    public function __construct(int $id, UserRole $role) {
+        $this->id = $id;
+        $this->role = $role;
+    }
+
+    public function getRole(): UserRole {
+        return $this->role;
+    }
 }
 
 class AvocadoORMModelTest extends TestCase {
@@ -63,5 +75,19 @@ class AvocadoORMModelTest extends TestCase {
         $tableName = $ref->getProperty('tableName')->getValue($model);
 
         self::assertSame('table', $tableName);
+    }
+
+    public function testIsPropertyIsEnum(): void {
+        $model = new AvocadoModel(TableWithIgnoringType::class);
+        $ref = new \ReflectionObject($model);
+
+        self::assertTrue($ref->getMethod('isPropertyIsEnum')?->invokeArgs($model, ["role"]));
+    }
+
+    public function testIsPropertyIsNotEnum(): void {
+        $model = new AvocadoModel(TableWithIgnoringType::class);
+        $ref = new ReflectionObject($model);
+
+        self::assertFalse($ref->getMethod('isPropertyIsEnum')?->invokeArgs($model, ["id"]));
     }
 }

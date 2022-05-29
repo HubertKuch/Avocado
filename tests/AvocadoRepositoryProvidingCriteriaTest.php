@@ -3,11 +3,11 @@
 namespace Avocado\Tests\Unit;
 
 use Avocado\ORM\Attributes\Field;
-use Avocado\ORM\Attributes\Table;
 use Avocado\ORM\Attributes\Id;
-use PHPUnit\Framework\TestCase;
+use Avocado\ORM\Attributes\Table;
 use Avocado\ORM\AvocadoRepository;
 use Avocado\ORM\AvocadoRepositoryException;
+use PHPUnit\Framework\TestCase;
 
 #[Table('users')]
 class TestUserModel {

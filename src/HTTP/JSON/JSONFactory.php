@@ -2,9 +2,9 @@
 
 namespace Avocado\HTTP\JSON;
 
+use Exception;
 use ReflectionObject;
 use ReflectionProperty;
-use Exception;
 
 class JSONFactory {
     /**

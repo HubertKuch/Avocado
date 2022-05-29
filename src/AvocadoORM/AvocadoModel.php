@@ -2,8 +2,8 @@
 
 namespace Avocado\ORM;
 
-use ReflectionException;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionProperty;
 
 /**
@@ -122,11 +122,16 @@ class AvocadoModel extends AvocadoORMSettings {
 
         $propertyType = $reflectionProperty -> getType() -> getName();
 
+        if ($this->isPropertyIsEnum($reflectionProperty->getName()))
+            $propertyType = "object";
+
+
         $type = match ($type) {
             "integer" => "int",
             "double" => "float",
             "string" => "string",
             "boolean" => "bool",
+            "object" => "object",
             default => "null"
         };
 
@@ -151,5 +156,33 @@ class AvocadoModel extends AvocadoORMSettings {
         }
 
         return $targetProperty;
+    }
+
+    protected function isPropertyIsEnum(string $aliasOrName): bool {
+        if (!($this->ref->hasProperty($aliasOrName))) {
+            $aliasOrName = $this->getPropertyByAlias($aliasOrName)->getName() ?? $aliasOrName;
+        }
+
+        try {
+            $propertyRef = new ReflectionProperty($this->model, $aliasOrName);
+
+            return enum_exists($propertyRef->getType()->getName());
+        } catch (ReflectionException) {
+            return false;
+        }
+    }
+
+    protected function getValueOfEnumProperty(object $object, string $aliasOrName): string|int|float|null {
+        if (!($this->ref->hasProperty($aliasOrName))) {
+            $aliasOrName = $this->getPropertyByAlias($aliasOrName)->getName() ?? $aliasOrName;
+        }
+
+        try {
+            $propertyRef = new ReflectionProperty($this->model, $aliasOrName);
+            return $propertyRef->getValue($object)?->value;
+        } catch (ReflectionException) {
+            var_dump("TEST");
+            return null;
+        }
     }
 }

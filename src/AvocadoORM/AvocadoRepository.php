@@ -25,7 +25,6 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
 
     /**
      * @throws AvocadoRepositoryException
-     * @throws ReflectionException
      */
     private function checkIsCriteriaTypesAreCompatibleWithModel(array $criteria) {
         foreach ($criteria as $key => $value) {
@@ -53,6 +52,10 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
         foreach ($criteria as $key => $value) {
             $valueType = gettype($value);
 
+            if (is_object($value)) {
+                $valueType = $value->value ?? "";
+            }
+
             if ($valueType === "integer" || $valueType === "double" || $valueType === "boolean") $sql.=" $key = $value AND ";
             else if ($valueType === "string") $sql.= " $key LIKE \"$value\" AND";
         }
@@ -69,6 +72,10 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
 
         foreach ($criteria as $key => $value) {
             $valueType = gettype($value);
+
+            if (is_object($value)) {
+                $valueType = $value->value ?? NULL;
+            }
 
             if ($valueType === "integer" || $valueType === "double" || $valueType === "boolean") $sql.=" $key = $value, ";
             else if ($valueType === "string") $sql.= " $key = \"$value\" , ";
@@ -96,18 +103,16 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
 
         $sql = "SELECT * FROM $this->tableName WHERE $foreignKey IN (SELECT $reference.$by FROM $reference WHERE $reference.$by ?)";
 
-        $sql = str_replace(
+        return str_replace(
             "?",
             ($equalsType === "integer" || $equalsType === "double" || $equalsType === "boolean") ? " = $equals ": "LIKE \"$equals\"",
             $sql);
-
-        return $sql;
     }
 
     /**
      * @param string $sql
      * @return array<T>
-     * @throws ReflectionException
+     * @throws ReflectionException|AvocadoModelException
      */
     private function query(string $sql): array {
         $stmt = self::_getConnection()->prepare($sql);
@@ -124,15 +129,15 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
 
     /**
      * @param object $entity
-     * @return object
+     * @return T object
      * @throws ReflectionException
+     * @throws AvocadoModelException
      */
     private function sqlEntityToObject(object $entity): object {
         $modelReflection = new \ReflectionClass($this->model);
         $modelProperties = $modelReflection->getProperties();
 
         $entityReflection = new \ReflectionObject($entity);
-        $entityProperties = $entityReflection->getProperties();
 
         $instance = $modelReflection->newInstanceWithoutConstructor();
         $instanceReflection = new \ReflectionObject($instance);
@@ -155,10 +160,73 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
 
             $instanceProperty = $instanceReflection -> getProperty($modelPropertyName);
             $instanceProperty -> setAccessible(true);
-            $instanceProperty -> setValue($instance, $entityPropertyValue);
+
+            if ($this->isPropertyIsEnum($modelPropertyName)) {
+                $enumPropertyReflection = new \ReflectionEnum($modelProperty->getType()->getName());
+
+                foreach ($enumPropertyReflection->getCases() as $case) {
+                    if ($case->getBackingValue() === $entityPropertyValue) {
+                        $instanceProperty -> setValue($instance, $case->getValue());
+                        break;
+                    }
+                }
+
+                if (!$instanceProperty -> isInitialized($instance)) {
+                    $message = sprintf("`%s` enum property on `%s` model do not have `%s` type.", $entityPropertyName, $this->model, $entityPropertyValue);
+
+                    throw new AvocadoModelException($message);
+                }
+            } else {
+                $instanceProperty -> setValue($instance, $entityPropertyValue);
+            }
         }
 
         return $instance;
+    }
+
+    /**
+     * @param object $object
+     * @return string
+     * @throws AvocadoRepositoryException
+     * @throws ReflectionException
+     */
+    private function getObjectAttributesAsSQLString(object $object): string {
+        $ref = new \ReflectionClass($object);
+        $output = "";
+        $isFirstProperty = true;
+
+        foreach ($ref->getProperties() as $property) {
+            $refToProperty = new \ReflectionProperty(get_class($object), $property->getName());
+            $isEntityField = !empty($refToProperty->getAttributes(self::FIELD));
+            $propertyName = $refToProperty->getName();
+
+            if ($isEntityField) {
+                $valueOfProperty = $refToProperty->getValue($object);
+                $propertyType = gettype($valueOfProperty);
+
+                if ($this->isPropertyIsEnum($propertyName)) {
+                    $enumValue = $this->getValueOfEnumProperty($object, $propertyName);
+                    $valueOfProperty =  $enumValue;
+                    $propertyType = gettype($enumValue);
+                }
+
+                if (is_null($valueOfProperty)) {
+                    $output .= $isFirstProperty ? " NULL " : ", NULL";
+                } else if ($propertyType == "string") {
+                    $output .= $isFirstProperty ? " \"$valueOfProperty\" " : " , \"$valueOfProperty\"";
+                } else {
+                    $output .= $isFirstProperty ? " $valueOfProperty " : " , $valueOfProperty";
+                }
+
+                $isFirstProperty = false;
+            }
+        }
+
+        if ($output == "") {
+            throw new AvocadoRepositoryException('Model must have fields if you want save it.');
+        }
+
+        return $output;
     }
 
 
@@ -166,7 +234,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
      * @param array $criteria
      * @return array<T>
      * @throws AvocadoRepositoryException
-     * @throws ReflectionException
+     * @throws ReflectionException|AvocadoModelException
      */
     public function findMany(array $criteria = []): array {
         $sql = "SELECT * FROM $this->tableName";
@@ -179,7 +247,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
      * @param array $criteria
      * @return T|null
      * @throws AvocadoRepositoryException
-     * @throws ReflectionException
+     * @throws ReflectionException|AvocadoModelException
      */
     public function findOne(array $criteria = []) {
         $sql = "SELECT * FROM $this->tableName";
@@ -310,44 +378,6 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
     /**
      * @param object $object
      * @return string
-     * @throws AvocadoRepositoryException
-     * @throws ReflectionException
-     */
-    private function getObjectAttributesAsSQLString(object $object): string {
-        $ref = new \ReflectionClass($object);
-        $output = "";
-        $isFirstProperty = true;
-
-        foreach ($ref->getProperties() as $property) {
-            $refToProperty = new \ReflectionProperty(get_class($object), $property->getName());
-            $isEntityField = !empty($refToProperty->getAttributes(self::FIELD));
-
-            if ($isEntityField) {
-                $valueOfProperty = $refToProperty->getValue($object);
-                $propertyType = gettype($valueOfProperty);
-
-                if (is_null($valueOfProperty)) {
-                    $output .= $isFirstProperty ? " NULL " : ", NULL";
-                } else if ($propertyType == "string") {
-                    $output .= $isFirstProperty ? " \"$valueOfProperty\" " : " , \"$valueOfProperty\"";
-                } else {
-                    $output .= $isFirstProperty ? " $valueOfProperty " : " , $valueOfProperty";
-                }
-
-                $isFirstProperty = false;
-            }
-        }
-
-        if ($output == "") {
-            throw new AvocadoRepositoryException('Model must have fields if you want save it.');
-        }
-
-        return $output;
-    }
-
-    /**
-     * @param object $object
-     * @return string
      */
     private function getInsertColumns(object $object): string {
         $ref = new \ReflectionClass($object);
@@ -378,7 +408,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
      * @throws AvocadoRepositoryException
      * @throws ReflectionException
      */
-    public function save(object $entity) {
+    public function save(object $entity): void {
         $isUserExists = $this->ref->getProperty($this->primaryKey)->isInitialized($entity);
 
         if($isUserExists) {
@@ -399,7 +429,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
      * @throws AvocadoRepositoryException
      * @throws ReflectionException
      */
-    public function saveMany(...$entities) {
+    public function saveMany(...$entities): void {
         $insertColumnStatement = $this->getInsertColumns((object)$entities[0]);
         $sql = "INSERT INTO $this->tableName $insertColumnStatement VALUES ";
 
@@ -417,7 +447,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
     /**
      * @return void
      */
-    public function truncate() {
+    public function truncate(): void {
         $this->query("TRUNCATE TABLE $this->tableName");
     }
 
@@ -426,7 +456,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
      * @param string $to
      * @return void
      */
-    public function renameTo(string $to) {
+    public function renameTo(string $to): void {
         $this->query("ALTER TABLE $this->tableName RENAME TO $to");
     }
 }
