@@ -8,8 +8,7 @@ use ReflectionProperty;
 
 class JSONFactory {
     /**
-     * @param array|object $data
-     * @param bool $withPrivateProperties
+     * @param array $data
      * @return string
      */
     public static function serializePrimitive(array $data): string {
