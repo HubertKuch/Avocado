@@ -4,11 +4,11 @@ namespace Avocado\Tests\Unit;
 
 use Avocado\ORM\Attributes\Field;
 use Avocado\ORM\Attributes\Id;
-use Avocado\ORM\Attributes\IgnoreFieldType;
 use Avocado\ORM\Attributes\Table;
 use Avocado\ORM\AvocadoModelException;
 use Avocado\ORM\AvocadoORMSettings;
 use Avocado\ORM\AvocadoRepository;
+use http\Client\Curl\User;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -43,6 +43,10 @@ class TestUser {
 
     public function getRole(): UserRole {
         return $this->role;
+    }
+
+    public function setRole(UserRole $role): void {
+        $this->role = $role;
     }
 }
 

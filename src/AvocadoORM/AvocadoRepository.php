@@ -3,6 +3,7 @@
 namespace Avocado\ORM;
 
 use PDO;
+use ReflectionEnum;
 use ReflectionException;
 
 /**
@@ -16,8 +17,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
     const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
 
     /**
-     * @param class-string<T> $model
-     * @return void
+     * @param class-string $model
      */
     public function __construct($model) {
         parent::__construct($model);
@@ -42,7 +42,6 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
     }
 
     /**
-     * @throws ReflectionException
      * @throws AvocadoRepositoryException
      */
     private function provideCriteria(string &$sql, array $criteria): void {
@@ -65,7 +64,6 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
 
     /**
      * @throws AvocadoRepositoryException
-     * @throws ReflectionException
      */
     private function provideUpdateCriteria(string &$sql, array $criteria): void {
         $this->checkIsCriteriaTypesAreCompatibleWithModel($criteria);
@@ -162,7 +160,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
             $instanceProperty -> setAccessible(true);
 
             if ($this->isPropertyIsEnum($modelPropertyName)) {
-                $enumPropertyReflection = new \ReflectionEnum($modelProperty->getType()->getName());
+                $enumPropertyReflection = new ReflectionEnum($modelProperty->getType()->getName());
 
                 foreach ($enumPropertyReflection->getCases() as $case) {
                     if ($case->getBackingValue() === $entityPropertyValue) {
@@ -264,7 +262,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
      * @param int|string $id
      * @return T|null
      * @throws AvocadoRepositoryException
-     * @throws ReflectionException
+     * @throws ReflectionException|AvocadoModelException
      */
     public function findOneById(int|string $id) {
         $sql = "SELECT * FROM $this->tableName";
@@ -329,7 +327,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
     }
 
     /**
-     * @throws AvocadoModelException
+     * @throws AvocadoRepositoryException|ReflectionException|AvocadoModelException
      */
     public function updateOneById(array $updateCriteria, string|int $id) {
         if (empty($updateCriteria)) {
@@ -405,16 +403,9 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
     /**
      * @param object $entity
      * @return void
-     * @throws AvocadoRepositoryException
-     * @throws ReflectionException
+     * @throws ReflectionException|AvocadoModelException|AvocadoRepositoryException
      */
     public function save(object $entity): void {
-        $isUserExists = $this->ref->getProperty($this->primaryKey)->isInitialized($entity);
-
-        if($isUserExists) {
-            $id = $this->ref->getProperty($this->primaryKey)->getValue($entity);
-        }
-
         $insertColumnStatement = $this->getInsertColumns($entity);
         $sql = "INSERT INTO $this->tableName $insertColumnStatement VALUES (NULL, ";
         $sql.=$this->getObjectAttributesAsSQLString($entity);
@@ -427,7 +418,7 @@ class AvocadoRepository extends AvocadoModel implements AvocadoRepositoryActions
      * @param ...$entities
      * @return void
      * @throws AvocadoRepositoryException
-     * @throws ReflectionException
+     * @throws ReflectionException|AvocadoModelException
      */
     public function saveMany(...$entities): void {
         $insertColumnStatement = $this->getInsertColumns((object)$entities[0]);
