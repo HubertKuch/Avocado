@@ -59,10 +59,6 @@ class AvocadoRouter {
         self::addEndpointToStack(HTTPMethod::PUT, $endpoint, $middleware, $callable);
     }
 
-//    public static function ANY(string $endpoint, array $middleware, callable $callback): void {
-//        self::addEndpointToStack("*", $endpoint, $middleware, $callback);
-//    }
-
     private static function provideSettings(AvocadoRequest $req, AvocadoResponse $res): void {
         foreach (self::$settingsStack as $callback) {
             call_user_func($callback, $req, $res);
