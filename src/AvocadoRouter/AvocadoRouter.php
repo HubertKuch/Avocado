@@ -9,6 +9,7 @@ class AvocadoRouter {
     private static array $middlewareStack = array();
     private static array $settingsStack = array();
     private static bool $isNext = true;
+    private static array $notFoundStack = array();
 
     public static function use(callable $setting): void {
         self::$settingsStack[] = $setting;
@@ -27,36 +28,39 @@ class AvocadoRouter {
         self::$isNext = false;
     }
 
-    private static function addEndpointToStack(HTTPMethod|string $method, string $endpoint, array $middleware, callable $callback){
-        if ($endpoint[0] === "/") $endpoint = substr($endpoint, 1);
-        if (strlen($endpoint > 0) && $endpoint[-1] === "/") $endpoint = substr($endpoint, 0, -1);
-        $endpoint = trim($endpoint);
-
+    private static function addEndpointToStack(AvocadoRoute $route, array $middleware, callable $callback){
         self::$routesStack[] = array(
-            "ROUTE" => new AvocadoRoute(strtoupper($method instanceof HTTPMethod ? $method->value : $method), $endpoint),
+            "ROUTE" => $route,
             "CALLBACK" => $callback,
-            "MIDDLEWARE" => $middleware
+            "MIDDLEWARE" => $middleware,
         );
     }
 
     public static function GET(string $endpoint, array $middleware, callable $callback): void {
-        self::addEndpointToStack(HTTPMethod::GET, $endpoint, $middleware, $callback);
+        self::addEndpointToStack(AvocadoRoute::createGet($endpoint), $middleware, $callback);
     }
 
     public static function POST(string $endpoint, array $middleware, callable $callback): void {
-        self::addEndpointToStack(HTTPMethod::POST, $endpoint, $middleware, $callback);
+        self::addEndpointToStack(AvocadoRoute::createPost($endpoint), $middleware, $callback);
     }
 
     public static function DELETE(string $endpoint, array $middleware, callable $callback): void {
-        self::addEndpointToStack(HTTPMethod::DELETE, $endpoint, $middleware, $callback);
+        self::addEndpointToStack(AvocadoRoute::createDelete($endpoint), $middleware, $callback);
     }
 
     public static function PATCH(string $endpoint, array $middleware, callable $callback): void {
-        self::addEndpointToStack(HTTPMethod::PATCH, $endpoint, $middleware, $callback);
+        self::addEndpointToStack(AvocadoRoute::createPatch($endpoint), $middleware, $callback);
     }
 
     public static function PUT(string $endpoint, array $middleware, callable $callable): void {
-        self::addEndpointToStack(HTTPMethod::PUT, $endpoint, $middleware, $callable);
+        self::addEndpointToStack(AvocadoRoute::createPut($endpoint), $middleware, $callable);
+    }
+
+    public static function notFoundHandler(callable $callable): void {
+        self::$notFoundStack = [
+            "ROUTE" => new AvocadoRoute(HTTPMethod::GET, "*"),
+            "CALLBACK" => $callable
+        ];
     }
 
     private static function provideSettings(AvocadoRequest $req, AvocadoResponse $res): void {
@@ -91,6 +95,7 @@ class AvocadoRouter {
         }
 
         // LISTEN ROUTES
+        $routeCount = 0;
         foreach (self::$routesStack as $route) {
             $endpoint = $route['ROUTE']->getEndpoint();
             $middlewareStack = $route['MIDDLEWARE'];
@@ -133,14 +138,20 @@ class AvocadoRouter {
                 }
             }
 
-            if (self::$isNext
-                && $isMiddlewareThrowNext
-                && $actPathWithoutParamsValues === $endpoint
-                && $method === $route['ROUTE']->getMethod()) {
-                $route['CALLBACK']($req, $res);
+            if ($routeCount == count(self::$routesStack)-1) {
+                $callback = self::$notFoundStack['CALLBACK'] ?? null;
+
+                if ($callback) $callback($req, $res);
 
                 break;
             }
+
+            if (self::$isNext && $isMiddlewareThrowNext && $actPathWithoutParamsValues === $endpoint && $method === $route['ROUTE']->getMethod()) {
+                $route['CALLBACK']($req, $res);
+                break;
+            }
+
+            $routeCount++;
         }
     }
 }
