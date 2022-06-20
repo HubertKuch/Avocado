@@ -107,7 +107,9 @@ class AvocadoRouter {
             for ($i=0; $i<count($explodedEndpoint); $i++) {
                 if (!empty($explodedEndpoint[$i]) && @$explodedEndpoint[$i][0] === ':') {
                     $ascIndex = substr($explodedEndpoint[$i], 1);
-                    @$params[$ascIndex] = @$explodedActualPath[$i];
+                    if (isset($params[$ascIndex])) {
+                        @$params[$ascIndex] = @$explodedActualPath[$i];
+                    }
                     @$explodedActualPath[$i] = @$explodedEndpoint[$i];
                 }
             }
