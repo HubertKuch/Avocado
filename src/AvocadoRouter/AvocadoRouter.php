@@ -138,7 +138,7 @@ class AvocadoRouter {
                 }
             }
 
-            if ($routeCount == count(self::$routesStack)-1) {
+            if ($routeCount > count(self::$routesStack)-1) {
                 $callback = self::$notFoundStack['CALLBACK'] ?? null;
 
                 if ($callback) $callback($req, $res);
