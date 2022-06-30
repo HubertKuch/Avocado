@@ -6,6 +6,7 @@ use Avocado\Application\Application;
 use Avocado\Application\Controller;
 use AvocadoApplication\Mappings\MethodMapping;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 require __DIR__."/mock/MockedApplication.php";
 require __DIR__."/mock/MockedController.php";
@@ -19,7 +20,7 @@ class ApplicationTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = "GET";
         Application::run();
 
-        $applicationReflection = new \ReflectionClass(Application::class);
+        $applicationReflection = new ReflectionClass(Application::class);
         $controller = $applicationReflection->getStaticPropertyValue('restControllers')[0];
 
         self::assertTrue($controller instanceof Controller);
@@ -32,9 +33,9 @@ class ApplicationTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = "GET";
         Application::run();
 
-        $applicationReflection = new \ReflectionClass(Application::class);
+        $applicationReflection = new ReflectionClass(Application::class);
         $controller = $applicationReflection->getStaticPropertyValue('restControllers')[0];
-        $controllerReflection = new \ReflectionClass(Controller::class);
+        $controllerReflection = new ReflectionClass(Controller::class);
 
         $mappings = $controllerReflection->getProperty('mappings');
 

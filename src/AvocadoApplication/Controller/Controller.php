@@ -2,21 +2,28 @@
 
 namespace Avocado\Application;
 
+use AvocadoApplication\Attributes\BaseURL;
 use AvocadoApplication\Mappings\MethodMapping;
 use ReflectionClass;
+use ReflectionMethod;
 
 class Controller {
     private string $targetClassName;
     private ReflectionClass $targetReflection;
     private array $mappings;
+    private BaseURL $baseURL;
 
     public function __construct(string $targetClassName = null, ReflectionClass $targetReflection = null) {
         if (!$targetReflection || !$targetClassName) {
             return;
         }
 
+
         $this->targetClassName = $targetClassName;
         $this->targetReflection = $targetReflection;
+
+        $this->baseURL = $this->getBaseUrl();
+
         $this->mappings = $this->setMappings();
     }
 
@@ -42,6 +49,21 @@ class Controller {
         return $this->mappings;
     }
 
+    private function getBaseUrl(): BaseURL {
+        $baseUrlAttribute = $this->targetReflection->getAttributes(BaseURL::class)[0] ?? null;
+        $baseUrl = "";
+
+        if ($baseUrlAttribute) {
+            $baseUrl = $baseUrlAttribute->getArguments()[0];
+        }
+
+        return new BaseURL($baseUrl);
+    }
+
+    private function getUrl(ReflectionMethod $reflectionMethod): string {
+        return $this->baseURL->get().MethodMapping::getEndpointFromReflectionMethod($reflectionMethod);
+    }
+
     public function setMappings(): array {
         $reflection = $this->targetReflection;
         $classMethods = $reflection->getMethods();
@@ -53,7 +75,7 @@ class Controller {
 
         $mappings = array_map(function ($reflectionMethod) {
             $mapping =  new MethodMapping(
-                MethodMapping::getEndpointFromReflectionMethod($reflectionMethod),
+                $this->getUrl($reflectionMethod),
                 MethodMapping::getHTTPMethodFromReflectionMethod($reflectionMethod),
                 MethodMapping::getCallbackFromReflectionMethod($reflectionMethod)
             );
