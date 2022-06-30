@@ -22,6 +22,11 @@ class MockedController {
         $res->json(["Get Hello World"]);
     }
 
+    #[GetMapping("/array/")]
+    public static function getTestArray(AvocadoRequest $req, AvocadoResponse $res): void {
+        $res->json(["Get Hello World Array"]);
+    }
+
     #[PostMapping("/")]
     public static function createTestArray(AvocadoRequest $req, AvocadoResponse $res): void {
         $res->json(["Post Hello World"]);

@@ -106,4 +106,17 @@ class ApplicationTest extends TestCase {
 
         self::assertSame('["Put Hello World"]', ob_get_contents());
     }
+
+    /**
+     * @runInSeparateProcess
+     * */
+    public function testBaseUrlForController(): void {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        $_SERVER['PHP_SELF'].="/hello-world/array/";
+
+        Application::run();
+
+        self::assertSame('["Get Hello World Array"]', ob_get_contents());
+    }
 }
