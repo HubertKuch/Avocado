@@ -2,10 +2,11 @@
 
 namespace Avocado\Application;
 
+use ReflectionClass;
 use Avocado\HTTP\HTTPMethod;
 use Avocado\Router\AvocadoRouter;
 use AvocadoApplication\Mappings\MethodMapping;
-use ReflectionClass;
+use ReflectionException;
 
 class Application {
     private static array $declaredClasses = [];
@@ -31,10 +32,14 @@ class Application {
         $controllers = [];
 
         foreach ($declaredClasses as $class) {
-            $reflection = new ReflectionClass($class);
+            try {
+                $reflection = new ReflectionClass($class);
 
-            if (Controller::isController($reflection)) {
-                $controllers[] = new Controller($class, $reflection);
+                if (Controller::isController($reflection)) {
+                    $controllers[] = new Controller($class, $reflection);
+                }
+            } catch (ReflectionException) {
+                continue;
             }
         }
 
