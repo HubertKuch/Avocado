@@ -39,7 +39,9 @@ class ApplicationTest extends TestCase {
 
         $mappings = $controllerReflection->getProperty('mappings');
 
-        self::assertTrue($mappings->getValue($controller)[0] instanceof MethodMapping);
+        $mappings = $mappings->getValue($controller);
+
+        self::assertTrue($mappings[key($mappings)] instanceof MethodMapping);
     }
 
     /**
