@@ -10,6 +10,10 @@ use PHPUnit\Framework\TestCase;
 require_once "mock/MockedController.php";
 require_once "mock/MockedApplication.php";
 
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ * */
 class DependencyInjectionServiceTest extends TestCase {
     /**
      * @runInSeparateProcess

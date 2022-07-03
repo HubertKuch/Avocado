@@ -11,7 +11,10 @@ use ReflectionClass;
 require __DIR__."/mock/MockedApplication.php";
 require __DIR__."/mock/MockedController.php";
 
-
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ * */
 class ApplicationTest extends TestCase {
     /**
      * @runInSeparateProcess
