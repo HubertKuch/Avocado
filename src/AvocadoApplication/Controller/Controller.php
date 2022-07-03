@@ -3,9 +3,15 @@
 namespace Avocado\Application;
 
 use AvocadoApplication\Attributes\BaseURL;
+use AvocadoApplication\DependencyInjection\DependencyInjectionService;
+use AvocadoApplication\DependencyInjection\Exceptions\ResourceException;
+use AvocadoApplication\DependencyInjection\Exceptions\ResourceNotFoundException;
+use AvocadoApplication\DependencyInjection\Exceptions\TooMuchResourceConstructorParametersException;
 use AvocadoApplication\Mappings\MethodMapping;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
+use ReflectionObject;
 
 class Controller {
     private string $targetClassName;
@@ -17,7 +23,6 @@ class Controller {
         if (!$targetReflection || !$targetClassName) {
             return;
         }
-
 
         $this->targetClassName = $targetClassName;
         $this->targetReflection = $targetReflection;
@@ -31,19 +36,10 @@ class Controller {
         return $this->targetClassName;
     }
 
-    public function setTargetClassName(string $targetClassName): Controller {
-        $this->targetClassName = $targetClassName;
-        return $this;
-    }
-
     public function getTargetReflection(): ReflectionClass {
         return $this->targetReflection;
     }
 
-    public function setTargetReflection(ReflectionClass $targetReflection): Controller {
-        $this->targetReflection = $targetReflection;
-        return $this;
-    }
 
     public function getMappings(): array {
         return $this->mappings;
@@ -68,22 +64,20 @@ class Controller {
         $reflection = $this->targetReflection;
         $classMethods = $reflection->getMethods();
         $mappings = array_filter($classMethods, function($method) {
-            $attributes = $method->getAttributes();
-
-            return !empty(array_filter($attributes, fn($atr) => MethodMapping::isMethodMapping($atr)));
+            return !empty(array_filter($method->getAttributes(), fn($atr) => MethodMapping::isMethodMapping($atr)));
         });
 
-        $mappings = array_map(function ($reflectionMethod) {
-            $mapping =  new MethodMapping(
+        return array_map(/**
+         * @throws ResourceNotFoundException
+         * @throws ResourceException
+         * @throws TooMuchResourceConstructorParametersException
+         */ function ($reflectionMethod) {
+            return new MethodMapping(
                 $this->getUrl($reflectionMethod),
                 MethodMapping::getHTTPMethodFromReflectionMethod($reflectionMethod),
-                MethodMapping::getCallbackFromReflectionMethod($reflectionMethod)
+                MethodMapping::getCallbackFromReflectionMethod($reflectionMethod, $this->getInstance())
             );
-
-            return $mapping;
         }, $mappings);
-
-        return $mappings;
     }
 
     public function addMapping(MethodMapping $mapping): Controller {
@@ -95,11 +89,13 @@ class Controller {
         $attributes = $reflection->getAttributes();
 
         foreach ($attributes as $attribute) {
-            $parentClass = (new ReflectionClass($attribute->getName()))?->getParentClass();
+            try {
+                $parentClass = (new ReflectionClass($attribute->getName()))?->getParentClass();
 
-            if ($parentClass){
-                return $parentClass->getName() === Controller::class;
-            }
+                if ($parentClass){
+                    return $parentClass->getName() === Controller::class;
+                }
+            } catch (ReflectionException) {}
         }
 
         return false;
@@ -107,5 +103,21 @@ class Controller {
 
     public static function isRestController(ReflectionClass $reflection): bool {
         return !empty($reflection->getAttributes(RestController::class));
+    }
+
+    /**
+     * @throws ResourceException
+     * @throws ResourceNotFoundException
+     * @throws TooMuchResourceConstructorParametersException
+     */
+    private function getInstance(): ?object {
+        try {
+            $classReflection = $this->targetReflection;
+            $controllerObject = $classReflection->newInstanceWithoutConstructor();
+
+            DependencyInjectionService::inject(new ReflectionObject($controllerObject), $controllerObject);
+
+            return $controllerObject;
+        } catch (ReflectionException) { return null; }
     }
 }

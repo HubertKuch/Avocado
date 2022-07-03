@@ -11,7 +11,10 @@ use ReflectionClass;
 require __DIR__."/mock/MockedApplication.php";
 require __DIR__."/mock/MockedController.php";
 
-
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ * */
 class ApplicationTest extends TestCase {
     /**
      * @runInSeparateProcess
@@ -39,7 +42,9 @@ class ApplicationTest extends TestCase {
 
         $mappings = $controllerReflection->getProperty('mappings');
 
-        self::assertTrue($mappings->getValue($controller)[0] instanceof MethodMapping);
+        $mappings = $mappings->getValue($controller);
+
+        self::assertTrue($mappings[key($mappings)] instanceof MethodMapping);
     }
 
     /**

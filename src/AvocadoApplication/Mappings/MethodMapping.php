@@ -52,8 +52,8 @@ class MethodMapping {
         return HTTPMethod::INFO;
     }
 
-    public static function getCallbackFromReflectionMethod(ReflectionMethod $method): array {
-        return [$method->getDeclaringClass()->getName(), $method->getName()];
+    public static function getCallbackFromReflectionMethod(ReflectionMethod $method, object $instance): array {
+        return [$instance, $method->getName()];
     }
 
     public static function isMethodMapping(ReflectionAttribute $attribute): bool {
