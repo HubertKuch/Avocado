@@ -22,7 +22,6 @@
     ],
     "minimum-stability": "stable",
     "homepage": "https://avocadoframework.com",
-    "version": "v2.3.3",
     "require": {
         "ext-dom": "*",
         "ext-pdo": "*",
