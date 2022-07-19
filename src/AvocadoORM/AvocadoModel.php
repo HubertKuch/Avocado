@@ -132,8 +132,12 @@ class AvocadoModel extends AvocadoORMSettings {
             "string" => "string",
             "boolean" => "bool",
             "object" => "object",
-            default => "null"
+            default => "NULL"
         };
+
+        if ($type === "NULL") {
+            return $reflectionProperty->getType()->allowsNull();
+        }
 
         return $propertyType === $type;
     }
