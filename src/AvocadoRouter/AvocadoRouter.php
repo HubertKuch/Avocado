@@ -125,7 +125,7 @@ class AvocadoRouter {
 
             if (count($middlewareStack) > 0) {
                 foreach ($middlewareStack as $middleware) {
-                    if (!is_callable($middleware) || !is_string($middleware)) {
+                    if (!is_array($middleware) || !is_callable($middleware)) {
                         $type = gettype($middleware);
                         throw new \TypeError("Middleware must be callable, passed $type");
                     }
