@@ -3,12 +3,13 @@
 namespace Avocado\AvocadoApplication\Attributes;
 
 use Attribute;
+use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 use Avocado\AvocadoApplication\Exceptions\InvalidResourceException;
 use ReflectionException;
 use ReflectionMethod;
 
 #[Attribute(Attribute::TARGET_METHOD)]
-class Leaf {
+class Leaf implements Resourceable {
     private string $methodName;
     private string $leafName;
     private ReflectionMethod $reflectionMethod;
@@ -75,7 +76,7 @@ class Leaf {
         return $this->reflectionMethod;
     }
 
-    public function getType(): string {
+    public function getTargetResourceClass(): string {
         return $this->returnType;
     }
 
@@ -87,7 +88,7 @@ class Leaf {
         $this->reflectionMethod = $reflectionMethod;
     }
 
-    public function getResourceInstance(): object {
+    public function getTargetInstance(): object {
         return $this->resourceInstance;
     }
 }

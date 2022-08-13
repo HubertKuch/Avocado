@@ -5,6 +5,7 @@ namespace Avocado\Application;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Leafs\LeafManager;
+use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use ReflectionClass;
 use Avocado\HTTP\HTTPMethod;
 use Avocado\Router\AvocadoRouter;
@@ -21,11 +22,16 @@ class Application {
 
     public static final function run(): void {
         self::$declaredClasses = self::getDeclaredClasses();
+
+        self::$configurations = self::getConfigurations();
+        self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
+
+        foreach (self::$leafManager->getLeafs() as $leaf) {
+            DependencyInjectionService::addResource($leaf);
+        }
+
         self::$controllers = self::getControllers();
         self::$restControllers = self::getRestControllers();
-        self::$configurations = self::getConfigurations();
-
-        self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
 
         self::declareRoutes();
 

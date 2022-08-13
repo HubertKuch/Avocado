@@ -2,6 +2,7 @@
 
 namespace AvocadoApplication\DependencyInjection;
 
+use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
@@ -17,7 +18,7 @@ class DependencyInjectionService {
     private const CONSTRUCTOR_WAS_NOT_SET_RESOURCE_EXCEPTION = "Resource must have public constructor.";
     private const PUBLIC_CONSTRUCTOR_RESOURCE_EXCEPTION = "Resource must have to constructor.";
     private const TOO_MUCH_RESOURCE_PROPERTIES_EXCEPTION = "Resource constructor cannot have any parameters.";
-    /* @var $resources Resource[] */
+    /* @var $resources Resourceable[] */
     private static array $resources = [];
 
     private static function getClassNamesOfResources(): array {
@@ -29,6 +30,10 @@ class DependencyInjectionService {
                 return !empty($resourceAttributes);
             } catch (ReflectionException){ return false; }
         });
+    }
+
+    public static function addResource(Resourceable $resource): void {
+        self::$resources[] = $resource;
     }
 
     /**
@@ -71,7 +76,7 @@ class DependencyInjectionService {
     private static function newResourceInstance(string $resourceName): object {
         try {
             if (!class_exists($resourceName)) {
-                    throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, $resourceName));
+                throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, $resourceName));
             }
 
             return (new ReflectionClass($resourceName))->newInstance();
@@ -95,10 +100,9 @@ class DependencyInjectionService {
     /**
      * @throws ResourceNotFoundException
      */
-    private static function getResourceByType(string $autowiredClassPropertyType): Resource {
+    private static function getResourceByType(string $autowiredClassPropertyType): Resourceable {
         $resource = array_filter(self::$resources, fn($resource) => $resource->getTargetResourceClass() == $autowiredClassPropertyType);
-
-        $resource = array_key_exists(0, $resource) ? $resource[0] : null;
+        $resource = key($resource) !== NULL ? $resource[key($resource)] : NULL;
 
         if (!$resource) {
             throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, $autowiredClassPropertyType));

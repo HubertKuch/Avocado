@@ -2,11 +2,12 @@
 
 namespace AvocadoApplication\Tests\Unit\Application\DependencyInjection;
 
-use Avocado\Tests\Unit\Application\MockedApplication;
+use Avocado\Application\Application;
 use AvocadoApplication\DependencyInjection\Exceptions\ResourceNotFoundException;
 use AvocadoApplication\DependencyInjection\Exceptions\TooMuchResourceConstructorParametersException;
 use PHPUnit\Framework\TestCase;
 
+require_once "mock/MockedResource.php";
 require_once "mock/MockedController.php";
 require_once "mock/MockedApplication.php";
 
@@ -23,7 +24,7 @@ class DependencyInjectionServiceTest extends TestCase {
 
         $_SERVER['PHP_SELF'].="/hello-world/di";
 
-        MockedApplication::init();
+        Application::run();
 
         self::assertSame('["test"]', ob_get_contents());
     }
@@ -41,7 +42,7 @@ class DependencyInjectionServiceTest extends TestCase {
         $_SERVER['PHP_SELF'].="/test";
 
 
-        MockedApplication::init();
+        Application::run();
     }
 
     /**
@@ -52,6 +53,6 @@ class DependencyInjectionServiceTest extends TestCase {
 
         $this->expectException(TooMuchResourceConstructorParametersException::class);
 
-        MockedApplication::init();
+        Application::run();
     }
 }

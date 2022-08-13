@@ -14,19 +14,6 @@ use AvocadoApplication\Mappings\PatchMapping;
 use AvocadoApplication\Mappings\PostMapping;
 use AvocadoApplication\Mappings\PutMapping;
 
-
-use AvocadoApplication\Attributes\Resource;
-
-#[Resource]
-class MockedResource {
-
-    public function __construct() {}
-
-    public function getTest(): string {
-        return "test";
-    }
-}
-
 #[RestController]
 #[BaseURL("/hello-world")]
 class MockedController {

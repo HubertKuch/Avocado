@@ -3,9 +3,10 @@
 namespace AvocadoApplication\Attributes;
 
 use Attribute;
+use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class Resource {
+class Resource implements Resourceable {
     private string $targetResourceClass;
     private object $targetInstance;
 

@@ -33,13 +33,13 @@ class LeafManager {
      */
     public function getLeafByClass(string $class): object {
         /** @var $filteredLeafs Leaf[]*/
-        $filteredLeafs = array_filter($this->leafs, fn($leaf) => $leaf->getType() === $class);
+        $filteredLeafs = array_filter($this->leafs, fn($leaf) => $leaf->getTargetResourceClass() === $class);
 
         if (empty($filteredLeafs)) {
             throw new InvalidResourceException("Leaf of type `$class` is not exists.");
         }
 
-        return $filteredLeafs[0]->getResourceInstance();
+        return $filteredLeafs[key($filteredLeafs)]->getTargetInstance();
     }
 
     /**
@@ -54,6 +54,13 @@ class LeafManager {
             throw new InvalidResourceException("Leaf `$name` is not exists.");
         }
 
-        return $filteredLeafs[0]->getResourceInstance();
+        return $filteredLeafs[key($filteredLeafs)]->getTargetInstance();
+    }
+
+    /**
+     * @return Leaf[]
+    */
+    public function getLeafs(): array {
+        return $this->leafs;
     }
 }

@@ -5,7 +5,11 @@ namespace Avocado\Tests\Unit\Application;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Attributes\Leaf;
 
-class MockedLeafResource {}
+class MockedLeafResource {
+    public function test(): string {
+        return "TEST";
+    }
+}
 
 #[Configuration]
 class MockedConfiguration {

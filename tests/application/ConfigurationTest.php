@@ -4,12 +4,13 @@ namespace Avocado\Tests\Unit\Application;
 
 use Avocado\Application\Application;
 use Avocado\AvocadoApplication\Attributes\Configuration;
-use Avocado\AvocadoApplication\Attributes\Leaf;
 use Avocado\AvocadoApplication\Leafs\LeafManager;
 use PHPUnit\Framework\TestCase;
 
 require __DIR__."/mock/MockedApplication.php";
+require __DIR__."/mock/MockedResource.php";
 require __DIR__."/mock/MockedController.php";
+require __DIR__."/mock/MockedLeafController.php";
 require __DIR__."/mock/MockedConfiguration.php";
 
 /**
@@ -22,7 +23,9 @@ class ConfigurationTest extends TestCase {
      * @runInSeparateProcess
      * */
     public function testGetConfigurations() {
-        MockedApplication::init();
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        Application::run();
+
         $reflection = new \ReflectionClass(Application::class);
 
         self::assertTrue($reflection->getStaticPropertyValue("configurations")[0] instanceof Configuration);
@@ -32,7 +35,9 @@ class ConfigurationTest extends TestCase {
      * @runInSeparateProcess
      * */
     public function testGetLeafByClass() {
-        MockedApplication::init();
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        Application::run();
+
         $reflection = new \ReflectionClass(Application::class);
         /** @var $leafManager LeafManager */
         $leafManager = $reflection->getStaticPropertyValue("leafManager");
@@ -46,7 +51,9 @@ class ConfigurationTest extends TestCase {
      * @runInSeparateProcess
      * */
     public function testGetLeafByName() {
-        MockedApplication::init();
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        Application::run();
+
         $reflection = new \ReflectionClass(Application::class);
         /** @var $leafManager LeafManager */
         $leafManager = $reflection->getStaticPropertyValue("leafManager");
