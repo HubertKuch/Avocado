@@ -2,6 +2,9 @@
 
 namespace Avocado\Application;
 
+use Avocado\AvocadoApplication\Attributes\Configuration;
+use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
+use Avocado\AvocadoApplication\Leafs\LeafManager;
 use ReflectionClass;
 use Avocado\HTTP\HTTPMethod;
 use Avocado\Router\AvocadoRouter;
@@ -10,13 +13,19 @@ use ReflectionException;
 
 class Application {
     private static array $declaredClasses = [];
+    /** @var $configurations Configuration[] */
+    private static array $configurations = [];
     private static array $controllers = [];
     private static array $restControllers = [];
+    private static LeafManager $leafManager;
 
     public static final function run(): void {
         self::$declaredClasses = self::getDeclaredClasses();
         self::$controllers = self::getControllers();
         self::$restControllers = self::getRestControllers();
+        self::$configurations = self::getConfigurations();
+
+        self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
 
         self::declareRoutes();
 
@@ -58,6 +67,23 @@ class Application {
         }
 
         return $controllers;
+    }
+
+    /**
+     * @return Configuration[]
+     * */
+    private static function getConfigurations(): array {
+        $configurations = [];
+
+        foreach (self::$declaredClasses as $class) {
+            if (Configuration::isConfiguration($class)) {
+                try {
+                    $configurations[] = new Configuration($class);
+                } catch (ClassNotFoundException) {}
+            }
+        }
+
+        return $configurations;
     }
 
     private static function declareRoute(MethodMapping $mapping): void {

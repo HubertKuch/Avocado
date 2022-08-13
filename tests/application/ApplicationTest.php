@@ -10,6 +10,7 @@ use ReflectionClass;
 
 require __DIR__."/mock/MockedApplication.php";
 require __DIR__."/mock/MockedController.php";
+require __DIR__."/mock/MockedConfiguration.php";
 
 /**
  * @runTestsInSeparateProcesses
