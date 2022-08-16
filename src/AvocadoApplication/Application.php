@@ -5,6 +5,8 @@ namespace Avocado\Application;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Leafs\LeafManager;
+use Avocado\DataSource\DataSource;
+use Avocado\ORM\AvocadoORMSettings;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use ReflectionClass;
 use Avocado\HTTP\HTTPMethod;
@@ -19,6 +21,7 @@ class Application {
     private static array $controllers = [];
     private static array $restControllers = [];
     private static LeafManager $leafManager;
+    private static DataSource $dataSource;
 
     public static final function run(): void {
         self::$declaredClasses = self::getDeclaredClasses();
@@ -34,6 +37,10 @@ class Application {
         self::$restControllers = self::getRestControllers();
 
         self::declareRoutes();
+
+        self::$dataSource = self::getDataSource();
+
+        AvocadoORMSettings::fromExistingSource(self::$dataSource);
 
         AvocadoRouter::listen();
     }
@@ -123,5 +130,9 @@ class Application {
                 }
             }
         }
+    }
+
+    private static function getDataSource(): DataSource {
+        return self::$leafManager->getLeafByClass(DataSource::class);
     }
 }

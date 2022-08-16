@@ -12,6 +12,7 @@ require __DIR__."/mock/MockedApplication.php";
 require __DIR__."/mock/MockedController.php";
 require __DIR__."/mock/MockedResource.php";
 require __DIR__."/mock/MockedConfiguration.php";
+require __DIR__."/mock/MockedDatabaseConfiguration.php";
 
 /**
  * @runTestsInSeparateProcesses

@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 require_once "mock/MockedResource.php";
 require_once "mock/MockedController.php";
 require_once "mock/MockedApplication.php";
+require __DIR__."/mock/MockedDatabaseConfiguration.php";
 
 /**
  * @runTestsInSeparateProcesses
