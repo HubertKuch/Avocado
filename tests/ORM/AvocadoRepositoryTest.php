@@ -2,13 +2,17 @@
 
 namespace Avocado\Tests\Unit;
 
+use Avocado\AvocadoORM\Mappers\MySQLMapper;
+use Avocado\DataSource\Database\DatabaseType;
+use Avocado\DataSource\DataSource;
+use Avocado\DataSource\DataSourceBuilder;
 use Avocado\ORM\Attributes\Field;
 use Avocado\ORM\Attributes\Id;
 use Avocado\ORM\Attributes\Table;
 use Avocado\ORM\AvocadoModelException;
 use Avocado\ORM\AvocadoORMSettings;
 use Avocado\ORM\AvocadoRepository;
-use http\Client\Curl\User;
+use phpDocumentor\Reflection\Types\This;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -51,8 +55,21 @@ class TestUser {
 }
 
 class AvocadoRepositoryTest extends TestCase {
+    private DataSource $dataSource;
+
+    protected function setUp(): void {
+        $this->dataSource = (new DataSourceBuilder())
+            ->username(USER)
+            ->password(PASSWORD)
+            ->databaseName(DATABASE)
+            ->databaseType(DatabaseType::MYSQL)
+            ->port(3306)
+            ->server("127.0.0.1")
+            ->build();
+    }
+
     public function testCreatingNewModelInstancesByEntity() {
-        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
 
         $usersRepo = new AvocadoRepository(TestUser::class);
 
@@ -60,17 +77,17 @@ class AvocadoRepositoryTest extends TestCase {
     }
 
     public function testFindManyActionWithoutCriteria(): void {
-        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
+
         $usersRepo = new AvocadoRepository(TestUser::class);
 
         self::assertIsArray($usersRepo -> findMany());
     }
 
     public function testFindManyActionWithCriteria(): void {
-        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
+
         $usersRepo = new AvocadoRepository(TestUser::class);
-
-
 
         self::assertIsArray($usersRepo -> findMany(array(
             "username" => "test1"
@@ -98,7 +115,9 @@ class AvocadoRepositoryTest extends TestCase {
 
         $ref = new \ReflectionObject($repository);
 
-        $ref->getMethod('sqlEntityToObject')?->invokeArgs($repository, [$testObject]);
+        $mapper = new MySQLMapper();
+
+        $mapper->entityToObject($repository, $testObject);
     }
 
     public function testMappingSQLToObjectWithEnum(): void {
@@ -112,13 +131,15 @@ class AvocadoRepositoryTest extends TestCase {
 
         $ref = new \ReflectionObject($repository);
 
-        $result = $ref->getMethod('sqlEntityToObject')?->invokeArgs($repository, [$testObject]);
+        $mapper = new MySQLMapper();
+        $result = $mapper -> entityToObject($repository, $testObject);
 
         self::assertSame(UserRole::ADMIN, $result->getRole());
     }
 
     public function testSavingObjectsWithEnums(): void {
-        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
+
 
         $testObject = new TestUser("test_with_enum", "test", 2.0, UserRole::USER);
         $repo = new AvocadoRepository(TestUser::class);
@@ -130,7 +151,8 @@ class AvocadoRepositoryTest extends TestCase {
     }
 
     public function testFindingByEnumType(): void {
-        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
+
         $repo = new AvocadoRepository(TestUser::class);
 
         $user = $repo -> findOne(["role" => UserRole::USER]);
@@ -138,7 +160,8 @@ class AvocadoRepositoryTest extends TestCase {
     }
 
     public function testFindFindOne(): void {
-        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
+
 
         $usersRepo = new AvocadoRepository(TestUser::class);
 
@@ -148,7 +171,8 @@ class AvocadoRepositoryTest extends TestCase {
     }
 
     public function testFindOneWithCriteria(): void {
-        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
+
 
         $usersRepo = new AvocadoRepository(TestUser::class);
 
@@ -158,7 +182,8 @@ class AvocadoRepositoryTest extends TestCase {
     }
 
     public function testUpdateMany() {
-        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
+
 
         $usersRepo = new AvocadoRepository(TestUser::class);
         $usersRepo -> updateMany(array("amount2" => 10.0));
@@ -172,7 +197,8 @@ class AvocadoRepositoryTest extends TestCase {
     }
 
     public function testDelete(): void {
-        AvocadoORMSettings::useDatabase(DSN, USER, PASSWORD);
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
+
 
         $usersRepo = new AvocadoRepository(TestUser::class);
 
