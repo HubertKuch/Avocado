@@ -1,8 +1,8 @@
 <?php
 
-namespace Avocado\ORM;
+namespace Avocado\AvocadoORM\Actions;
 
-interface AvocadoRepositoryActions {
+interface   Actions {
     public function findMany(array $criteria);
     public function findOne(array $criteria);
     public function findOneById(string|int $id);
