@@ -17,6 +17,10 @@ class AvocadoModel extends AvocadoORMSettings {
 
     protected string $model;
 
+    public function getModel(): string {
+        return $this->model;
+    }
+
     protected ReflectionClass $ref;
     private array $attrs;
     private array $properties;
@@ -162,7 +166,7 @@ class AvocadoModel extends AvocadoORMSettings {
         return $targetProperty;
     }
 
-    protected function isPropertyIsEnum(string $aliasOrName): bool {
+    public function isPropertyIsEnum(string $aliasOrName): bool {
         if (!($this->ref->hasProperty($aliasOrName))) {
             $aliasOrName = $this->getPropertyByAlias($aliasOrName)->getName() ?? $aliasOrName;
         }
