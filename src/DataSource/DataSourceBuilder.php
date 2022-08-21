@@ -63,7 +63,7 @@ class DataSourceBuilder {
                 $this->password,
                 $this->server,
                 $this->database,
-                $this->username,
+                $this->port,
             )
         };
 
