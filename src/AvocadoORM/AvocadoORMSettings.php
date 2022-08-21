@@ -3,7 +3,7 @@
 namespace Avocado\ORM;
 
 use Avocado\DataSource\DataSource;
-use PDO;
+use Avocado\DataSource\Drivers\Connection\Connection;
 
 class AvocadoORMSettings {
     private static array $settings = array(
@@ -11,22 +11,11 @@ class AvocadoORMSettings {
         "DRIVER"        => null,
     );
 
-    /**
-     * @throws AvocadoRepositoryException
-     */
-    public static function useDatabase(string $dsn, string $user, string $pass): void {
-        try {
-            self::$settings['CONNECTION'] = new PDO($dsn, $user, $pass);
-        } catch (\PDOException $e) {
-            throw new AvocadoRepositoryException("Database connection fail: $e->errorInfo");
-        }
-    }
-
     public static function fromExistingSource(DataSource $dataSource): void {
-        self::$settings['CONNECTION'] = $dataSource->getDriver()->connect()->getPDO();
+        self::$settings['CONNECTION'] = $dataSource->getDriver()->connect();
     }
 
-    protected static function _getConnection(): PDO {
+    protected static function _getConnection(): Connection {
         return self::$settings['CONNECTION'];
     }
 }
