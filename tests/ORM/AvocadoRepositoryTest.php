@@ -12,7 +12,6 @@ use Avocado\ORM\Attributes\Table;
 use Avocado\ORM\AvocadoModelException;
 use Avocado\ORM\AvocadoORMSettings;
 use Avocado\ORM\AvocadoRepository;
-use phpDocumentor\Reflection\Types\This;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -145,7 +144,7 @@ class AvocadoRepositoryTest extends TestCase {
         $repo = new AvocadoRepository(TestUser::class);
 
         $repo -> save($testObject);
-        $testObject = $repo->findOne(["username" => "test_with_enum"]);
+        $testObject = $repo->findFirst(["username" => "test_with_enum"]);
 
         self::assertSame(UserRole::USER, $testObject->getRole());
     }
@@ -155,7 +154,7 @@ class AvocadoRepositoryTest extends TestCase {
 
         $repo = new AvocadoRepository(TestUser::class);
 
-        $user = $repo -> findOne(["role" => UserRole::USER]);
+        $user = $repo -> findFirst(["role" => UserRole::USER]);
         self::assertTrue($user instanceof TestUser && $user -> getRole() === UserRole::USER);
     }
 
@@ -165,7 +164,7 @@ class AvocadoRepositoryTest extends TestCase {
 
         $usersRepo = new AvocadoRepository(TestUser::class);
 
-        self::assertIsObject($usersRepo -> findOne(array(
+        self::assertIsObject($usersRepo -> findFirst(array(
             "username" => "test1"
         )));
     }
@@ -176,7 +175,7 @@ class AvocadoRepositoryTest extends TestCase {
 
         $usersRepo = new AvocadoRepository(TestUser::class);
 
-        self::assertIsObject($usersRepo -> findOne(array(
+        self::assertIsObject($usersRepo -> findFirst(array(
             "username" => "%test%"
         )));
     }
@@ -206,7 +205,7 @@ class AvocadoRepositoryTest extends TestCase {
             "username" => "test1"
         ));
 
-        self::assertNull($usersRepo -> findOne(array(
+        self::assertNull($usersRepo -> findFirst(array(
             "username" => "test1"
         )));
 
