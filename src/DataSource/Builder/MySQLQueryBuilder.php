@@ -2,42 +2,61 @@
 
 namespace Avocado\DataSource\Builder;
 
+use Avocado\AvocadoORM\Order;
+
 class MySQLQueryBuilder implements SQLBuilder {
 
-    public function find(string $tableName, array $criteria, ?array $special = []): string {
+    private string $sql;
+
+    public function __construct(string $sql = "") {
+        $this->sql = $sql;
+    }
+
+    public function get(): string {
+        return $this->sql;
+    }
+
+    public function setSql(string $sql): MySQLQueryBuilder {
+        $this->sql = $sql;
+
+        return $this;
+    }
+
+
+    public static function find(string $tableName, array $criteria, ?array $special = []): Builder {
         $base = "SELECT * FROM $tableName";
 
         if (!empty($criteria)) {
-            $base .= " WHERE ".$this->buildCriteria($criteria);
+            $base .= " WHERE ".self::buildCriteria($criteria);
         }
 
-        return $base;
+        return new MySQLQueryBuilder($base);
     }
 
-    public function update(string $tableName, array $updateCriteria, array $findCriteria = []): string {
+    public static function update(string $tableName, array $updateCriteria, array $findCriteria = []): Builder {
         $base = "UPDATE $tableName SET ";
 
-        $base .= $this->buildUpdateCriteria($updateCriteria);
-        $base .= $this->buildCriteria($findCriteria);
+        $base .= self::buildUpdateCriteria($updateCriteria);
+        $base .= self::buildCriteria($findCriteria);
 
-        return $base;
+        return new MySQLQueryBuilder($base);
     }
 
-    public function delete(string $tableName, array $criteria): string {
+    public static function delete(string $tableName, array $criteria): Builder {
        $base = "DELETE FROM $tableName ";
 
         if (!empty($criteria)) {
-            $base .= " WHERE ".$this->buildCriteria($criteria);
+            $base .= " WHERE ".self::buildCriteria($criteria);
         }
 
-       return $base;
+       return new MySQLQueryBuilder($base);
     }
 
-    public function save(string $tableName, object $object): string {
-        return "";
+    public static function save(string $tableName, object $object): Builder {
+        return new MySQLQueryBuilder();
     }
 
-    public function buildCriteria(array $criteria): string {
+    public static function buildCriteria(array $criteria): string {
         $sql = "";
 
         foreach ($criteria as $key => $value) {
@@ -56,7 +75,7 @@ class MySQLQueryBuilder implements SQLBuilder {
         return substr($sql, 0,-4);
     }
 
-    public function buildUpdateCriteria(array $criteria): string {
+    public static function buildUpdateCriteria(array $criteria): string {
         $sql = "";
 
         foreach ($criteria as $key => $value) {
@@ -72,5 +91,23 @@ class MySQLQueryBuilder implements SQLBuilder {
         }
 
         return substr($sql, 0, -2);
+    }
+
+    public function limit(int $limit): Builder {
+        $this->sql .= " LIMIT $limit ";
+
+        return $this;
+    }
+
+    public function offset(int $offset): Builder {
+        $this->sql .= " OFFSET $offset ";
+
+        return $this;
+    }
+
+    public function orderBy(string $field, Order $order): Builder {
+        $this->sql .= " ORDER BY $field {$order->value}";
+
+        return $this;
     }
 }

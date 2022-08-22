@@ -177,7 +177,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
      * @throws ReflectionException|AvocadoModelException
      */
     public function findMany(array $criteria = []): array {
-        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria);
+        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria)->get();
 
         return ($this->query($sql)) ?: [];
     }
@@ -188,7 +188,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
      * @throws ReflectionException|AvocadoModelException
      */
     public function findFirst(array $criteria = []) {
-        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria);
+        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria)->get();
         $sql.= " LIMIT 1";
 
         $res = $this->query($sql);
@@ -204,7 +204,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     public function findById(int|string $id) {
         $sql = parent::getConnection()->queryBuilder()->find($this->tableName, [
             $this->primaryKey => $id
-        ]);
+        ])->get();
 
         $res = $this->query($sql);
 
@@ -223,7 +223,10 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     }
 
     public function paginate(int $limit, int $offset): array {
-        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, []);
+        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, [])
+            ->limit($limit)
+            ->offset($offset)
+            ->get();
 
         return $this->query($sql." LIMIT $limit OFFSET $offset");
     }
@@ -236,7 +239,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
             throw new AvocadoRepositoryException(self::EXCEPTION_UPDATE_CRITERIA_MESSAGE);
         }
 
-        $sql = parent::getConnection()->queryBuilder()->update($this->tableName, $updateCriteria, $criteria);
+        $sql = parent::getConnection()->queryBuilder()->update($this->tableName, $updateCriteria, $criteria)->get();
 
         $this->query($sql);
     }
@@ -251,7 +254,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
 
         $sql = parent::getConnection()->queryBuilder()->update($this->tableName, $updateCriteria, [
             $this->primaryKey => $id
-        ]);
+        ])->get();
 
         $this->query($sql);
     }
@@ -263,7 +266,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
      * @throws ReflectionException|AvocadoModelException
      */
     public function deleteMany(array $criteria) {
-        $sql = parent::getConnection()->queryBuilder()->delete($this->tableName, $criteria);
+        $sql = parent::getConnection()->queryBuilder()->delete($this->tableName, $criteria)->get();
 
         $this->query($sql);
     }
@@ -276,7 +279,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     public function deleteOneById(int|string $id): void {
         $sql = parent::getConnection()->queryBuilder()->delete($this->tableName, [
             $this->primaryKey => $id
-        ]);
+        ])->get();
 
         $this->query($sql);
     }
