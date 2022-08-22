@@ -112,7 +112,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
      * @throws ReflectionException|AvocadoModelException
      */
     private function query(string $sql): array {
-        $stmt = self::_getConnection()->prepare($sql);
+        $stmt = self::getConnection()->prepare($sql);
         $data = $stmt -> execute();
         $entities = [];
 
@@ -174,26 +174,21 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     /**
      * @param array $criteria
      * @return array<T>
-     * @throws AvocadoRepositoryException
      * @throws ReflectionException|AvocadoModelException
      */
     public function findMany(array $criteria = []): array {
-        $sql = "SELECT * FROM $this->tableName";
+        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria);
 
-        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
         return ($this->query($sql)) ?: [];
     }
 
     /**
      * @param array $criteria
      * @return T|null
-     * @throws AvocadoRepositoryException
      * @throws ReflectionException|AvocadoModelException
      */
-    public function findOne(array $criteria = []) {
-        $sql = "SELECT * FROM $this->tableName";
-
-        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
+    public function findFirst(array $criteria = []) {
+        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria);
         $sql.= " LIMIT 1";
 
         $res = $this->query($sql);
@@ -204,15 +199,12 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     /**
      * @param int|string $id
      * @return T|null
-     * @throws AvocadoRepositoryException
      * @throws ReflectionException|AvocadoModelException
      */
-    public function findOneById(int|string $id) {
-        $sql = "SELECT * FROM $this->tableName";
-
-        $this->provideCriteria($sql, array(
+    public function findById(int|string $id) {
+        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, [
             $this->primaryKey => $id
-        ));
+        ]);
 
         $res = $this->query($sql);
 
@@ -231,58 +223,35 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     }
 
     public function paginate(int $limit, int $offset): array {
-        $sql = "SELECT * FROM $this->tableName LIMIT $limit OFFSET $offset";
-        return $this->query($sql);
+        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, []);
+
+        return $this->query($sql." LIMIT $limit OFFSET $offset");
     }
 
     /**
-     * @throws AvocadoRepositoryException|ReflectionException
+     * @throws AvocadoRepositoryException|ReflectionException|AvocadoModelException
      */
     public function updateMany(array $updateCriteria, array $criteria = []) {
         if (empty($updateCriteria)) {
             throw new AvocadoRepositoryException(self::EXCEPTION_UPDATE_CRITERIA_MESSAGE);
         }
 
-        $sql = "UPDATE $this->tableName SET ";
-
-        $this->provideUpdateCriteria($sql, $updateCriteria);
-        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
+        $sql = parent::getConnection()->queryBuilder()->update($this->tableName, $updateCriteria, $criteria);
 
         $this->query($sql);
     }
 
     /**
-     * @throws AvocadoRepositoryException
+     * @throws ReflectionException|AvocadoModelException
      */
-    public function updateOne(array $updateCriteria, array $criteria = []) {
-        if (empty($updateCriteria)) {
-            throw new AvocadoRepositoryException(self::EXCEPTION_UPDATE_CRITERIA_MESSAGE);
-        }
-
-        $sql = "UPDATE $this->tableName SET ";
-
-        $this->provideUpdateCriteria($sql, $updateCriteria);
-        if (!empty($criteria)) $this->provideCriteria($sql, $criteria);
-
-        $sql .= " LIMIT 1";
-
-        $this->query($sql);
-    }
-
-    /**
-     * @throws AvocadoRepositoryException|ReflectionException|AvocadoModelException
-     */
-    public function updateOneById(array $updateCriteria, string|int $id) {
+    public function updateById(array $updateCriteria, string|int $id) {
         if (empty($updateCriteria)) {
             throw new AvocadoModelException(self::EXCEPTION_UPDATE_CRITERIA_MESSAGE);
         }
 
-        $sql = "UPDATE $this->tableName SET ";
-
-        $this->provideUpdateCriteria($sql, $updateCriteria);
-        $this->provideCriteria($sql, array(
+        $sql = parent::getConnection()->queryBuilder()->update($this->tableName, $updateCriteria, [
             $this->primaryKey => $id
-        ));
+        ]);
 
         $this->query($sql);
     }
@@ -291,12 +260,10 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     /**
      * @param array $criteria
      * @return void
-     * @throws AvocadoRepositoryException
-     * @throws ReflectionException
+     * @throws ReflectionException|AvocadoModelException
      */
     public function deleteMany(array $criteria) {
-        $sql = "DELETE FROM $this->tableName ";
-        $this->provideCriteria($sql, $criteria);
+        $sql = parent::getConnection()->queryBuilder()->delete($this->tableName, $criteria);
 
         $this->query($sql);
     }
@@ -304,14 +271,12 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     /**
      * @param int|string $id
      * @return void
-     * @throws AvocadoRepositoryException
-     * @throws ReflectionException
+     * @throws ReflectionException|AvocadoModelException
      */
-    public function deleteOneById(int|string $id) {
-        $sql = "DELETE FROM $this->tableName ";
-        $this->provideCriteria($sql, array(
+    public function deleteOneById(int|string $id): void {
+        $sql = parent::getConnection()->queryBuilder()->delete($this->tableName, [
             $this->primaryKey => $id
-        ));
+        ]);
 
         $this->query($sql);
     }
