@@ -16,12 +16,6 @@ class MySQLQueryBuilder implements SQLBuilder {
         return $this->sql;
     }
 
-    public function setSql(string $sql): MySQLQueryBuilder {
-        $this->sql = $sql;
-
-        return $this;
-    }
-
 
     public static function find(string $tableName, array $criteria, ?array $special = []): Builder {
         $base = "SELECT * FROM $tableName";
