@@ -26,7 +26,9 @@ class MySQLQueryBuilder implements SQLBuilder {
     public function delete(string $tableName, array $criteria): string {
        $base = "DELETE FROM $tableName ";
 
-       $base .= $this->buildCriteria($criteria);
+        if (!empty($criteria)) {
+            $base .= " WHERE ".$this->buildCriteria($criteria);
+        }
 
        return $base;
     }
@@ -42,7 +44,8 @@ class MySQLQueryBuilder implements SQLBuilder {
             $valueType = gettype($value);
 
             if (is_object($value)) {
-                $valueType = $value->value ?? NULL;
+                $valueType = gettype($value->value) ?? NULL;
+                $value = $value->value;
             }
 
             if ($valueType === "integer" || $valueType === "double" || $valueType === "boolean") $sql.=" $key = $value AND ";
