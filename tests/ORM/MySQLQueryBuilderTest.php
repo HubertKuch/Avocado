@@ -49,6 +49,6 @@ class MySQLQueryBuilderTest extends TestCase {
     public function testDeleteWithCriteria() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertSame('DELETE FROM test  a = 2 AND  b LIKE "asd"', $builder->delete("test", ["a" => 2, "b" => "asd"]));
+        self::assertSame('DELETE FROM test  WHERE  a = 2 AND  b LIKE "asd"', $builder->delete("test", ["a" => 2, "b" => "asd"]));
     }
 }
