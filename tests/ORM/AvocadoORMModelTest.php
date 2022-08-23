@@ -34,13 +34,13 @@ enum UserRole: string {
 }
 
 #[Table('users')]
-class TableWithIgnoringType{
+class TableWithIgnoringType {
     #[Id]
-    private int $id;
+    private ?int $id;
     #[Field]
     private UserRole $role;
 
-    public function __construct(int $id, UserRole $role) {
+    public function __construct(?int $id, UserRole $role) {
         $this->id = $id;
         $this->role = $role;
     }

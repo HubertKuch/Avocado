@@ -2,8 +2,6 @@
 
 namespace Avocado\DataSource\Database\Statement;
 
-use Avocado\AvocadoORM\Mappers\Mapper;
-use Avocado\AvocadoORM\Mappers\MySQLMapper;
 use PDO;
 
 class MySQLStatement implements Statement {
@@ -19,9 +17,5 @@ class MySQLStatement implements Statement {
         $stmt = $this->pdo->query($this->sql);
 
         return $stmt->fetchAll(PDO::FETCH_CLASS);
-    }
-
-    public function mapper(): Mapper {
-        return new MySQLMapper();
     }
 }

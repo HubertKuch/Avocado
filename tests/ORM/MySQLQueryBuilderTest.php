@@ -2,20 +2,24 @@
 
 namespace Avocado\DataSource\Builder;
 
+use Avocado\Tests\Unit\TableWithIgnoringType;
+use Avocado\Tests\Unit\UserRole;
 use PHPUnit\Framework\TestCase;
+
+require "AvocadoORMModelTest.php";
 
 class MySQLQueryBuilderTest extends TestCase {
 
     public function testFind() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertSame("SELECT * FROM test", $builder->find("test", [])->get());
+        self::assertStringContainsString("SELECT * FROM test", $builder->find("test", [])->get());
     }
 
     public function testFindWithCriteria() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertSame("SELECT * FROM test WHERE  a = 2 AND  b LIKE \"asd\" AND c = null",
+        self::assertStringContainsString("SELECT * FROM test WHERE  a = 2 AND  b LIKE \"asd\" AND c = null",
             $builder->find("test", ["a" => 2, "b" => "asd", "c" => null])->get()
         );
     }
@@ -23,7 +27,7 @@ class MySQLQueryBuilderTest extends TestCase {
     public function testUpdate() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertSame('UPDATE test SET  a = 24,  b = "null" ', $builder->update(
+        self::assertStringContainsString('UPDATE test SET  a = 24,  b = "null" ', $builder->update(
             "test",
             [
                 "a" => 24,
@@ -35,7 +39,7 @@ class MySQLQueryBuilderTest extends TestCase {
     public function testUpdateWithCriteria() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertSame('UPDATE test SET  a = 2,  b = "asd"  test = 12 AND  test2 = null',
+        self::assertStringContainsString('UPDATE test SET  a = 2,  b = "asd"  test = 12 AND  test2 = null',
             $builder->update("test",
                 ["a" => 2, "b" => "asd"],
                 ["test" => 12, "test2" => null]
@@ -45,12 +49,20 @@ class MySQLQueryBuilderTest extends TestCase {
     public function testDelete() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertSame('DELETE FROM test ', $builder->delete("test", [])->get());
+        self::assertStringContainsString('DELETE FROM test ', $builder->delete("test", [])->get());
     }
 
     public function testDeleteWithCriteria() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertSame('DELETE FROM test  WHERE  a = 2 AND  b LIKE "asd"', $builder->delete("test", ["a" => 2, "b" => "asd"])->get());
+        self::assertStringContainsString('DELETE FROM test  WHERE  a = 2 AND  b LIKE "asd"', $builder->delete("test", ["a" => 2, "b" => "asd"])->get());
+    }
+
+    public function testSave() {
+        $obj = new TableWithIgnoringType(null, UserRole::USER);
+
+        $sql = MySQLQueryBuilder::save("test", $obj)->get();
+
+        self::assertStringContainsString('INSERT INTO test (id, role) VALUE (NULL , "user")', $sql);
     }
 }
