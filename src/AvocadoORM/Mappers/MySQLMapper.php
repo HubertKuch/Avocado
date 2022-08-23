@@ -27,6 +27,7 @@ class MySQLMapper implements Mapper {
         $instanceReflection = new ReflectionObject($instance);
 
         foreach ($modelProperties as $modelProperty) {
+
             $field = $modelProperty->getAttributes(Field::class)[0] ?? null;
             $primaryKey = $modelProperty->getAttributes(Id::class)[0] ?? null;
             $modelPropertyName = $modelProperty->getName();
@@ -43,6 +44,8 @@ class MySQLMapper implements Mapper {
             $entityPropertyValue = $entityReflection -> getProperty($entityPropertyName) -> getValue($entity);
 
             $instanceProperty = $instanceReflection -> getProperty($modelPropertyName);
+
+//            var_dump($modelProperty, $model->isPropertyIsEnum($modelPropertyName));
 
             if ($model->isPropertyIsEnum($modelPropertyName)) {
                 $enumPropertyReflection = new ReflectionEnum($modelProperty->getType()->getName());
@@ -66,9 +69,4 @@ class MySQLMapper implements Mapper {
 
         return $instance;
     }
-
-    public function toEntityData(object $object): mixed {
-        return [];
-    }
-
 }

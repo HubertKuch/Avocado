@@ -116,7 +116,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
         $data = $stmt -> execute();
         $entities = [];
 
-        $mapper = $stmt->mapper();
+        $mapper = self::getConnection()->mapper();
 
         foreach ($data as $entity) {
             $entities[] = $mapper->entityToObject($this, $entity);
@@ -317,12 +317,9 @@ class AvocadoRepository extends AvocadoModel implements Actions {
      * @throws ReflectionException|AvocadoModelException|AvocadoRepositoryException
      */
     public function save(object $entity): void {
-        $insertColumnStatement = $this->getInsertColumns($entity);
-        $sql = "INSERT INTO $this->tableName $insertColumnStatement VALUES (NULL, ";
-        $sql.=$this->getObjectAttributesAsSQLString($entity);
-        $sql.=")";
+        $sql = parent::getConnection()->queryBuilder()::save($this->tableName, $entity)->get();
 
-        $this->query($sql);
+        parent::getConnection()->prepare($sql)->execute();
     }
 
     /**

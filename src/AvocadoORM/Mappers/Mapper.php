@@ -6,5 +6,7 @@ use Avocado\ORM\AvocadoModel;
 
 interface Mapper {
     public function entityToObject(AvocadoModel $model, object $entity): object;
-    public function toEntityData(object $object): mixed;
 }
+
+// (test, test, test) values ("test", "Test", "test")
+// ["test" => "test"]
