@@ -3,6 +3,7 @@
 namespace Avocado\DataSource\Builder;
 
 use Avocado\AvocadoORM\Order;
+use Avocado\Utils\ReflectionUtils;
 
 class MySQLQueryBuilder implements SQLBuilder {
 
@@ -15,7 +16,6 @@ class MySQLQueryBuilder implements SQLBuilder {
     public function get(): string {
         return $this->sql;
     }
-
 
     public static function find(string $tableName, array $criteria, ?array $special = []): Builder {
         $base = "SELECT * FROM $tableName";
@@ -47,10 +47,17 @@ class MySQLQueryBuilder implements SQLBuilder {
     }
 
     public static function save(string $tableName, object $object): Builder {
-        return new MySQLQueryBuilder();
+        $fields = ReflectionUtils::modelFieldsToArray($object);
+
+        $insertColumns = self::fieldsArrayToColumnString($fields);
+        $saveValues = self::fieldsToSaveString($fields);
+
+        $base = "INSERT INTO $tableName ($insertColumns) VALUE ($saveValues)";
+
+        return new MySQLQueryBuilder($base);
     }
 
-    public static function buildCriteria(array $criteria): string {
+    private static function buildCriteria(array $criteria): string {
         $sql = "";
 
         foreach ($criteria as $key => $value) {
@@ -69,7 +76,7 @@ class MySQLQueryBuilder implements SQLBuilder {
         return substr($sql, 0,-4);
     }
 
-    public static function buildUpdateCriteria(array $criteria): string {
+    private static function buildUpdateCriteria(array $criteria): string {
         $sql = "";
 
         foreach ($criteria as $key => $value) {
@@ -85,6 +92,32 @@ class MySQLQueryBuilder implements SQLBuilder {
         }
 
         return substr($sql, 0, -2);
+    }
+
+    private static function fieldsArrayToColumnString(array $arr): string {
+        return ltrim(array_reduce(array_keys($arr), fn ($prev, $key) => $prev . ", $key"), ", \s\t\n\r\0\x0B");
+    }
+
+    private static function fieldsToSaveString(array $arr): string {
+        $subject = array_reduce(array_keys($arr), function ($prev, $key) use ($arr) {
+            $val = $arr[$key];
+
+            if (is_object($val)) {
+                $val = $val->value;
+            }
+
+            if (is_null($val)) {
+                $prev .= ", NULL";
+            } else if (is_string($val) == "string") {
+                $prev .= " , \"$val\"";
+            } else {
+                $prev .= " , $val";
+            }
+
+            return $prev;
+        });
+
+        return ltrim($subject, ", ");
     }
 
     public function limit(int $limit): Builder {
