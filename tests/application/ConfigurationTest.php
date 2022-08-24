@@ -8,13 +8,6 @@ use Avocado\AvocadoApplication\Leafs\LeafManager;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-require __DIR__."/mock/MockedApplication.php";
-require __DIR__."/mock/MockedResource.php";
-require __DIR__."/mock/MockedController.php";
-require __DIR__."/mock/MockedLeafController.php";
-require __DIR__."/mock/MockedConfiguration.php";
-require __DIR__."/mock/MockedDatabaseConfiguration.php";
-
 /**
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -26,7 +19,7 @@ class ConfigurationTest extends TestCase {
      * */
     public function testGetConfigurations() {
         $_SERVER['REQUEST_METHOD'] = "GET";
-        Application::run();
+        Application::run(__DIR__);
 
         $reflection = new ReflectionClass(Application::class);
 
@@ -38,7 +31,7 @@ class ConfigurationTest extends TestCase {
      * */
     public function testGetLeafByClass() {
         $_SERVER['REQUEST_METHOD'] = "GET";
-        Application::run();
+        Application::run(__DIR__);
 
         $reflection = new ReflectionClass(Application::class);
         /** @var $leafManager LeafManager */
@@ -54,7 +47,7 @@ class ConfigurationTest extends TestCase {
      * */
     public function testGetLeafByName() {
         $_SERVER['REQUEST_METHOD'] = "GET";
-        Application::run();
+        Application::run(__DIR__);
 
         $reflection = new ReflectionClass(Application::class);
         /** @var $leafManager LeafManager */

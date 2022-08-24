@@ -17,7 +17,7 @@ class MockedDatabaseConfiguration {
             ->username("root")
             ->password("")
             ->server("127.0.0.1")
-            ->port(80)
+            ->port(3306)
             ->databaseType(DatabaseType::MYSQL)
             ->databaseName("")
             ->build();

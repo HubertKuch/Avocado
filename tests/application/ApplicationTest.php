@@ -8,23 +8,20 @@ use AvocadoApplication\Mappings\MethodMapping;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-require __DIR__."/mock/MockedApplication.php";
-require __DIR__."/mock/MockedController.php";
-require __DIR__."/mock/MockedResource.php";
-require __DIR__."/mock/MockedConfiguration.php";
-require __DIR__."/mock/MockedDatabaseConfiguration.php";
-
 /**
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  * */
 class ApplicationTest extends TestCase {
+
     /**
      * @runInSeparateProcess
      * */
     public function testRestGettingControllers(): void {
         $_SERVER['REQUEST_METHOD'] = "GET";
-        Application::run();
+        Application::run(__DIR__);
+
+        self::assertStringContainsString("test", "test");
 
         $applicationReflection = new ReflectionClass(Application::class);
         $controller = $applicationReflection->getStaticPropertyValue('restControllers')[0];
@@ -37,7 +34,7 @@ class ApplicationTest extends TestCase {
      * */
     public function testGettingControllerRoutes(): void {
         $_SERVER['REQUEST_METHOD'] = "GET";
-        Application::run();
+        Application::run(__DIR__);
 
         $applicationReflection = new ReflectionClass(Application::class);
         $controller = $applicationReflection->getStaticPropertyValue('restControllers')[0];
@@ -58,7 +55,7 @@ class ApplicationTest extends TestCase {
 
         $_SERVER['PHP_SELF'].="/hello-world";
 
-        Application::run();
+        Application::run(__DIR__);
 
         self::assertSame('["Get Hello World"]', ob_get_contents());
     }
@@ -71,7 +68,7 @@ class ApplicationTest extends TestCase {
 
         $_SERVER['PHP_SELF'].="/hello-world";
 
-        Application::run();
+        Application::run(__DIR__);
 
         self::assertSame('["Post Hello World"]', ob_get_contents());
     }
@@ -84,7 +81,7 @@ class ApplicationTest extends TestCase {
 
         $_SERVER['PHP_SELF'].="/hello-world";
 
-        Application::run();
+        Application::run(__DIR__);
 
         self::assertSame('["Delete Hello World"]', ob_get_contents());
     }
@@ -97,7 +94,7 @@ class ApplicationTest extends TestCase {
 
         $_SERVER['PHP_SELF'].="/hello-world";
 
-        Application::run();
+        Application::run(__DIR__);
 
         self::assertSame('["Patch Hello World"]', ob_get_contents());
     }
@@ -110,7 +107,7 @@ class ApplicationTest extends TestCase {
 
         $_SERVER['PHP_SELF'].="/hello-world";
 
-        Application::run();
+        Application::run(__DIR__);
 
         self::assertSame('["Put Hello World"]', ob_get_contents());
     }
@@ -123,7 +120,7 @@ class ApplicationTest extends TestCase {
 
         $_SERVER['PHP_SELF'].="/hello-world/array/";
 
-        Application::run();
+        Application::run(__DIR__);
 
         self::assertSame('["Get Hello World Array"]', ob_get_contents());
     }
