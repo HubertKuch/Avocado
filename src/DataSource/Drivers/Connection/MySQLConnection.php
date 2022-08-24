@@ -4,11 +4,11 @@ namespace Avocado\DataSource\Drivers\Connection;
 
 use Avocado\AvocadoORM\Mappers\Mapper;
 use Avocado\AvocadoORM\Mappers\MySQLMapper;
-use Avocado\DataSource\Builder\SQLBuilder;
-use PDO;
 use Avocado\DataSource\Builder\MySQLQueryBuilder;
+use Avocado\DataSource\Builder\SQLBuilder;
 use Avocado\DataSource\Database\Statement\MySQLStatement;
 use Avocado\DataSource\Database\Statement\Statement;
+use PDO;
 
 class MySQLConnection implements Connection {
     private ?PDO $pdo;

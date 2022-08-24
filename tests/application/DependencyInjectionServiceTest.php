@@ -3,8 +3,6 @@
 namespace AvocadoApplication\Tests\Unit\Application\DependencyInjection;
 
 use Avocado\Application\Application;
-use AvocadoApplication\DependencyInjection\Exceptions\ResourceNotFoundException;
-use AvocadoApplication\DependencyInjection\Exceptions\TooMuchResourceConstructorParametersException;
 use PHPUnit\Framework\TestCase;
 
 /**

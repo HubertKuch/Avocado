@@ -6,14 +6,14 @@ use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Leafs\LeafManager;
 use Avocado\DataSource\DataSource;
-use Avocado\ORM\AvocadoORMSettings;
-use AvocadoApplication\DependencyInjection\DependencyInjectionService;
-use Composer\Autoload\ClassLoader;
-use ReflectionClass;
 use Avocado\HTTP\HTTPMethod;
+use Avocado\ORM\AvocadoORMSettings;
 use Avocado\Router\AvocadoRouter;
+use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\Mappings\MethodMapping;
+use Composer\Autoload\ClassLoader;
 use Kcs\ClassFinder\Finder\ComposerFinder;
+use ReflectionClass;
 use ReflectionException;
 
 class Application {

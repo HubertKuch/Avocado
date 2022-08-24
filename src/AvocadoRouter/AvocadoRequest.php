@@ -2,8 +2,6 @@
 
 namespace Avocado\Router;
 
-use phpDocumentor\Reflection\DocBlock\Tags\Since;
-
 class AvocadoRequest {
     public array $body;
     public array $query;

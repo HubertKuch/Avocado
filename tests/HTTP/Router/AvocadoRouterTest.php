@@ -2,8 +2,8 @@
 
 namespace Avocado\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use Avocado\Router\AvocadoRouter;
+use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 class AvocadoRouterTest extends TestCase {

@@ -3,10 +3,11 @@
 namespace Avocado\HTTP\JSON;
 
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class JSONTest extends TestCase {
     public function testParsingObject() {
-        $object = new \stdClass();
+        $object = new stdClass();
         $object->test = "Test";
         $object->name = "john";
 
@@ -16,11 +17,11 @@ class JSONTest extends TestCase {
     }
 
     public function testParsingMultipleObjects() {
-        $object = new \stdClass();
+        $object = new stdClass();
         $object->test = "Test";
         $object->name = "john";
 
-        $object2 = new \stdClass();
+        $object2 = new stdClass();
         $object2->test = "Test2";
         $object2->name = "john2";
 

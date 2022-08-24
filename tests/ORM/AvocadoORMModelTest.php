@@ -7,6 +7,7 @@ use Avocado\ORM\Attributes\Id;
 use Avocado\ORM\Attributes\Table;
 use Avocado\ORM\AvocadoModel;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use ReflectionObject;
 
 #[Table('table')]
@@ -51,7 +52,7 @@ class AvocadoORMModelTest extends TestCase {
     public function testModelPrimaryKeyWithPassedItAsString(): void {
         $model = new AvocadoModel(TestModelWithIdAsString::class);
 
-        $reflectionToModel = new \ReflectionClass($model);
+        $reflectionToModel = new ReflectionClass($model);
         $primaryKey = $reflectionToModel->getProperty('primaryKey')->getValue($model);
 
         self::assertSame('id', $primaryKey);
@@ -60,7 +61,7 @@ class AvocadoORMModelTest extends TestCase {
     public function testModelPrimaryKeyWithoutPassingIt(): void {
         $model = new AvocadoModel(TestModelWithoutPassedId::class);
 
-        $reflectionToModel = new \ReflectionClass($model);
+        $reflectionToModel = new ReflectionClass($model);
         $primaryKey = $reflectionToModel->getProperty('primaryKey')->getValue($model);
 
         self::assertSame('id', $primaryKey);
@@ -68,7 +69,7 @@ class AvocadoORMModelTest extends TestCase {
 
     public function testTableName(): void {
         $model = new AvocadoModel(TestModelWithIdAsString::class);
-        $ref = new \ReflectionClass($model);
+        $ref = new ReflectionClass($model);
         $tableName = $ref->getProperty('tableName')->getValue($model);
 
         self::assertSame('table', $tableName);
@@ -76,7 +77,7 @@ class AvocadoORMModelTest extends TestCase {
 
     public function testIsPropertyIsEnum(): void {
         $model = new AvocadoModel(TableWithIgnoringType::class);
-        $ref = new \ReflectionObject($model);
+        $ref = new ReflectionObject($model);
 
         self::assertTrue($ref->getMethod('isPropertyIsEnum')?->invokeArgs($model, ["role"]));
     }

@@ -2,11 +2,11 @@
 
 namespace Avocado\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-
-use Avocado\AvocadoView\View;
-use Avocado\AvocadoView\AvocadoViewNotFoundException;
 use Avocado\AvocadoView\AvocadoViewException;
+use Avocado\AvocadoView\AvocadoViewNotFoundException;
+use Avocado\AvocadoView\View;
+use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 class AvocadoViewTest extends TestCase{
     public function testShouldThrowAvocadoViewNotFoundException() {
@@ -24,7 +24,7 @@ class AvocadoViewTest extends TestCase{
     public function testUndefinedVariable() {
         $view = new View(__DIR__."/testView.avocado");
 
-        $parsedHTML = new \ReflectionProperty(View::class, 'parsedView');
+        $parsedHTML = new ReflectionProperty(View::class, 'parsedView');
         $parsedHTML = $parsedHTML->getValue($view);
         $excepted = "<p>UNDEFINED_VARIABLE_NAME</p>";
 
@@ -36,7 +36,7 @@ class AvocadoViewTest extends TestCase{
             "test" => "john doe"
         ));
 
-        $parsedHTML = new \ReflectionProperty(View::class, 'parsedView');
+        $parsedHTML = new ReflectionProperty(View::class, 'parsedView');
         $parsedHTML = $parsedHTML->getValue($view);
         $excepted = "<p>john doe</p>";
 
@@ -49,7 +49,7 @@ class AvocadoViewTest extends TestCase{
             "test1" => "doe"
         ));
 
-        $parsedHTML = new \ReflectionProperty(View::class, 'parsedView');
+        $parsedHTML = new ReflectionProperty(View::class, 'parsedView');
         $parsedHTML = $parsedHTML->getValue($view);
         $excepted = "<p>john doe</p>";
 

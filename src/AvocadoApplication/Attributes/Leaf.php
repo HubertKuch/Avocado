@@ -15,7 +15,6 @@ class Leaf implements Resourceable {
     private ReflectionMethod $reflectionMethod;
     private string $returnType;
     private object $resourceInstance;
-    private Configuration $configuration;
 
     public function __construct(?string $name = "") {}
 
@@ -25,7 +24,7 @@ class Leaf implements Resourceable {
     public function init(ReflectionMethod $method, Configuration $configuration): Leaf {
         $this->methodName = $method->getName();
         $this->reflectionMethod = $method;
-        $this->configuration = $configuration;
+        $configuration1 = $configuration;
         $this->leafName = $this->getLeafName();
 
         $returnTypes = $method->getReturnType()->getName();
@@ -36,7 +35,7 @@ class Leaf implements Resourceable {
 
         $this->returnType = $this->reflectionMethod->getReturnType()->getName();
         try {
-            $this->resourceInstance = $method->invoke($this->configuration->getInstance());
+            $this->resourceInstance = $method->invoke($configuration1->getInstance());
         } catch (ReflectionException $e) {
             throw new InvalidResourceException("Any Leaf must have to have exactly one non-primitive return type.");
         }

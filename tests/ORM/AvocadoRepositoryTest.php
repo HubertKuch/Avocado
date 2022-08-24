@@ -13,6 +13,7 @@ use Avocado\ORM\AvocadoModelException;
 use Avocado\ORM\AvocadoORMSettings;
 use Avocado\ORM\AvocadoRepository;
 use PHPUnit\Framework\TestCase;
+use ReflectionObject;
 use stdClass;
 
 const DATABASE = "avocado_test_db";
@@ -97,7 +98,7 @@ class AvocadoRepositoryTest extends TestCase {
         $testObject = new TableWithIgnoringType(1, UserRole::USER);
         $repository = new AvocadoRepository(TableWithIgnoringType::class);
 
-        $ref = new \ReflectionObject($repository);
+        $ref = new ReflectionObject($repository);
         self::assertSame(" \"user\" ", $ref->getMethod('getObjectAttributesAsSQLString')?->invokeArgs($repository, [$testObject]));
     }
 
@@ -112,7 +113,7 @@ class AvocadoRepositoryTest extends TestCase {
 
         $repository = new AvocadoRepository(TableWithIgnoringType::class);
 
-        $ref = new \ReflectionObject($repository);
+        $ref = new ReflectionObject($repository);
 
         $mapper = new MySQLMapper();
 
@@ -128,7 +129,7 @@ class AvocadoRepositoryTest extends TestCase {
 
         $repository = new AvocadoRepository(TableWithIgnoringType::class);
 
-        $ref = new \ReflectionObject($repository);
+        $ref = new ReflectionObject($repository);
 
         $mapper = new MySQLMapper();
         $result = $mapper -> entityToObject($repository, $testObject);
