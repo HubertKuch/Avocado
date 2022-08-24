@@ -3,7 +3,7 @@
     "description": "Avocado is hobbyist PHP framework which implements routing and ORM",
     "autoload": {
         "classmap": [
-            "src", "tests"
+            "src"
         ],
         "psr-4": {
             "Avocado\\": "src/",
@@ -11,6 +11,11 @@
             "Avocado\\Router\\": "src/AvocadoRouter/",
             "Avocado\\AvocadoView\\": "src/AvocadoView/"
         }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests"
+        ]
     },
     "license": "Apache-2.0",
     "type": "framework",
