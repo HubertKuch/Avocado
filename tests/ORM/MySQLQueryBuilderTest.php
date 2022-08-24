@@ -6,8 +6,6 @@ use Avocado\Tests\Unit\TableWithIgnoringType;
 use Avocado\Tests\Unit\UserRole;
 use PHPUnit\Framework\TestCase;
 
-require "AvocadoORMModelTest.php";
-
 class MySQLQueryBuilderTest extends TestCase {
 
     public function testFind() {

@@ -6,11 +6,8 @@ use Avocado\ORM\Attributes\Field;
 use Avocado\ORM\Attributes\Id;
 use Avocado\ORM\Attributes\Table;
 use Avocado\ORM\AvocadoModel;
-use Avocado\ORM\AvocadoORMSettings;
-use Avocado\ORM\AvocadoRepository;
 use PHPUnit\Framework\TestCase;
 use ReflectionObject;
-use stdClass;
 
 #[Table('table')]
 class TestModelWithIdAsString {

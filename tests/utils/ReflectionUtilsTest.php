@@ -6,8 +6,6 @@ use Avocado\Tests\Unit\TableWithIgnoringType;
 use Avocado\Tests\Unit\UserRole;
 use PHPUnit\Framework\TestCase;
 
-require "../ORM/AvocadoORMModelTest.php";
-
 class ReflectionUtilsTest extends TestCase {
 
     public function testModelFieldsToArray() {

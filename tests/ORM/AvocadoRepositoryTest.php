@@ -23,7 +23,7 @@ const PASSWORD = "";
 #[Table('users')]
 class TestUser {
     #[Id('id')]
-    private int $id;
+    private ?int $id = null;
     #[Field]
     private string $username;
     #[Field]
