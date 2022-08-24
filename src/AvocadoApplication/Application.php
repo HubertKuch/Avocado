@@ -8,10 +8,12 @@ use Avocado\AvocadoApplication\Leafs\LeafManager;
 use Avocado\DataSource\DataSource;
 use Avocado\ORM\AvocadoORMSettings;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
+use Composer\Autoload\ClassLoader;
 use ReflectionClass;
 use Avocado\HTTP\HTTPMethod;
 use Avocado\Router\AvocadoRouter;
 use AvocadoApplication\Mappings\MethodMapping;
+use Kcs\ClassFinder\Finder\ComposerFinder;
 use ReflectionException;
 
 class Application {
@@ -22,10 +24,15 @@ class Application {
     private static array $restControllers = [];
     private static LeafManager $leafManager;
     private static DataSource $dataSource;
+    private static ComposerFinder $finder;
 
-    public static final function run(): void {
+    public static final function run(string $dir): void {
+        $loaders = ClassLoader::getRegisteredLoaders();
+
+        self::$finder = new ComposerFinder($loaders[key($loaders)]);
+        self::$finder->in($dir);
+
         self::$declaredClasses = self::getDeclaredClasses();
-
         self::$configurations = self::getConfigurations();
         self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
 
@@ -35,7 +42,7 @@ class Application {
 
         self::$controllers = self::getControllers();
         self::$restControllers = self::getRestControllers();
-
+@
         self::declareRoutes();
 
         self::$dataSource = self::getDataSource();
@@ -46,7 +53,12 @@ class Application {
     }
 
     private static function getDeclaredClasses(): array {
-        return get_declared_classes();
+        $classes = [];
+
+        foreach (self::$finder as $value)
+            $classes[] = $value->getName();
+
+        return $classes;
     }
 
     private static function getControllers(): array {
