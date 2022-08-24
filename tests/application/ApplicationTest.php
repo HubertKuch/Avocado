@@ -53,7 +53,7 @@ class ApplicationTest extends TestCase {
     public function testGetMapping(): void {
         $_SERVER['REQUEST_METHOD'] = "GET";
 
-        $_SERVER['PHP_SELF'].="/hello-world";
+        $_SERVER['PHP_SELF'].="/avocado-test";
 
         Application::run(__DIR__);
 
@@ -66,7 +66,7 @@ class ApplicationTest extends TestCase {
     public function testPostMapping(): void {
         $_SERVER['REQUEST_METHOD'] = "POST";
 
-        $_SERVER['PHP_SELF'].="/hello-world";
+        $_SERVER['PHP_SELF'].="/avocado-test";
 
         Application::run(__DIR__);
 
@@ -79,7 +79,7 @@ class ApplicationTest extends TestCase {
     public function testDeleteMapping(): void {
         $_SERVER['REQUEST_METHOD'] = "DELETE";
 
-        $_SERVER['PHP_SELF'].="/hello-world";
+        $_SERVER['PHP_SELF'].="/avocado-test";
 
         Application::run(__DIR__);
 
@@ -92,7 +92,7 @@ class ApplicationTest extends TestCase {
     public function testPatchMapping(): void {
         $_SERVER['REQUEST_METHOD'] = "PATCH";
 
-        $_SERVER['PHP_SELF'].="/hello-world";
+        $_SERVER['PHP_SELF'].="/avocado-test";
 
         Application::run(__DIR__);
 
@@ -105,7 +105,7 @@ class ApplicationTest extends TestCase {
     public function testPutMapping(): void {
         $_SERVER['REQUEST_METHOD'] = "PUT";
 
-        $_SERVER['PHP_SELF'].="/hello-world";
+        $_SERVER['PHP_SELF'].="/avocado-test";
 
         Application::run(__DIR__);
 
@@ -118,7 +118,7 @@ class ApplicationTest extends TestCase {
     public function testBaseUrlForController(): void {
         $_SERVER['REQUEST_METHOD'] = "GET";
 
-        $_SERVER['PHP_SELF'].="/hello-world/array/";
+        $_SERVER['PHP_SELF'].="/avocado-test/array/";
 
         Application::run(__DIR__);
 

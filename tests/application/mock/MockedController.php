@@ -15,7 +15,7 @@ use AvocadoApplication\Mappings\PostMapping;
 use AvocadoApplication\Mappings\PutMapping;
 
 #[RestController]
-#[BaseURL("/hello-world")]
+#[BaseURL("/avocado-test")]
 class MockedController {
     #[Autowired]
     private MockedResource $mockedResource;

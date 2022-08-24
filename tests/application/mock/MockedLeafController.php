@@ -6,6 +6,7 @@ use Avocado\Application\RestController;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Attributes\Leaf;
 use AvocadoApplication\Attributes\Autowired;
+use AvocadoApplication\Attributes\BaseURL;
 use AvocadoApplication\Mappings\GetMapping;
 
 class Test {
@@ -22,6 +23,7 @@ class MockedConfigurationLeaf {
 }
 
 #[RestController]
+#[BaseURL("/avocado-test")]
 class MockedLeafController {
 
     #[Autowired]
