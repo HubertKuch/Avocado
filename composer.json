@@ -12,11 +12,6 @@
             "Avocado\\AvocadoView\\": "src/AvocadoView/"
         }
     },
-    "autoload-dev": {
-        "classmap": [
-            "tests"
-        ]
-    },
     "license": "Apache-2.0",
     "type": "framework",
     "authors": [
