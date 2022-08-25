@@ -13,6 +13,7 @@ use AvocadoApplication\Mappings\GetMapping;
 use AvocadoApplication\Mappings\PatchMapping;
 use AvocadoApplication\Mappings\PostMapping;
 use AvocadoApplication\Mappings\PutMapping;
+use Exception;
 
 #[RestController]
 #[BaseURL("/avocado-test")]
@@ -53,5 +54,13 @@ class MockedController {
     #[PutMapping("/")]
     public function putTest(AvocadoRequest $req, AvocadoResponse $res): void {
         $res->json(["Put Hello World"]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    #[GetMapping("/exception")]
+    public function exceptionTest() {
+        throw new MockedException("test");
     }
 }

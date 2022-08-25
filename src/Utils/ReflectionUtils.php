@@ -3,7 +3,9 @@
 namespace Avocado\Utils;
 
 use Avocado\ORM\Attributes\Field;
+use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionObject;
 
 class ReflectionUtils {
 
@@ -25,5 +27,13 @@ class ReflectionUtils {
         }
 
         return $fields;
+    }
+
+    public static function getAttribute(object $object, string $attribute): ReflectionAttribute|null {
+        $reflection = new ReflectionObject($object);
+
+        $attribute = $reflection->getAttributes($attribute);
+
+        return !empty($attribute)  ? $attribute[key($attribute)] : null;
     }
 }

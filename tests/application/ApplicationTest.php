@@ -124,4 +124,14 @@ class ApplicationTest extends TestCase {
 
         self::assertSame('["Get Hello World Array"]', ob_get_contents());
     }
+
+    public function testExceptionAdvisor(): void {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        $_SERVER['PHP_SELF'].="/avocado-test/exception/";
+
+        Application::run(__DIR__);
+
+        self::assertSame('{"status":400,"message":"test"}', ob_get_contents());
+    }
 }

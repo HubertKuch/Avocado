@@ -2,6 +2,7 @@
 
 namespace Avocado\Application;
 
+use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Leafs\LeafManager;
@@ -13,6 +14,7 @@ use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\Mappings\MethodMapping;
 use Composer\Autoload\ClassLoader;
 use Kcs\ClassFinder\Finder\ComposerFinder;
+use Exception;
 use ReflectionClass;
 use ReflectionException;
 
@@ -27,29 +29,33 @@ class Application {
     private static ComposerFinder $finder;
 
     public static final function run(string $dir): void {
-        $loaders = ClassLoader::getRegisteredLoaders();
+        try {
+            $loaders = ClassLoader::getRegisteredLoaders();
 
-        self::$finder = new ComposerFinder($loaders[key($loaders)]);
-        self::$finder->in($dir);
+            self::$finder = new ComposerFinder($loaders[key($loaders)]);
+            self::$finder->in($dir);
 
-        self::$declaredClasses = self::getDeclaredClasses();
-        self::$configurations = self::getConfigurations();
-        self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
+            self::$declaredClasses = self::getDeclaredClasses();
+            self::$configurations = self::getConfigurations();
+            self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
 
-        foreach (self::$leafManager->getLeafs() as $leaf) {
-            DependencyInjectionService::addResource($leaf);
+            foreach (self::$leafManager->getLeafs() as $leaf) {
+                DependencyInjectionService::addResource($leaf);
+            }
+
+            self::$controllers = self::getControllers();
+            self::$restControllers = self::getRestControllers();
+
+            self::declareRoutes();
+
+            self::$dataSource = self::getDataSource();
+
+            AvocadoORMSettings::fromExistingSource(self::$dataSource);
+
+            AvocadoRouter::listen();
+        } catch (Exception $e) {
+            ApplicationExceptionsAdvisor::handle($e);
         }
-
-        self::$controllers = self::getControllers();
-        self::$restControllers = self::getRestControllers();
-@
-        self::declareRoutes();
-
-        self::$dataSource = self::getDataSource();
-
-        AvocadoORMSettings::fromExistingSource(self::$dataSource);
-
-        AvocadoRouter::listen();
     }
 
     private static function getDeclaredClasses(): array {
@@ -147,4 +153,6 @@ class Application {
     private static function getDataSource(): DataSource {
         return self::$leafManager->getLeafByClass(DataSource::class);
     }
+
+
 }
