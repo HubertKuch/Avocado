@@ -63,4 +63,12 @@ class MockedController {
     public function exceptionTest() {
         throw new MockedException("test");
     }
+
+    /**
+     * @throws Exception
+     */
+    #[GetMapping("/exception/auto-response")]
+    public function exceptionTestWithAutoResponse() {
+        throw new MockedExceptionWithResponseStatus("auto response");
+    }
 }
