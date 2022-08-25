@@ -54,7 +54,7 @@ class Application {
 
             AvocadoRouter::listen();
         } catch (Exception $e) {
-            ApplicationExceptionsAdvisor::handle($e);
+            ApplicationExceptionsAdvisor::process($e);
         }
     }
 
@@ -154,5 +154,7 @@ class Application {
         return self::$leafManager->getLeafByClass(DataSource::class);
     }
 
-
+    public static function getLeafManager(): LeafManager {
+        return self::$leafManager;
+    }
 }
