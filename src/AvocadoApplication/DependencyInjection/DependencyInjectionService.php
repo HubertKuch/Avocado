@@ -100,7 +100,7 @@ class DependencyInjectionService {
     /**
      * @throws ResourceNotFoundException
      */
-    private static function getResourceByType(string $autowiredClassPropertyType): Resourceable {
+    public static function getResourceByType(string $autowiredClassPropertyType): Resourceable {
         $resource = array_filter(self::$resources, fn($resource) => $resource->getTargetResourceClass() == $autowiredClassPropertyType);
         $resource = key($resource) !== NULL ? $resource[key($resource)] : NULL;
 
@@ -128,5 +128,12 @@ class DependencyInjectionService {
 
             $autowiredClassProperty->setValue($object, $resource->getTargetInstance());
         }
+    }
+
+    /**
+     * @return Resourceable[]
+     */
+    public static function getResources(): array {
+        return self::$resources;
     }
 }
