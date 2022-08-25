@@ -5,6 +5,8 @@ namespace Avocado\Utils;
 use Avocado\ORM\Attributes\Field;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
 use ReflectionObject;
 
 class ReflectionUtils {
@@ -35,5 +37,46 @@ class ReflectionUtils {
         $attribute = $reflection->getAttributes($attribute);
 
         return !empty($attribute)  ? $attribute[key($attribute)] : null;
+    }
+
+    public static function getAttributeFromClass(string $className, string $attribute): ReflectionAttribute|null {
+        try {
+            $reflection = new ReflectionClass($className);
+        } catch (ReflectionException $e) {
+            return null;
+        }
+
+        $attribute = $reflection->getAttributes($attribute);
+
+        return !empty($attribute)  ? $attribute[key($attribute)] : null;
+    }
+
+    public static function getAttributeFromMethod(string $className, string $methodName, string $attribute): ReflectionAttribute|null {
+        try {
+            $reflection = new ReflectionMethod($className, $methodName);
+        } catch (ReflectionException) {
+            return null;
+        }
+
+        $attribute = $reflection->getAttributes($attribute);
+
+        return !empty($attribute)  ? $attribute[key($attribute)] : null;
+    }
+
+    /** @return ReflectionMethod[] */
+    public static function getMethods(string $className, ?string $attributeName = null): array {
+        try {
+            $methods = (new ReflectionClass($className))->getMethods();
+
+            if (!is_null($attributeName)) {
+                $methods = array_filter($methods, function($method) use ($attributeName) {
+                    return !empty($method->getAttributes($attributeName));
+                });
+            }
+
+            return $methods;
+        } catch (ReflectionException) {
+            return [];
+        }
     }
 }
