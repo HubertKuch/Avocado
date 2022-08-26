@@ -56,13 +56,6 @@ class AvocadoRouter {
         self::addEndpointToStack(AvocadoRoute::createPut($endpoint), $middleware, $callable);
     }
 
-    public static function notFoundHandler(callable $callable): void {
-        self::$notFoundStack = [
-            "ROUTE" => new AvocadoRoute(HTTPMethod::GET, "*"),
-            "CALLBACK" => $callable
-        ];
-    }
-
     private static function provideSettings(AvocadoRequest $req, AvocadoResponse $res): void {
         foreach (self::$settingsStack as $callback) {
             call_user_func($callback, $req, $res);
@@ -79,6 +72,53 @@ class AvocadoRouter {
         $_SERVER['REQUEST_METHOD'] = $method;
     }
 
+    /**
+     * @param string $actPath
+     * @param string $method
+     * @return void
+     */
+    public static function listenRoutes(string $actPath, string $method): void {
+        foreach (self::$routesStack as $route) {
+            $endpoint = $route['ROUTE']->getEndpoint();
+            $middlewareStack = $route['MIDDLEWARE'];
+            $params = array();
+
+            $actPathWithoutParamsValues = self::getPathWithoutParams($endpoint, $actPath, $params);
+
+            $req = new AvocadoRequest($params);
+            $req->method = $method;
+            // TODO: ADD URLS
+
+            $res = new AvocadoResponse();
+
+            self::provideSettings($req, $res);
+
+            $isMiddlewareThrowNext = self::isMiddlewareThrowNext($middlewareStack, $req, $res);
+
+            if (self::$isNext && $isMiddlewareThrowNext && $actPathWithoutParamsValues === $endpoint && $method === $route['ROUTE']->getMethod()) {
+                $route['CALLBACK']($req, $res);
+                break;
+            }
+        }
+    }
+
+    private static function getPathWithoutParams(string $endpoint, string $actPath, array $params): string {
+        $explodedEndpoint = explode("/", $endpoint);
+        $explodedActualPath = explode("/", $actPath);
+
+        for ($i = 0; $i < count($explodedEndpoint); $i++) {
+            if (!empty($explodedEndpoint[$i]) && @$explodedEndpoint[$i][0] === ':') {
+                $ascIndex = substr($explodedEndpoint[$i], 1);
+                if (isset($params[$ascIndex])) {
+                    @$params[$ascIndex] = @$explodedActualPath[$i];
+                }
+                @$explodedActualPath[$i] = @$explodedEndpoint[$i];
+            }
+        }
+
+        return implode('/', $explodedActualPath);
+    }
+
     public static function listen(): void {
         self::setRequestMethod();
 
@@ -93,67 +133,35 @@ class AvocadoRouter {
         if (count($_GET) > 0) {
             $actPath = explode("?", $actPath)[0];
         }
+        self::listenRoutes($actPath, $method);
+    }
 
-        // LISTEN ROUTES
-        $routeCount = 0;
-        foreach (self::$routesStack as $route) {
-            $endpoint = $route['ROUTE']->getEndpoint();
-            $middlewareStack = $route['MIDDLEWARE'];
-            $params = array();
+    /**
+     * @param mixed $middlewareStack
+     * @param AvocadoRequest $req
+     * @param AvocadoResponse $res
+     * @return bool
+     */
+    public static function isMiddlewareThrowNext(mixed $middlewareStack, AvocadoRequest $req, AvocadoResponse $res): bool {
+        $isMiddlewareThrowNext = true;
 
-            $explodedEndpoint = explode("/", $endpoint);
-            $explodedActualPath = explode("/", $actPath);
-
-            for ($i=0; $i<count($explodedEndpoint); $i++) {
-                if (!empty($explodedEndpoint[$i]) && @$explodedEndpoint[$i][0] === ':') {
-                    $ascIndex = substr($explodedEndpoint[$i], 1);
-                    if (isset($params[$ascIndex])) {
-                        @$params[$ascIndex] = @$explodedActualPath[$i];
-                    }
-                    @$explodedActualPath[$i] = @$explodedEndpoint[$i];
+        if (count($middlewareStack) > 0) {
+            foreach ($middlewareStack as $middleware) {
+                if (!is_array($middleware) || !is_callable($middleware)) {
+                    $type = gettype($middleware);
+                    throw new \TypeError("Middleware must be callable, passed $type");
                 }
-            }
 
-            $actPathWithoutParamsValues = implode('/', $explodedActualPath);
-            $isMiddlewareThrowNext = true;
-
-            $req = new AvocadoRequest($params);
-            $req->method = $method;
-            $res = new AvocadoResponse();
-
-            self::provideSettings($req, $res);
-
-            if (count($middlewareStack) > 0) {
-                foreach ($middlewareStack as $middleware) {
-                    if (!is_array($middleware) || !is_callable($middleware)) {
-                        $type = gettype($middleware);
-                        throw new \TypeError("Middleware must be callable, passed $type");
-                    }
-
-                    $middlewareResponse = call_user_func($middleware, $req, $res);
-                    if (!$middlewareResponse) {
-                        $isMiddlewareThrowNext = false;
-                        break;
-                    }
-
-                    ob_end_clean();
+                $middlewareResponse = call_user_func($middleware, $req, $res);
+                if (!$middlewareResponse) {
+                    $isMiddlewareThrowNext = false;
+                    break;
                 }
+
+                ob_end_clean();
             }
-
-            if ($routeCount > count(self::$routesStack)-1) {
-                $callback = self::$notFoundStack['CALLBACK'] ?? null;
-
-                if ($callback) $callback($req, $res);
-
-                break;
-            }
-
-            if (self::$isNext && $isMiddlewareThrowNext && $actPathWithoutParamsValues === $endpoint && $method === $route['ROUTE']->getMethod()) {
-                $route['CALLBACK']($req, $res);
-                break;
-            }
-
-            $routeCount++;
         }
+
+        return $isMiddlewareThrowNext;
     }
 }
