@@ -5,6 +5,7 @@ namespace Avocado\Application;
 use Avocado\Utils\ClassFinder;
 use Avocado\Utils\ReflectionUtils;
 use Avocado\AvocadoApplication\Attributes\Exclude;
+use Avocado\AvocadoApplication\Attributes\Avocado;
 use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
@@ -13,14 +14,14 @@ use Avocado\DataSource\DataSource;
 use Avocado\HTTP\HTTPMethod;
 use Avocado\ORM\AvocadoORMSettings;
 use Avocado\Router\AvocadoRouter;
+use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\Mappings\MethodMapping;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
-use Avocado\AvocadoApplication\AutoControllers\ExceptionsAutoController;
 
-class Application {
+final class Application {
     private static array $declaredClasses = [];
     /** @var $configurations Configuration[] */
     private static array $configurations = [];
@@ -28,10 +29,17 @@ class Application {
     private static array $restControllers = [];
     private static LeafManager $leafManager;
     private static DataSource $dataSource;
+    private static Avocado $mainClass;
 
     public static final function run(string $dir): void {
         try {
-            $excludedAttribute = ReflectionUtils::getAttributeFromClass(Application::class, Exclude::class);
+            self::$declaredClasses = array_map(fn($class) =>
+                $class->getName(), ClassFinder::getDeclaredClasses($dir)
+            );
+
+            self::$mainClass = self::getMainClass();
+
+            $excludedAttribute = ReflectionUtils::getAttributeFromClass(self::$mainClass->getClassName(), Exclude::class);
             $toExclude = ($excludedAttribute?->newInstance()->getClasses()) ?? [];
 
             self::$declaredClasses = array_map(fn($class) =>
@@ -58,6 +66,22 @@ class Application {
         } catch (Exception $e) {
             ApplicationExceptionsAdvisor::process($e);
         }
+    }
+
+    /**
+     * @throws MissingAnnotationException
+     */
+    public static final function getMainClass(): Avocado {
+
+        foreach (ClassFinder::getClasses() as $class) {
+            $avAttr = ReflectionUtils::getAttributeFromClass($class, Avocado::class);
+
+            if ($avAttr) {
+                return new Avocado($class->getName());
+            }
+        }
+
+        throw new MissingAnnotationException(sprintf("Missing %s annotation on main application class.", Avocado::class));
     }
 
     private static function getControllers(): array {
