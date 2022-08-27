@@ -7,10 +7,10 @@ use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 class Resource implements Resourceable {
-    private string $targetResourceClass;
-    private object $targetInstance;
+    private ?string $targetResourceClass;
+    private ?object $targetInstance;
 
-    public function __construct(string $targetResourceClass, object $targetInstance) {
+    public function __construct(string $targetResourceClass = null, object $targetInstance = null) {
         $this->targetResourceClass = $targetResourceClass;
         $this->targetInstance = $targetInstance;
     }
