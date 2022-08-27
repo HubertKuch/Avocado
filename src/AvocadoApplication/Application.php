@@ -2,6 +2,9 @@
 
 namespace Avocado\Application;
 
+use Avocado\Utils\ClassFinder;
+use Avocado\Utils\ReflectionUtils;
+use Avocado\AvocadoApplication\Attributes\Exclude;
 use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
@@ -12,11 +15,10 @@ use Avocado\ORM\AvocadoORMSettings;
 use Avocado\Router\AvocadoRouter;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\Mappings\MethodMapping;
-use Composer\Autoload\ClassLoader;
-use Kcs\ClassFinder\Finder\ComposerFinder;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
+use Avocado\AvocadoApplication\AutoControllers\ExceptionsAutoController;
 
 class Application {
     private static array $declaredClasses = [];
@@ -26,16 +28,15 @@ class Application {
     private static array $restControllers = [];
     private static LeafManager $leafManager;
     private static DataSource $dataSource;
-    private static ComposerFinder $finder;
 
     public static final function run(string $dir): void {
         try {
-            $loaders = ClassLoader::getRegisteredLoaders();
+            $excludedAttribute = ReflectionUtils::getAttributeFromClass(Application::class, Exclude::class);
+            $toExclude = ($excludedAttribute?->newInstance()->getClasses()) ?? [];
 
-            self::$finder = new ComposerFinder($loaders[key($loaders)]);
-            self::$finder->in($dir);
-
-            self::$declaredClasses = self::getDeclaredClasses();
+            self::$declaredClasses = array_map(fn($class) =>
+                $class->getName(), ClassFinder::getDeclaredClasses($dir, $toExclude)
+            );
 
             self::$configurations = self::getConfigurations();
             self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
@@ -57,25 +58,6 @@ class Application {
         } catch (Exception $e) {
             ApplicationExceptionsAdvisor::process($e);
         }
-    }
-
-    private static function getDeclaredClasses(): array {
-        $classes = [];
-
-        foreach (self::$finder as $value)
-            $classes[] = $value->getName();
-
-        return [...$classes, ...self::getAvocadoClasses()];
-    }
-
-    private static function getAvocadoClasses(): array {
-        $classes = [];
-        self::$finder->in(dirname(__DIR__, 1));
-
-        foreach (self::$finder as $value)
-            $classes[] = $value->getName();
-
-        return $classes;
     }
 
     private static function getControllers(): array {

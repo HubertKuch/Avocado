@@ -2,6 +2,7 @@
 
 namespace AvocadoApplication\DependencyInjection;
 
+use Avocado\Utils\ClassFinder;
 use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 use AvocadoApplication\Attributes\Autowired;
 use AvocadoApplication\Attributes\Resource;
@@ -22,7 +23,7 @@ class DependencyInjectionService {
     private static array $resources = [];
 
     private static function getClassNamesOfResources(): array {
-        return array_filter(get_declared_classes(), function ($class) {
+        return array_filter(array_map(fn($class) => $class->getName(), ClassFinder::getClasses()), function ($class) {
             try {
                 $reflection = new ReflectionClass($class);
                 $resourceAttributes = $reflection->getAttributes(Resource::class);
