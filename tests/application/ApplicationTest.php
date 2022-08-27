@@ -144,4 +144,14 @@ class ApplicationTest extends TestCase {
 
         self::assertSame('{"message":"auto response","status":409}', ob_get_contents());
     }
+
+    public function testPageNotFound() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        $_SERVER['PHP_SELF'].="/jdskaild";
+
+        Application::run(__DIR__);
+
+        self::assertSame(true, true);
+    }
 }

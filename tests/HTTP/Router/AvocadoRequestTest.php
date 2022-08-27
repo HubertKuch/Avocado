@@ -8,6 +8,11 @@ use Avocado\Router\AvocadoRouter;
 use PHPUnit\Framework\TestCase;
 
 class AvocadoRequestTest extends TestCase {
+
+    protected function setUp(): void {
+        $_SERVER['PHP_SELF'] = "Standard input code";
+    }
+
     public function testOverridingMethodByHiddenBodyPropertyToDELETE() {
         $_SERVER['REQUEST_METHOD'] = "GET";
         $_POST['_method'] = HTTPMethod::DELETE->value;

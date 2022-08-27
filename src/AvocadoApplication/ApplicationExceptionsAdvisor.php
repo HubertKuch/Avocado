@@ -38,7 +38,7 @@ class ApplicationExceptionsAdvisor {
             -> withStatus($responseBody->getStatus());
     }
 
-    private static function getExceptionHandlers() {
+    private static function getExceptionHandlers(): void {
         $resources = DependencyInjectionService::getResources();
         $handlers = [];
 

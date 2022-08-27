@@ -36,6 +36,7 @@ class Application {
             self::$finder->in($dir);
 
             self::$declaredClasses = self::getDeclaredClasses();
+
             self::$configurations = self::getConfigurations();
             self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
 
@@ -60,6 +61,16 @@ class Application {
 
     private static function getDeclaredClasses(): array {
         $classes = [];
+
+        foreach (self::$finder as $value)
+            $classes[] = $value->getName();
+
+        return [...$classes, ...self::getAvocadoClasses()];
+    }
+
+    private static function getAvocadoClasses(): array {
+        $classes = [];
+        self::$finder->in(dirname(__DIR__, 1));
 
         foreach (self::$finder as $value)
             $classes[] = $value->getName();

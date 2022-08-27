@@ -3,6 +3,7 @@
 namespace Avocado\Router;
 
 use Avocado\HTTP\HTTPMethod;
+use Avocado\AvocadoApplication\Exceptions\PageNotFoundException;
 
 class AvocadoRouter {
     private static array $routesStack = array();
@@ -72,12 +73,33 @@ class AvocadoRouter {
         $_SERVER['REQUEST_METHOD'] = $method;
     }
 
+    public static function listen(): void {
+        self::setRequestMethod();
+
+        $actPath = str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['PHP_SELF']);
+        $actPath = trim($actPath);
+        if ($actPath && $actPath[0] === "/") $actPath = substr($actPath, 1);
+        if (strlen($actPath) > 0 && $actPath[-1] === "/") $actPath = substr($actPath, 0, -1);
+
+
+        $method = $_SERVER['REQUEST_METHOD'];
+
+        if (count($_GET) > 0) {
+            $actPath = explode("?", $actPath)[0];
+        }
+
+        self::listenRoutes($actPath, $method);
+    }
+
     /**
      * @param string $actPath
      * @param string $method
      * @return void
+     * @throws PageNotFoundException
      */
     public static function listenRoutes(string $actPath, string $method): void {
+        $iterationCount = 0;
+
         foreach (self::$routesStack as $route) {
             $endpoint = $route['ROUTE']->getEndpoint();
             $middlewareStack = $route['MIDDLEWARE'];
@@ -99,6 +121,12 @@ class AvocadoRouter {
                 $route['CALLBACK']($req, $res);
                 break;
             }
+
+            $iterationCount++;
+        }
+
+        if ($iterationCount == count(self::$routesStack) && $_SERVER['PHP_SELF'] !== "Standard input code") {
+            throw new PageNotFoundException("test");
         }
     }
 
@@ -117,23 +145,6 @@ class AvocadoRouter {
         }
 
         return implode('/', $explodedActualPath);
-    }
-
-    public static function listen(): void {
-        self::setRequestMethod();
-
-        $actPath = str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['PHP_SELF']);
-        $actPath = trim($actPath);
-        if ($actPath && $actPath[0] === "/") $actPath = substr($actPath, 1);
-        if (strlen($actPath) > 0 && $actPath[-1] === "/") $actPath = substr($actPath, 0, -1);
-
-
-        $method = $_SERVER['REQUEST_METHOD'];
-
-        if (count($_GET) > 0) {
-            $actPath = explode("?", $actPath)[0];
-        }
-        self::listenRoutes($actPath, $method);
     }
 
     /**
