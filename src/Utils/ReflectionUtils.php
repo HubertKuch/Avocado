@@ -39,9 +39,13 @@ class ReflectionUtils {
         return !empty($attribute)  ? $attribute[key($attribute)] : null;
     }
 
-    public static function getAttributeFromClass(string $className, string $attribute): ReflectionAttribute|null {
+    public static function getAttributeFromClass(string|ReflectionClass $class, string $attribute): ReflectionAttribute|null {
         try {
-            $reflection = new ReflectionClass($className);
+            if (is_string($class)) {
+                $reflection = new ReflectionClass($class);
+            } else {
+                $reflection = $class;
+            }
         } catch (ReflectionException $e) {
             return null;
         }
