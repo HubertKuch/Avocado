@@ -10,7 +10,7 @@ class Exclude {
 
     public function __construct(
         private readonly array $classes,
-        private readonly ?ReflectionClass $ref
+        private readonly ?ReflectionClass $ref = null
     ) {}
 
     public function getClasses(): array {
