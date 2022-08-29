@@ -2,24 +2,24 @@
 
 namespace Avocado\Application;
 
-use Avocado\Utils\ClassFinder;
-use Avocado\Utils\ReflectionUtils;
-use Avocado\AvocadoApplication\Attributes\Exclude;
-use Avocado\AvocadoApplication\Attributes\Avocado;
-use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
-use Avocado\AvocadoApplication\Attributes\Configuration;
-use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
-use Avocado\AvocadoApplication\Leafs\LeafManager;
-use Avocado\DataSource\DataSource;
-use Avocado\HTTP\HTTPMethod;
-use Avocado\ORM\AvocadoORMSettings;
-use Avocado\Router\AvocadoRouter;
-use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
-use AvocadoApplication\DependencyInjection\DependencyInjectionService;
-use AvocadoApplication\Mappings\MethodMapping;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
+use Avocado\HTTP\HTTPMethod;
+use Avocado\Utils\ClassFinder;
+use Avocado\Router\AvocadoRouter;
+use Avocado\Utils\ReflectionUtils;
+use Avocado\DataSource\DataSource;
+use Avocado\ORM\AvocadoORMSettings;
+use AvocadoApplication\Mappings\MethodMapping;
+use Avocado\AvocadoApplication\Leafs\LeafManager;
+use Avocado\AvocadoApplication\Attributes\Exclude;
+use Avocado\AvocadoApplication\Attributes\Avocado;
+use Avocado\AvocadoApplication\Attributes\Configuration;
+use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
+use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
+use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
+use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 
 final class Application {
     private static array $declaredClasses = [];

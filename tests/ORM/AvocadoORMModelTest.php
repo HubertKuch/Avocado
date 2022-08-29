@@ -2,13 +2,13 @@
 
 namespace Avocado\Tests\Unit;
 
-use Avocado\ORM\Attributes\Field;
-use Avocado\ORM\Attributes\Id;
-use Avocado\ORM\Attributes\Table;
-use Avocado\ORM\AvocadoModel;
-use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionObject;
+use Avocado\ORM\AvocadoModel;
+use Avocado\ORM\Attributes\Id;
+use PHPUnit\Framework\TestCase;
+use Avocado\ORM\Attributes\Field;
+use Avocado\ORM\Attributes\Table;
 
 #[Table('table')]
 class TestModelWithIdAsString {

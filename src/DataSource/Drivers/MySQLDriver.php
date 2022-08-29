@@ -2,9 +2,9 @@
 
 namespace Avocado\DataSource\Drivers;
 
+use PDO;
 use Avocado\DataSource\Drivers\Connection\Connection;
 use Avocado\DataSource\Drivers\Connection\MySQLConnection;
-use PDO;
 
 class MySQLDriver implements Driver {
     private Connection $connection;

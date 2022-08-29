@@ -2,8 +2,8 @@
 
 namespace Avocado\DataSource;
 
-use Avocado\DataSource\Database\DatabaseType;
 use Avocado\DataSource\Drivers\MySQLDriver;
+use Avocado\DataSource\Database\DatabaseType;
 
 class DataSourceBuilder {
     private string $url;

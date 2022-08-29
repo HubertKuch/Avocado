@@ -2,16 +2,16 @@
 
 namespace Avocado\Application;
 
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionObject;
+use ReflectionException;
 use AvocadoApplication\Attributes\BaseURL;
+use AvocadoApplication\Mappings\MethodMapping;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\DependencyInjection\Exceptions\ResourceException;
 use AvocadoApplication\DependencyInjection\Exceptions\ResourceNotFoundException;
 use AvocadoApplication\DependencyInjection\Exceptions\TooMuchResourceConstructorParametersException;
-use AvocadoApplication\Mappings\MethodMapping;
-use ReflectionClass;
-use ReflectionException;
-use ReflectionMethod;
-use ReflectionObject;
 
 class Controller {
     private string $targetClassName;

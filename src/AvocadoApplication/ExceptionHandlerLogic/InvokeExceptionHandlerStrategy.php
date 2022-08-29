@@ -2,14 +2,14 @@
 
 namespace Avocado\AvocadoApplication\ExceptionHandlerLogic;
 
-use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
-use Avocado\AvocadoApplication\Exceptions\InvalidResourceException;
+use Exception;
+use ReflectionMethod;
+use ReflectionException;
 use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\ResponseBody;
+use Avocado\AvocadoApplication\Exceptions\InvalidResourceException;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
-use Exception;
-use ReflectionException;
-use ReflectionMethod;
+use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
 
 class InvokeExceptionHandlerStrategy implements ExceptionHandlerStrategy {
 

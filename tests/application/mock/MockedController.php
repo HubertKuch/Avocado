@@ -3,17 +3,17 @@
 namespace Avocado\Tests\Unit\Application;
 
 
-use Avocado\Application\RestController;
+use Exception;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
-use AvocadoApplication\Attributes\Autowired;
+use Avocado\Application\RestController;
 use AvocadoApplication\Attributes\BaseURL;
-use AvocadoApplication\Mappings\DeleteMapping;
 use AvocadoApplication\Mappings\GetMapping;
-use AvocadoApplication\Mappings\PatchMapping;
-use AvocadoApplication\Mappings\PostMapping;
 use AvocadoApplication\Mappings\PutMapping;
-use Exception;
+use AvocadoApplication\Attributes\Autowired;
+use AvocadoApplication\Mappings\PostMapping;
+use AvocadoApplication\Mappings\PatchMapping;
+use AvocadoApplication\Mappings\DeleteMapping;
 
 #[RestController]
 #[BaseURL("/avocado-test")]

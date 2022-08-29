@@ -2,11 +2,11 @@
 
 namespace Avocado\AvocadoApplication\ExceptionHandlerLogic;
 
-use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
-use Avocado\AvocadoApplication\Attributes\Exceptions\ResponseStatus;
+use Exception;
 use Avocado\HTTP\ResponseBody;
 use Avocado\Utils\ReflectionUtils;
-use Exception;
+use Avocado\AvocadoApplication\Attributes\Exceptions\ResponseStatus;
+use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
 
 class ExceptionResponseStatusStrategy implements ExceptionHandlerStrategy {
 

@@ -3,8 +3,8 @@
 namespace Avocado\ORM;
 
 use Avocado\DataSource\DataSource;
-use Avocado\DataSource\Drivers\Connection\Connection;
 use Avocado\DataSource\Drivers\Driver;
+use Avocado\DataSource\Drivers\Connection\Connection;
 
 class AvocadoORMSettings {
     private static array $settings = array(

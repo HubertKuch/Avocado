@@ -2,9 +2,9 @@
 
 namespace Avocado\Tests\Unit;
 
-use Avocado\Router\AvocadoRouter;
-use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use PHPUnit\Framework\TestCase;
+use Avocado\Router\AvocadoRouter;
 
 class AvocadoRouterTest extends TestCase {
     public function testGettingRouteEndpoint() {

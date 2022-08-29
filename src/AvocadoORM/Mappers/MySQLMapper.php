@@ -2,14 +2,14 @@
 
 namespace Avocado\AvocadoORM\Mappers;
 
-use Avocado\ORM\Attributes\Field;
-use Avocado\ORM\Attributes\Id;
-use Avocado\ORM\AvocadoModel;
-use Avocado\ORM\AvocadoModelException;
-use ReflectionClass;
 use ReflectionEnum;
-use ReflectionException;
+use ReflectionClass;
 use ReflectionObject;
+use ReflectionException;
+use Avocado\ORM\AvocadoModel;
+use Avocado\ORM\Attributes\Id;
+use Avocado\ORM\Attributes\Field;
+use Avocado\ORM\AvocadoModelException;
 
 class MySQLMapper implements Mapper {
 

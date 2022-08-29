@@ -2,8 +2,8 @@
 
 namespace Avocado\Router;
 
-use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\JSON\JSON;
+use Avocado\HTTP\HTTPStatus;
 
 class AvocadoResponse {
     public function write($data): AvocadoResponse {

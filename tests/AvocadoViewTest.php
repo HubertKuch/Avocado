@@ -2,11 +2,11 @@
 
 namespace Avocado\Tests\Unit;
 
-use Avocado\AvocadoView\AvocadoViewException;
-use Avocado\AvocadoView\AvocadoViewNotFoundException;
+use ReflectionProperty;
 use Avocado\AvocadoView\View;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
+use Avocado\AvocadoView\AvocadoViewException;
+use Avocado\AvocadoView\AvocadoViewNotFoundException;
 
 class AvocadoViewTest extends TestCase{
     public function testShouldThrowAvocadoViewNotFoundException() {

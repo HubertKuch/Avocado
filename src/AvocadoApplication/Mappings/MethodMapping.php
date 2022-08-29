@@ -2,11 +2,11 @@
 
 namespace AvocadoApplication\Mappings;
 
-use _PHPStan_7a922a511\Nette\Neon\Exception;
-use Avocado\HTTP\HTTPMethod;
-use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
+use ReflectionAttribute;
+use Avocado\HTTP\HTTPMethod;
+use _PHPStan_7a922a511\Nette\Neon\Exception;
 
 class MethodMapping {
     private string $endpoint;

@@ -2,12 +2,12 @@
 
 namespace Avocado\Utils;
 
-use Avocado\ORM\Attributes\Field;
-use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionException;
 use ReflectionMethod;
 use ReflectionObject;
+use ReflectionAttribute;
+use ReflectionException;
+use Avocado\ORM\Attributes\Field;
 
 class ReflectionUtils {
 

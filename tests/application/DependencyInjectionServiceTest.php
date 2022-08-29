@@ -2,9 +2,8 @@
 
 namespace AvocadoApplication\Tests\Unit\Application\DependencyInjection;
 
-use Avocado\Application\Application;
-use Avocado\Tests\Unit\Application\MockedApplication;
 use PHPUnit\Framework\TestCase;
+use Avocado\Tests\Unit\Application\MockedApplication;
 
 /**
  * @runTestsInSeparateProcesses

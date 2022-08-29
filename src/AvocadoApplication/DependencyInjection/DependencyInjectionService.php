@@ -2,17 +2,17 @@
 
 namespace AvocadoApplication\DependencyInjection;
 
+use ReflectionClass;
+use ReflectionObject;
+use ReflectionProperty;
+use ReflectionException;
 use Avocado\Utils\ClassFinder;
-use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
-use AvocadoApplication\Attributes\Autowired;
 use AvocadoApplication\Attributes\Resource;
+use AvocadoApplication\Attributes\Autowired;
+use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 use AvocadoApplication\DependencyInjection\Exceptions\ResourceException;
 use AvocadoApplication\DependencyInjection\Exceptions\ResourceNotFoundException;
 use AvocadoApplication\DependencyInjection\Exceptions\TooMuchResourceConstructorParametersException;
-use ReflectionClass;
-use ReflectionException;
-use ReflectionObject;
-use ReflectionProperty;
 
 class DependencyInjectionService {
     private const RESOURCE_NOT_FOUND_EXCEPTION = "`%s` resource was not found. Check if your resource is  annotated with `Resource` attribute.";

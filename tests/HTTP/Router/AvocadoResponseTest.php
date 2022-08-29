@@ -3,8 +3,8 @@
 namespace Avocado\Tests\Unit;
 
 use Avocado\HTTP\HTTPStatus;
-use Avocado\Router\AvocadoResponse;
 use PHPUnit\Framework\TestCase;
+use Avocado\Router\AvocadoResponse;
 
 class AvocadoResponseTest extends TestCase {
 

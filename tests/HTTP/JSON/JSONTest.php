@@ -2,8 +2,8 @@
 
 namespace Avocado\HTTP\JSON;
 
-use PHPUnit\Framework\TestCase;
 use stdClass;
+use PHPUnit\Framework\TestCase;
 
 class JSONTest extends TestCase {
     public function testParsingObject() {

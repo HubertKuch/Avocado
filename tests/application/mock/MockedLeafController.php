@@ -3,11 +3,11 @@
 namespace Avocado\Tests\Unit\Application;
 
 use Avocado\Application\RestController;
-use Avocado\AvocadoApplication\Attributes\Configuration;
-use Avocado\AvocadoApplication\Attributes\Leaf;
-use AvocadoApplication\Attributes\Autowired;
 use AvocadoApplication\Attributes\BaseURL;
 use AvocadoApplication\Mappings\GetMapping;
+use AvocadoApplication\Attributes\Autowired;
+use Avocado\AvocadoApplication\Attributes\Leaf;
+use Avocado\AvocadoApplication\Attributes\Configuration;
 
 class Test {
 

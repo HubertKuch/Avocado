@@ -2,7 +2,6 @@
 
 namespace Avocado\Router;
 
-use Avocado\HTTP\HTTPMethod;
 use Avocado\AvocadoApplication\Exceptions\PageNotFoundException;
 
 class AvocadoRouter {

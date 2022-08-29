@@ -3,8 +3,8 @@
 namespace Avocado\ORM;
 
 use ReflectionClass;
-use ReflectionException;
 use ReflectionProperty;
+use ReflectionException;
 
 /**
  * @template T

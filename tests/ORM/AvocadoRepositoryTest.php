@@ -2,19 +2,18 @@
 
 namespace Avocado\Tests\Unit;
 
+use stdClass;
+use ReflectionObject;
+use Avocado\ORM\Attributes\Id;
+use PHPUnit\Framework\TestCase;
+use Avocado\ORM\Attributes\Field;
+use Avocado\ORM\Attributes\Table;
+use Avocado\DataSource\DataSource;
+use Avocado\ORM\AvocadoRepository;
+use Avocado\ORM\AvocadoModelException;
+use Avocado\DataSource\DataSourceBuilder;
 use Avocado\AvocadoORM\Mappers\MySQLMapper;
 use Avocado\DataSource\Database\DatabaseType;
-use Avocado\DataSource\DataSource;
-use Avocado\DataSource\DataSourceBuilder;
-use Avocado\ORM\Attributes\Field;
-use Avocado\ORM\Attributes\Id;
-use Avocado\ORM\Attributes\Table;
-use Avocado\ORM\AvocadoModelException;
-use Avocado\ORM\AvocadoORMSettings;
-use Avocado\ORM\AvocadoRepository;
-use PHPUnit\Framework\TestCase;
-use ReflectionObject;
-use stdClass;
 
 const DATABASE = "avocado_test_db";
 const DSN = "mysql:host=127.0.0.1;dbname=".DATABASE;

@@ -2,11 +2,11 @@
 
 namespace Avocado\Tests\Unit\Application;
 
-use Avocado\Application\Application;
-use Avocado\AvocadoApplication\Attributes\Configuration;
-use Avocado\AvocadoApplication\Leafs\LeafManager;
-use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use PHPUnit\Framework\TestCase;
+use Avocado\Application\Application;
+use Avocado\AvocadoApplication\Leafs\LeafManager;
+use Avocado\AvocadoApplication\Attributes\Configuration;
 
 /**
  * @runTestsInSeparateProcesses

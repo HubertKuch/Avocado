@@ -3,9 +3,9 @@
 namespace Avocado\Tests\Unit;
 
 use Avocado\HTTP\HTTPMethod;
-use Avocado\Router\AvocadoRequest;
-use Avocado\Router\AvocadoRouter;
 use PHPUnit\Framework\TestCase;
+use Avocado\Router\AvocadoRouter;
+use Avocado\Router\AvocadoRequest;
 
 class AvocadoRequestTest extends TestCase {
 

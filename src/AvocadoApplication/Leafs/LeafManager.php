@@ -2,8 +2,8 @@
 
 namespace Avocado\AvocadoApplication\Leafs;
 
-use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Attributes\Leaf;
+use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Exceptions\InvalidResourceException;
 
 class LeafManager {

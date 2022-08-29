@@ -3,10 +3,10 @@
 namespace Avocado\AvocadoApplication\Attributes;
 
 use Attribute;
-use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
-use Avocado\AvocadoApplication\Exceptions\InvalidResourceException;
 use ReflectionClass;
 use ReflectionException;
+use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
+use Avocado\AvocadoApplication\Exceptions\InvalidResourceException;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 class Configuration {

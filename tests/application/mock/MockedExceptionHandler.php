@@ -2,10 +2,10 @@
 
 namespace Avocado\Tests\Unit\Application;
 
-use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
 use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\ResponseBody;
 use AvocadoApplication\Attributes\Resource;
+use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
 
 #[Resource]
 #[ExceptionHandler]

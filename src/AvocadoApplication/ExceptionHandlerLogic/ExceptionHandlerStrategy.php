@@ -2,9 +2,9 @@
 
 namespace Avocado\AvocadoApplication\ExceptionHandlerLogic;
 
-use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
-use Avocado\HTTP\ResponseBody;
 use Exception;
+use Avocado\HTTP\ResponseBody;
+use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
 
 interface ExceptionHandlerStrategy {
 

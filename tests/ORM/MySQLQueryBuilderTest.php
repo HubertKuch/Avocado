@@ -2,9 +2,9 @@
 
 namespace Avocado\DataSource\Builder;
 
-use Avocado\Tests\Unit\TableWithIgnoringType;
-use Avocado\Tests\Unit\UserRole;
 use PHPUnit\Framework\TestCase;
+use Avocado\Tests\Unit\UserRole;
+use Avocado\Tests\Unit\TableWithIgnoringType;
 
 class MySQLQueryBuilderTest extends TestCase {
 

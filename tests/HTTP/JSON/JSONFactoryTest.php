@@ -2,8 +2,8 @@
 
 namespace HTTP\JSON;
 
-use Avocado\HTTP\JSON\JSONFactory;
 use PHPUnit\Framework\TestCase;
+use Avocado\HTTP\JSON\JSONFactory;
 
 
 class JSONFactoryTestUser {
