@@ -27,7 +27,7 @@ class ClassFinder {
         self::$classes = $classes;
         self::$classes = self::excludeClasses($toExclude);
 
-        return self::excludeClasses($toExclude);
+        return self::$classes;
     }
 
     private static function getAvocadoClasses(): array {
