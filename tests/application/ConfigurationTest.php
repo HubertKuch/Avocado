@@ -19,7 +19,7 @@ class ConfigurationTest extends TestCase {
      * */
     public function testGetConfigurations() {
         $_SERVER['REQUEST_METHOD'] = "GET";
-        Application::run(__DIR__);
+        MockedApplication::init(__DIR__);
 
         $reflection = new ReflectionClass(Application::class);
 
@@ -31,7 +31,7 @@ class ConfigurationTest extends TestCase {
      * */
     public function testGetLeafByClass() {
         $_SERVER['REQUEST_METHOD'] = "GET";
-        Application::run(__DIR__);
+        MockedApplication::init(__DIR__);
 
         $reflection = new ReflectionClass(Application::class);
         /** @var $leafManager LeafManager */
@@ -47,7 +47,7 @@ class ConfigurationTest extends TestCase {
      * */
     public function testGetLeafByName() {
         $_SERVER['REQUEST_METHOD'] = "GET";
-        Application::run(__DIR__);
+        MockedApplication::init(__DIR__);
 
         $reflection = new ReflectionClass(Application::class);
         /** @var $leafManager LeafManager */
