@@ -36,6 +36,8 @@ class DependencyInjectionServiceTest extends TestCase {
         MockedApplication::init();
 
         $res = DependencyInjectionService::getResources();
+        var_dump(array_filter($res, fn($resourceable) => $resourceable->getTargetResourceClass() == DataSource::class));
+
         self::assertTrue(count(array_filter($res, fn($resourceable) => $resourceable->getTargetResourceClass() == DataSource::class)) == 1);
     }
 }

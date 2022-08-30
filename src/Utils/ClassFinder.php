@@ -24,7 +24,7 @@ class ClassFinder {
 
         $classes = [...$classes, ...self::getAvocadoClasses()];
 
-        self::$classes = $classes;
+        self::$classes = array_unique($classes);
         self::$classes = self::excludeClasses($toExclude);
 
         return self::$classes;
@@ -45,7 +45,7 @@ class ClassFinder {
     }
 
     public static function getClasses(): array {
-        return self::$classes;
+        return array_unique(self::$classes);
     }
 
     public static function getClassReflectionByName(string $className): ?ReflectionClass {
