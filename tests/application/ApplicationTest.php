@@ -179,4 +179,11 @@ class ApplicationTest extends TestCase {
 
         MockedApplication::init();
     }
+
+    public function testParamsInRouter() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'] = "/avocado-test/param/4";
+
+        MockedApplication::init();
+    }
 }

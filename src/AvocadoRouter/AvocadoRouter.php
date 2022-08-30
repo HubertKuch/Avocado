@@ -108,7 +108,6 @@ class AvocadoRouter {
 
             $req = new AvocadoRequest($params);
             $req->method = $method;
-            // TODO: ADD URLS
 
             $res = new AvocadoResponse();
 
@@ -129,14 +128,15 @@ class AvocadoRouter {
         }
     }
 
-    private static function getPathWithoutParams(string $endpoint, string $actPath, array $params): string {
+    private static function getPathWithoutParams(string $endpoint, string $actPath, array &$params): string {
         $explodedEndpoint = explode("/", $endpoint);
         $explodedActualPath = explode("/", $actPath);
 
         for ($i = 0; $i < count($explodedEndpoint); $i++) {
             if (!empty($explodedEndpoint[$i]) && @$explodedEndpoint[$i][0] === ':') {
                 $ascIndex = substr($explodedEndpoint[$i], 1);
-                if (isset($params[$ascIndex])) {
+
+                if (!isset($params[$ascIndex])) {
                     @$params[$ascIndex] = @$explodedActualPath[$i];
                 }
                 @$explodedActualPath[$i] = @$explodedEndpoint[$i];

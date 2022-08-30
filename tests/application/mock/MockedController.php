@@ -26,6 +26,11 @@ class MockedController {
         $res->json(["Get Hello World"]);
     }
 
+    #[GetMapping("/param/:test")]
+    public function testGetParam(AvocadoRequest $req, AvocadoResponse $res): void {
+        var_dump($req->params);
+    }
+
     #[GetMapping("/di")]
     public function getDITest(AvocadoRequest $req, AvocadoResponse $res): void {
         $res->json([$this->mockedResource->getTest()]);
