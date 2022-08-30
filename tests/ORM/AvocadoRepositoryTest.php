@@ -15,52 +15,18 @@ use Avocado\DataSource\DataSourceBuilder;
 use Avocado\AvocadoORM\Mappers\MySQLMapper;
 use Avocado\DataSource\Database\DatabaseType;
 
-const DATABASE = "avocado_test_db";
-const DSN = "mysql:host=127.0.0.1;dbname=".DATABASE;
-const USER = "root";
-const PASSWORD = "";
-
-#[Table('users')]
-class TestUser {
-    #[Id('id')]
-    private ?int $id = null;
-    #[Field]
-    private string $username;
-    #[Field]
-    private string $password;
-    #[Field('amount2')]
-    private float $amount;
-    #[Field]
-    private UserRole $role;
-
-    public function __construct(string $username, string $password, float $amount, UserRole $role = UserRole::USER) {
-        $this->username = $username;
-        $this->password = $password;
-        $this->amount = $amount;
-        $this->role = $role;
-    }
-
-    public function getAmount(): float {
-        return $this->amount;
-    }
-
-    public function getRole(): UserRole {
-        return $this->role;
-    }
-
-    public function setRole(UserRole $role): void {
-        $this->role = $role;
-    }
-}
-
 class AvocadoRepositoryTest extends TestCase {
     private DataSource $dataSource;
 
+    private const DATABASE = "avocado_test_db";
+    private const USER = "root";
+    private const PASSWORD = "";
+
     protected function setUp(): void {
         $this->dataSource = (new DataSourceBuilder())
-            ->username(USER)
-            ->password(PASSWORD)
-            ->databaseName(DATABASE)
+            ->username(self::USER)
+            ->password(self::PASSWORD)
+            ->databaseName(self::DATABASE)
             ->databaseType(DatabaseType::MYSQL)
             ->port(3306)
             ->server("127.0.0.1")
