@@ -16,7 +16,9 @@ class Leaf implements Resourceable {
     private string $returnType;
     private object $resourceInstance;
 
-    public function __construct(?string $name = "") {}
+    public function __construct(?string $name = "") {
+        $this->leafName = $name;
+    }
 
     /**
      * @throws InvalidResourceException
@@ -47,13 +49,11 @@ class Leaf implements Resourceable {
         $reflection = $this->getReflectionMethod();
 
         $leafAttribute = $reflection->getAttributes(Leaf::class);
-        $args = $leafAttribute[0]->getArguments();
 
-        if (empty($args)) {
-            return "";
-        }
+        /** @var $leaf Leaf */
+        $leaf = $leafAttribute[0]->newInstance();
 
-        return key_exists('name', $args) ? $args['name'] : $args[0];
+        return $leaf->getName();
     }
 
     /**

@@ -3,13 +3,11 @@
 namespace Avocado\Tests\Unit\Application;
 
 use ReflectionClass;
-use Avocado\Utils\ClassFinder;
 use PHPUnit\Framework\TestCase;
 use Avocado\Application\Controller;
 use Avocado\Application\Application;
 use AvocadoApplication\Mappings\MethodMapping;
 use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
-use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 
 /**
  * @runTestsInSeparateProcesses

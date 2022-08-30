@@ -4,6 +4,8 @@ namespace AvocadoApplication\Tests\Unit\Application\DependencyInjection;
 
 use PHPUnit\Framework\TestCase;
 use Avocado\DataSource\DataSource;
+use Avocado\Application\Application;
+use Avocado\AvocadoApplication\Leafs\LeafManager;
 use Avocado\Tests\Unit\Application\MockedApplication;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 
@@ -38,5 +40,17 @@ class DependencyInjectionServiceTest extends TestCase {
         $res = DependencyInjectionService::getResources();
 
         self::assertTrue(count(array_filter($res, fn($resourceable) => $resourceable->getTargetResourceClass() == DataSource::class)) == 1);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * */
+    public function testGetLeafsByName() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        MockedApplication::init();
+        $leaf = Application::getLeafManager()->getLeafByName("mocked_rsc");
+
+        self::assertNotNull($leaf);
     }
 }
