@@ -185,5 +185,7 @@ class ApplicationTest extends TestCase {
         $_SERVER['PHP_SELF'] = "/avocado-test/param/4";
 
         MockedApplication::init();
+
+        self::assertSame("4", ob_get_contents());
     }
 }

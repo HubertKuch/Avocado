@@ -28,7 +28,7 @@ class MockedController {
 
     #[GetMapping("/param/:test")]
     public function testGetParam(AvocadoRequest $req, AvocadoResponse $res): void {
-        var_dump($req->params);
+        echo $req->params['test'];
     }
 
     #[GetMapping("/di")]
