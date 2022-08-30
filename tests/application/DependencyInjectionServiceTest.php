@@ -49,8 +49,16 @@ class DependencyInjectionServiceTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = "GET";
 
         MockedApplication::init();
-        $leaf = Application::getLeafManager()->getLeafByName("mocked_rsc");
 
-        self::assertNotNull($leaf);
+        self::assertNotNull(DependencyInjectionService::getResourceByName("testResource"));
+    }
+
+    public function testInjectResourceByName() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'] .= "/avocado-test/alternative-resource-name/";
+
+        MockedApplication::init();
+
+        self::assertSame('["TEST"]', ob_get_contents());
     }
 }

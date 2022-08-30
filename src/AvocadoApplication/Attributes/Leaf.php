@@ -83,6 +83,10 @@ class Leaf implements Resourceable {
         return $this->leafName;
     }
 
+    public function getAlternativeName(): string {
+        return ($this->getName()) ?? $this->getMethodName();
+    }
+
     public function setReflectionMethod(ReflectionMethod $reflectionMethod): void {
         $this->reflectionMethod = $reflectionMethod;
     }

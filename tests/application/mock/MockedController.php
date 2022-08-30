@@ -18,8 +18,11 @@ use AvocadoApplication\Mappings\DeleteMapping;
 #[RestController]
 #[BaseURL("/avocado-test")]
 class MockedController {
+
     #[Autowired]
     private MockedResource $mockedResource;
+    #[Autowired]
+    private MockedResourceWithAlternativeName $mockedResourceWithAlternativeName;
 
     #[GetMapping("/")]
     public function getHelloWorld(AvocadoRequest $req, AvocadoResponse $res): void {
@@ -67,6 +70,11 @@ class MockedController {
     #[GetMapping("/exception")]
     public function exceptionTest() {
         throw new MockedException("test");
+    }
+
+    #[GetMapping("/alternative-resource-name")]
+    public function testResourceWithAlternativeName(AvocadoRequest $req, AvocadoResponse $res) {
+        $res->json([$this->mockedResourceWithAlternativeName->getTest()]);
     }
 
     /**

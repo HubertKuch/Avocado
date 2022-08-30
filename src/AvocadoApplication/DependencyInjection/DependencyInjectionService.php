@@ -7,6 +7,7 @@ use ReflectionObject;
 use ReflectionProperty;
 use ReflectionException;
 use Avocado\Utils\ClassFinder;
+use Avocado\Utils\ReflectionUtils;
 use AvocadoApplication\Attributes\Resource;
 use AvocadoApplication\Attributes\Autowired;
 use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
@@ -56,11 +57,20 @@ class DependencyInjectionService {
     }
 
     /**
-     * @return ReflectionProperty[]
+     * @return Autowired[]
      * @var $reflectionProperties ReflectionProperty[]
      */
     public static function getAutowiredProperties(array $reflectionProperties): array {
-        return array_filter($reflectionProperties, fn($parameter) => !empty($parameter->getAttributes(Autowired::class)));
+        $properties = array_filter($reflectionProperties, fn($parameter) => !empty($parameter->getAttributes(Autowired::class)));
+
+        return array_map(function ($property) {
+            $autowiredAttributes = $property->getAttributes(Autowired::class);
+
+            /** @var $autowired Autowired */
+            $autowired = $autowiredAttributes[key($autowiredAttributes)]->newInstance();
+
+            return new Autowired($autowired->getAutowiredResourceName(), $property);
+        }, $properties);
     }
 
     /**
@@ -113,22 +123,20 @@ class DependencyInjectionService {
 
         foreach ($resources as $resource) {
             self::validateResourceConstructor($resource);
-            self::$resources[] = new Resource($resource, self::newResourceInstance($resource));
+
+            $ref = ClassFinder::getClassReflectionByName($resource);
+
+            $resourceAttr = ReflectionUtils::getAttributeFromClass($ref, Resource::class);
+            /** @var $resourceAttrInstance Resource*/
+            $resourceAttrInstance = $resourceAttr->newInstance();
+
+            self::$resources[] = new Resource($resourceAttrInstance->getAlternativeName(), $resource, self::newResourceInstance($resource));
         }
     }
 
-    /**
-     * @throws ResourceNotFoundException
-     */
-    public static function getResourceByType(string $autowiredClassPropertyType): Resourceable {
+    public static function getResourceByType(string $autowiredClassPropertyType): Resourceable|null {
         $resource = array_filter(self::$resources, fn($resource) => $resource->getTargetResourceClass() == $autowiredClassPropertyType);
-        $resource = key($resource) !== NULL ? $resource[key($resource)] : NULL;
-
-        if (!$resource) {
-            throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, $autowiredClassPropertyType));
-        }
-
-        return $resource;
+        return key($resource) !== NULL ? $resource[key($resource)] : NULL;
     }
 
     /**
@@ -137,12 +145,19 @@ class DependencyInjectionService {
     public static function inject(ReflectionObject $reflectionObject, object $object): void {
         $autowiredClassProperties = DependencyInjectionService::getAutowiredProperties($reflectionObject->getProperties());
 
-
         foreach ($autowiredClassProperties as $autowiredClassProperty) {
-            $resourceType = $autowiredClassProperty->getType()->getName();
+            $resourceType = $autowiredClassProperty->getReflectionProperty()->getType()->getName();
             $resource = self::getResourceByType($resourceType);
 
-            $autowiredClassProperty->setValue($object, $resource->getTargetInstance());
+            if ($autowiredClassProperty->getAutowiredResourceName() != "") {
+                $resource = self::getResourceByName($autowiredClassProperty->getAutowiredResourceName());
+            }
+
+            if (!$resource) {
+                throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, ``));
+            }
+
+            $autowiredClassProperty->getReflectionProperty()->setValue($object, $resource->getTargetInstance());
         }
     }
 
@@ -151,5 +166,19 @@ class DependencyInjectionService {
      */
     public static function getResources(): array {
         return self::$resources;
+    }
+
+    /**
+     * @throws ResourceNotFoundException
+     */
+    public static function getResourceByName(string $name): Resourceable {
+        $resource = array_filter(self::$resources, fn($resource) => $resource->getAlternativeName() == $name);
+        $resource = key($resource) !== NULL ? $resource[key($resource)] : NULL;
+
+        if (!$resource) {
+            throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, $name));
+        }
+
+        return $resource;
     }
 }

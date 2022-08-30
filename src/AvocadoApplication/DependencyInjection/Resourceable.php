@@ -3,6 +3,7 @@
 namespace Avocado\AvocadoApplication\DependencyInjection;
 
 interface Resourceable {
-    function getTargetResourceClass();
-    function getTargetInstance();
+    public function getTargetResourceClass();
+    public function getTargetInstance();
+    public function getAlternativeName(): string;
 }

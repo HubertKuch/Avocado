@@ -56,7 +56,7 @@ class ClassFinder {
     public static function getClassReflectionByName(string $className): ?ReflectionClass {
         $matched = array_filter(self::$classes, fn($class) => $class->getName() === $className);
 
-        return $matched[0] ?? null;
+        return $matched[key($matched)] ?? null;
     }
 
     private static function excludeNamespace(string $namespace): array {
