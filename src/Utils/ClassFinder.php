@@ -27,6 +27,11 @@ class ClassFinder {
         self::$classes = array_unique($classes);
         self::$classes = self::excludeClasses($toExclude);
 
+        if (($_ENV['AVOCADO_ENVIRONMENT'] ?? "DEVELOPMENT") == "PRODUCTION") {
+            self::$classes = self::excludeNamespace("AvocadoApplication\\Tests\\");
+            self::$classes = self::excludeNamespace("Avocado\\Tests\\");
+        }
+
         return self::$classes;
     }
 
@@ -52,5 +57,11 @@ class ClassFinder {
         $matched = array_filter(self::$classes, fn($class) => $class->getName() === $className);
 
         return $matched[0] ?? null;
+    }
+
+    private static function excludeNamespace(string $namespace): array {
+        return array_filter(self::$classes, function($class) use ($namespace) {
+            return !str_starts_with($class->getName(), $namespace);
+        });
     }
 }

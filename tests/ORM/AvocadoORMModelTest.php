@@ -10,44 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Avocado\ORM\Attributes\Field;
 use Avocado\ORM\Attributes\Table;
 
-#[Table('table')]
-class TestModelWithIdAsString {
-    #[Id('id')]
-    private int $id;
-    #[Field]
-    private string $field;
-}
-
-#[Table('table2')]
-class TestModelWithoutPassedId {
-    #[Id]
-    private int $id;
-    #[Field]
-    private string $field;
-}
-
-enum UserRole: string {
-    case ADMIN = 'admin';
-    case USER = 'user';
-}
-
-#[Table('users')]
-class TableWithIgnoringType {
-    #[Id]
-    private ?int $id;
-    #[Field]
-    private UserRole $role;
-
-    public function __construct(?int $id, UserRole $role) {
-        $this->id = $id;
-        $this->role = $role;
-    }
-
-    public function getRole(): UserRole {
-        return $this->role;
-    }
-}
-
 class AvocadoORMModelTest extends TestCase {
     public function testModelPrimaryKeyWithPassedItAsString(): void {
         $model = new AvocadoModel(TestModelWithIdAsString::class);

@@ -6,17 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Avocado\HTTP\JSON\JSONFactory;
 
 
-class JSONFactoryTestUser {
-    private int $id = 1;
-    public string $username;
-    private bool $isAdmin;
-
-    public function __construct(string $username, bool $isAdmin) {
-        $this->username = $username;
-        $this->isAdmin = $isAdmin;
-    }
-}
-
 class JSONFactoryTest extends TestCase {
     public function testSerializePrimitive(): void {
         self::assertSame("[2,4,\"test\",false,null]", JSONFactory::serializePrimitive([2, 4, "test", false, null]));

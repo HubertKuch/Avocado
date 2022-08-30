@@ -3,10 +3,12 @@
 namespace Avocado\Tests\Unit\Application;
 
 use ReflectionClass;
+use Avocado\Utils\ClassFinder;
 use PHPUnit\Framework\TestCase;
 use Avocado\Application\Controller;
 use Avocado\Application\Application;
 use AvocadoApplication\Mappings\MethodMapping;
+use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 
 /**
@@ -166,5 +168,15 @@ class ApplicationTest extends TestCase {
         $classes = $ref->getStaticPropertyValue("declaredClasses");
 
         self::assertFalse(in_array(TestClassToExclude::class, $classes));
+    }
+
+    public function testExcludingAvocadoTestsFromProductionApplication() {
+        $this->expectException(MissingAnnotationException::class);
+
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        $_ENV['AVOCADO_ENVIRONMENT'] = "PRODUCTION";
+
+        MockedApplication::init();
     }
 }
