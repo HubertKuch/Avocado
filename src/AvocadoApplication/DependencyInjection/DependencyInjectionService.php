@@ -22,8 +22,26 @@ class DependencyInjectionService {
     /* @var $resources Resourceable[] */
     private static array $resources = [];
 
+    /**
+     * @throws ResourceNotFoundException
+     * @throws ResourceException
+     * @throws TooMuchResourceConstructorParametersException
+     */
+    public static function init(): void {
+
+        $resources = self::getClassNamesOfResources();
+
+        self::createResources($resources);
+    }
+
     private static function getClassNamesOfResources(): array {
-        return array_filter(array_map(fn($class) => $class->getName(), ClassFinder::getClasses()), function ($class) {
+        $classes = ClassFinder::getClasses();
+
+        $onlyNames = array_map(fn($class) => $class->getName(), $classes);
+
+        $uniqueNames = array_unique($onlyNames);
+
+        return array_filter($uniqueNames, function ($class) {
             try {
                 $reflection = new ReflectionClass($class);
                 $resourceAttributes = $reflection->getAttributes(Resource::class);
@@ -92,6 +110,7 @@ class DependencyInjectionService {
      * @throws ResourceException
      */
     private static function createResources(array $resources): void {
+
         foreach ($resources as $resource) {
             self::validateResourceConstructor($resource);
             self::$resources[] = new Resource($resource, self::newResourceInstance($resource));
@@ -113,15 +132,11 @@ class DependencyInjectionService {
     }
 
     /**
-     * @throws TooMuchResourceConstructorParametersException
-     * @throws ResourceNotFoundException|ResourceException
+     * @throws ResourceNotFoundException
      */
     public static function inject(ReflectionObject $reflectionObject, object $object): void {
-        $resources = self::getClassNamesOfResources();
-
         $autowiredClassProperties = DependencyInjectionService::getAutowiredProperties($reflectionObject->getProperties());
 
-        self::createResources($resources);
 
         foreach ($autowiredClassProperties as $autowiredClassProperty) {
             $resourceType = $autowiredClassProperty->getType()->getName();

@@ -53,6 +53,8 @@ final class Application {
                 DependencyInjectionService::addResource($leaf);
             }
 
+            DependencyInjectionService::init();
+
             self::$controllers = self::getControllers();
             self::$restControllers = self::getRestControllers();
 
@@ -63,6 +65,7 @@ final class Application {
             AvocadoORMSettings::fromExistingSource(self::$dataSource);
 
             AvocadoRouter::listen();
+
         } catch (Exception $e) {
             ApplicationExceptionsAdvisor::process($e);
         }

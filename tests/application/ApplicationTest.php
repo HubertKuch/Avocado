@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Avocado\Application\Controller;
 use Avocado\Application\Application;
 use AvocadoApplication\Mappings\MethodMapping;
+use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 
 /**
  * @runTestsInSeparateProcesses
