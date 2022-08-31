@@ -9,7 +9,7 @@ class AvocadoResponse {
     public function write($data): AvocadoResponse {
         if (is_array($data) || is_object($data)) {
             echo "<pre>";
-            var_dump($data);
+            print_r($data);
             echo "</pre>";
 
             return $this;
@@ -47,7 +47,7 @@ class AvocadoResponse {
         return $this;
     }
 
-    public function json(JSON|array $data): AvocadoResponse {
+    public function json(object|array $data): AvocadoResponse {
         header('Content-Type: application/json; charset=utf-8');
 
         if ($data instanceof JSON) {
