@@ -13,9 +13,16 @@ class DataSourceBuilder {
     private DatabaseType $databaseType;
     private string $database;
     private int $port;
+    private string $charset = 'utf8';
 
     public function url(string $url): DataSourceBuilder {
         $this->url = $url;
+
+        return $this;
+    }
+
+    public function charset(string $charset): DataSourceBuilder {
+        $this->charset = $charset;
 
         return $this;
     }
@@ -64,6 +71,7 @@ class DataSourceBuilder {
                 $this->server,
                 $this->database,
                 $this->port,
+                $this->charset
             )
         };
 
@@ -88,5 +96,9 @@ class DataSourceBuilder {
 
     public function getPort(): int {
         return $this->port;
+    }
+
+    public function getCharset(): string {
+        return $this->charset;
     }
 }
