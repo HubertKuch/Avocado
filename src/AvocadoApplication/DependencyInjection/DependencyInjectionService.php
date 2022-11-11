@@ -108,7 +108,11 @@ class DependencyInjectionService {
                 throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, $resourceName));
             }
 
-            return (new ReflectionClass($resourceName))->newInstance();
+            $instance = (new ReflectionClass($resourceName))->newInstance();;
+
+            self::inject(new ReflectionObject($instance), $instance);
+
+            return $instance;
         } catch (ReflectionException){
             throw new TooMuchResourceConstructorParametersException(self::TOO_MUCH_RESOURCE_PROPERTIES_EXCEPTION);
         }

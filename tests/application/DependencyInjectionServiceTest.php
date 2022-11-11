@@ -2,6 +2,7 @@
 
 namespace AvocadoApplication\Tests\Unit\Application\DependencyInjection;
 
+use Avocado\Tests\Unit\Application\MockedResourceWithAutowiredProperties;
 use PHPUnit\Framework\TestCase;
 use Avocado\DataSource\DataSource;
 use Avocado\Application\Application;
@@ -40,6 +41,19 @@ class DependencyInjectionServiceTest extends TestCase {
         $res = DependencyInjectionService::getResources();
 
         self::assertTrue(count(array_filter($res, fn($resourceable) => $resourceable->getTargetResourceClass() == DataSource::class)) == 1);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * */
+    public function testAutowiringPropertiesInResources() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        MockedApplication::init();
+
+        $resource = DependencyInjectionService::getResourceByType(MockedResourceWithAutowiredProperties::class);
+        $instance = $resource->getTargetInstance();
+        self::assertTrue($instance instanceof MockedResourceWithAutowiredProperties);
+        self::assertSame($instance->test(), "test");
     }
 
     /**
