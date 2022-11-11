@@ -3,23 +3,24 @@
 namespace AvocadoApplication\Attributes;
 
 use Attribute;
-use phpDocumentor\Reflection\Utils;
 use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 class Resource implements Resourceable {
-    private ?string $targetResourceClass;
+    private ?array $resourceTypes;
+    private ?string $mainType;
     private ?object $targetInstance;
     private ?string $alternativeName;
 
-    public function __construct(?string $name = "", string $targetResourceClass = null, object $targetInstance = null) {
+    public function __construct(?string $name = "", ?array $types = null, ?string $mainType = null, ?object $targetInstance = null) {
         $this->alternativeName = $name;
-        $this->targetResourceClass = $targetResourceClass;
+        $this->resourceTypes = $types;
         $this->targetInstance = $targetInstance;
+        $this->mainType = $mainType;
     }
 
-    public function getTargetResourceClass(): string {
-        return $this->targetResourceClass;
+    public function getTargetResourceTypes(): array {
+        return $this->resourceTypes;
     }
 
     public function getTargetInstance(): object {
@@ -28,5 +29,9 @@ class Resource implements Resourceable {
 
     public function getAlternativeName(): string {
         return $this->alternativeName;
+    }
+
+    public function getMainType(): string {
+        return $this->mainType;
     }
 }

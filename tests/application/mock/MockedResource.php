@@ -5,7 +5,7 @@ namespace Avocado\Tests\Unit\Application;
 use AvocadoApplication\Attributes\Resource;
 
 #[Resource(name: "testResource")]
-class MockedResource {
+class MockedResource implements TestInterfaceToMockingMockedObjects {
 
     public function __construct() {}
 

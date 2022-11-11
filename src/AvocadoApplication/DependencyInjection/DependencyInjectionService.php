@@ -2,6 +2,7 @@
 
 namespace AvocadoApplication\DependencyInjection;
 
+use Avocado\Application\Application;
 use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
@@ -133,13 +134,15 @@ class DependencyInjectionService {
             $resourceAttr = ReflectionUtils::getAttributeFromClass($ref, Resource::class);
             /** @var $resourceAttrInstance Resource*/
             $resourceAttrInstance = $resourceAttr->newInstance();
+            $instance = self::newResourceInstance($resource);
+            $types = ReflectionUtils::getAllTypes($instance);
 
-            self::$resources[] = new Resource($resourceAttrInstance->getAlternativeName(), $resource, self::newResourceInstance($resource));
+            self::$resources[] = new Resource($resourceAttrInstance->getAlternativeName(), $types, $resource, $instance);
         }
     }
 
     public static function getResourceByType(string $autowiredClassPropertyType): Resourceable|null {
-        $resource = array_filter(self::$resources, fn($resource) => $resource->getTargetResourceClass() == $autowiredClassPropertyType);
+        $resource = array_filter(self::$resources, fn($resource) => in_array($autowiredClassPropertyType, $resource->getTargetResourceTypes()));
         return key($resource) !== NULL ? $resource[key($resource)] : NULL;
     }
 

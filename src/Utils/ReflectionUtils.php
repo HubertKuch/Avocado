@@ -83,4 +83,17 @@ class ReflectionUtils {
             return [];
         }
     }
+
+    /** @return string[] */
+    public static function getAllTypes(object $object) {
+        $ref = new ReflectionClass($object);
+        $types = [$ref->getName()];
+
+        $parentClass = $ref->getParentClass();
+        $interfaces = $ref->getInterfaceNames();
+
+        if ($parentClass) array_push($types, $parentClass->getName());
+
+        return array_merge($types, $interfaces);
+    }
 }

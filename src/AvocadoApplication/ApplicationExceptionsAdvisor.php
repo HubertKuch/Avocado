@@ -44,7 +44,7 @@ class ApplicationExceptionsAdvisor {
 
         foreach ($resources as $resource) {
             $resource->getTargetInstance();
-            $exceptionHandlerAttribute = ReflectionUtils::getAttributeFromClass($resource->getTargetResourceClass(), ExceptionHandler::class);
+            $exceptionHandlerAttribute = ReflectionUtils::getAttributeFromClass($resource->getMainType(), ExceptionHandler::class);
 
             if (!$exceptionHandlerAttribute) continue;
 
@@ -56,7 +56,7 @@ class ApplicationExceptionsAdvisor {
 
     /** @return ExceptionHandler[] */
     private static function getHandlersFromExceptionHandlerClass(Resourceable $resource): array {
-        $handlers = ReflectionUtils::getMethods($resource->getTargetResourceClass(), ExceptionHandler::class);
+        $handlers = ReflectionUtils::getMethods($resource->getMainType(), ExceptionHandler::class);
 
         return array_map(
             function($method) use ($resource) {
@@ -64,7 +64,7 @@ class ApplicationExceptionsAdvisor {
                     ReflectionUtils::getAttributeFromMethod($method->getDeclaringClass()->getName(), $method->getName(), ExceptionHandler::class)
                         -> newInstance()
                         -> getExceptions(),
-                    $resource->getTargetResourceClass(),
+                    $resource->getMainType(),
                     $method->getName()
                 );
             }, $handlers

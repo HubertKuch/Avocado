@@ -75,7 +75,11 @@ class Leaf implements Resourceable {
         return $this->reflectionMethod;
     }
 
-    public function getTargetResourceClass(): string {
+    public function getTargetResourceTypes(): array {
+        return [$this->returnType];
+    }
+
+    public function getMainType(): string {
         return $this->returnType;
     }
 

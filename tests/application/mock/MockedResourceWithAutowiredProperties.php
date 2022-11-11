@@ -9,7 +9,7 @@ use AvocadoApplication\Attributes\Resource;
 class MockedResourceWithAutowiredProperties {
 
     #[Autowired]
-    private MockedResource $anotherDependency;
+    private TestInterfaceToMockingMockedObjects $anotherDependency;
 
     public function __construct() {}
 
