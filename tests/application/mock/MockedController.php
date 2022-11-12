@@ -3,6 +3,7 @@
 namespace Avocado\Tests\Unit\Application;
 
 
+use Avocado\AvocadoApplication\Attributes\RequestBody;
 use Exception;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
@@ -83,5 +84,10 @@ class MockedController {
     #[GetMapping("/exception/auto-response")]
     public function exceptionTestWithAutoResponse() {
         throw new MockedExceptionWithResponseStatus("auto response");
+    }
+
+    #[PostMapping("/parsing-objects")]
+    public function parsingObjectTest(AvocadoResponse $response, #[RequestBody] ObjectToParse $objectShouldBeParsed) {
+        print "parsed";
     }
 }

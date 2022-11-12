@@ -2,6 +2,7 @@
 
 namespace Avocado\Application;
 
+use Avocado\AvocadoApplication\Controller\ParameterProviders\ParameterProvider;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
@@ -65,7 +66,7 @@ final class Application {
             AvocadoORMSettings::fromExistingSource(self::$dataSource);
 
             AvocadoRouter::listen();
-
+            AvocadoRouter::invokeMatchedRoute();
         } catch (Exception $e) {
             ApplicationExceptionsAdvisor::process($e);
         }
@@ -143,19 +144,19 @@ final class Application {
 
         switch ($mapping->getHTTPMethod()) {
             case HTTPMethod::GET:
-                AvocadoRouter::GET($endpoint, [], $callback);
+                AvocadoRouter::GET($endpoint, [], $callback, ["req", "res"]);
                 break;
             case HTTPMethod::POST:
-                AvocadoRouter::POST($endpoint, [], $callback);
+                AvocadoRouter::POST($endpoint, [], $callback, ["req", "res"]);
                 break;
             case HTTPMethod::DELETE:
-                AvocadoRouter::DELETE($endpoint, [], $callback);
+                AvocadoRouter::DELETE($endpoint, [], $callback, ["req", "res"]);
                 break;
             case HTTPMethod::PUT:
-                AvocadoRouter::PUT($endpoint, [], $callback);
+                AvocadoRouter::PUT($endpoint, [], $callback, ["req", "res"]);
                 break;
             case HTTPMethod::PATCH:
-                AvocadoRouter::PATCH($endpoint, [], $callback);
+                AvocadoRouter::PATCH($endpoint, [], $callback, ["req", "res"]);
                 break;
         }
     }

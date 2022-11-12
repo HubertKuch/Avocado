@@ -2,6 +2,8 @@
 
 namespace Avocado\Utils;
 
+use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
+use PHPUnit\Exception;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionObject;
@@ -29,6 +31,29 @@ class ReflectionUtils {
         }
 
         return $fields;
+    }
+
+    /**
+     * @throws ReflectionException
+     * @throws MissingKeyException
+     */
+    public static function instanceFromArray(array $data, string $target): object {
+        $ref = new ReflectionClass($target);
+        $instance = $ref->newInstanceWithoutConstructor();
+        $objectRef = new ReflectionObject($instance);
+
+        foreach ($objectRef->getProperties() as $propertyRef) {
+            $propertyRef->setAccessible(true);
+            $name = $propertyRef->name;
+
+            if (!array_key_exists($name, $data)) {
+                throw new MissingKeyException();
+            }
+
+            $propertyRef->setValue($instance, $data[$name]);
+        }
+
+        return $instance;
     }
 
     public static function getAttribute(object $object, string $attribute): ReflectionAttribute|null {

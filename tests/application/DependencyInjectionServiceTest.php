@@ -40,7 +40,7 @@ class DependencyInjectionServiceTest extends TestCase {
 
         $res = DependencyInjectionService::getResources();
 
-        self::assertTrue(count(array_filter($res, fn($resourceable) => $resourceable->getTargetResourceTypes() == DataSource::class)) == 1);
+        self::assertTrue(count(array_filter($res, fn($resourceable) => in_array(DataSource::class, $resourceable->getTargetResourceTypes()))) == 1);
     }
 
     /**

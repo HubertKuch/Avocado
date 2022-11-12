@@ -2,7 +2,9 @@
 
 namespace Avocado\Router;
 
+use Avocado\AvocadoApplication\Controller\ParameterProviders\ParameterProvider;
 use Avocado\AvocadoApplication\Exceptions\PageNotFoundException;
+use ReflectionMethod;
 
 class AvocadoRouter {
     private static array $routesStack = array();
@@ -10,6 +12,9 @@ class AvocadoRouter {
     private static array $settingsStack = array();
     private static bool $isNext = true;
     private static array $notFoundStack = array();
+    private static array $matchedRoute = array();
+    private static AvocadoRequest $request;
+    private static AvocadoResponse $response;
 
     public static function use(callable $setting): void {
         self::$settingsStack[] = $setting;
@@ -116,7 +121,10 @@ class AvocadoRouter {
             $isMiddlewareThrowNext = self::isMiddlewareThrowNext($middlewareStack, $req, $res);
 
             if (self::$isNext && $isMiddlewareThrowNext && $actPathWithoutParamsValues === $endpoint && $method === $route['ROUTE']->getMethod()) {
-                $route['CALLBACK']($req, $res);
+                self::$matchedRoute = $route;
+                self::$request = $req;
+                self::$response = $res;
+
                 break;
             }
 
@@ -124,8 +132,25 @@ class AvocadoRouter {
         }
 
         if ($iterationCount == count(self::$routesStack) && $_SERVER['PHP_SELF'] !== "Standard input code") {
-            throw new PageNotFoundException("test");
+            throw new PageNotFoundException("Page was not found.");
         }
+    }
+
+
+    public static function invokeMatchedRoute(): void {
+        if (count(self::$matchedRoute) == 0) {
+            return;
+        }
+
+        $route = self::$matchedRoute;
+
+        $className = $route['CALLBACK'][0]::class;
+        $methodName = $route['CALLBACK'][1];
+
+        $ref = new ReflectionMethod("{$className}::{$methodName}");
+        $parameters = ParameterProvider::provide($ref, self::$request, self::$response);
+
+        call_user_func_array($route['CALLBACK'], $parameters);
     }
 
     private static function getPathWithoutParams(string $endpoint, string $actPath, array &$params): string {
