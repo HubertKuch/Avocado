@@ -1,6 +1,6 @@
 <?php
 
-namespace Avocado\AvocadoApplication\Attributes;
+namespace Avocado\AvocadoApplication\Attributes\Request;
 
 use Attribute;
 use ReflectionParameter;
@@ -9,7 +9,7 @@ use ReflectionParameter;
 class RequestBody {
 
     public static function isAnnotated(ReflectionParameter $reflectionProperty) {
-        $requestBodyAnnotations = $reflectionProperty->getAttributes(RequestBody::class);
+        $requestBodyAnnotations = $reflectionProperty->getAttributes(self::class);
 
         return !empty($requestBodyAnnotations);
     }

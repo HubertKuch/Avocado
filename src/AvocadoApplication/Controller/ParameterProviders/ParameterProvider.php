@@ -2,7 +2,8 @@
 
 namespace Avocado\AvocadoApplication\Controller\ParameterProviders;
 
-use Avocado\AvocadoApplication\Attributes\RequestBody;
+use Avocado\AvocadoApplication\Attributes\Request\RequestBody;
+use Avocado\AvocadoApplication\Attributes\Request\RequestHeader;
 use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
 use Avocado\Router\AvocadoRequest;
@@ -42,6 +43,19 @@ class ParameterProvider {
 
             if ($parameterRef->getType()->getName() === $response::class) {
                 $parametersToProvide[] = $response;
+                continue;
+            }
+
+            if (RequestHeader::isAnnotated($parameterRef) && $parameterRef->getType()->getName() === "string") {
+                $instanceOfAnnotation = RequestHeader::getInstance($parameterRef);
+                $name = $instanceOfAnnotation->getName();
+                $value = null;
+
+                if ($request->hasHeader($name)) {
+                    $value = $request->headers[$name];
+                }
+
+                $parametersToProvide[] = $value;
                 continue;
             }
 

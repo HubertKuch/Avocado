@@ -2,10 +2,13 @@
 
 namespace Avocado\Tests\Unit\Application;
 
-use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
 use Avocado\Router\AvocadoRouter;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ * */
 class ParameterProviderTest extends TestCase {
 
     /**
@@ -38,4 +41,18 @@ class ParameterProviderTest extends TestCase {
         self::assertSame('{"message":"Invalid request body.","status":400}', ob_get_contents());
     }
 
+    /**
+     * @runInSeparateProcess
+     * */
+    public function testParsingHeaders() {
+        $expected = "application/json";
+        $_SERVER['HTTP_CONTENT_TYPE'] = $expected;
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'].="/avocado-test/parsing-headers";
+
+        MockedApplication::init();
+
+        self::assertSame($expected, ob_get_contents());
+
+    }
 }

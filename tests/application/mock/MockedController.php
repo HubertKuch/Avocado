@@ -3,18 +3,20 @@
 namespace Avocado\Tests\Unit\Application;
 
 
-use Avocado\AvocadoApplication\Attributes\RequestBody;
-use Exception;
+use Avocado\Application\RestController;
+use Avocado\AvocadoApplication\Attributes\Request\RequestBody;
+use Avocado\AvocadoApplication\Attributes\Request\RequestHeader;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
-use Avocado\Application\RestController;
-use AvocadoApplication\Attributes\BaseURL;
-use AvocadoApplication\Mappings\GetMapping;
-use AvocadoApplication\Mappings\PutMapping;
 use AvocadoApplication\Attributes\Autowired;
-use AvocadoApplication\Mappings\PostMapping;
-use AvocadoApplication\Mappings\PatchMapping;
+use AvocadoApplication\Attributes\BaseURL;
 use AvocadoApplication\Mappings\DeleteMapping;
+use AvocadoApplication\Mappings\GetMapping;
+use AvocadoApplication\Mappings\PatchMapping;
+use AvocadoApplication\Mappings\PostMapping;
+use AvocadoApplication\Mappings\PutMapping;
+use Exception;
+use http\Client;
 
 #[RestController]
 #[BaseURL("/avocado-test")]
@@ -87,7 +89,15 @@ class MockedController {
     }
 
     #[PostMapping("/parsing-objects")]
-    public function parsingObjectTest(AvocadoResponse $response, #[RequestBody] ObjectToParse $objectShouldBeParsed) {
+    public function parsingObjectTest(
+        AvocadoResponse $response,
+        #[RequestBody] ObjectToParse $objectShouldBeParsed,
+    ) {
         print "parsed";
+    }
+
+    #[GetMapping("/parsing-headers")]
+    public function parsingHeaders(#[RequestHeader(name: "Content-Type")] string $contentType) {
+        print $contentType;
     }
 }
