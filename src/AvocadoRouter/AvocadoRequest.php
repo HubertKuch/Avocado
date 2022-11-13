@@ -8,7 +8,7 @@ class AvocadoRequest {
     public array $cookies;
     public array $params;
     public array $headers;
-    public array $locals;
+    public array $locals = [];
     public string $method;
     public string $fullURL;
     public string $fullURLWithoutQuery;

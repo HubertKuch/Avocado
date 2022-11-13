@@ -2,10 +2,10 @@
 
 namespace Avocado\Router;
 
-use Avocado\Application\Application;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\ControllerParametersProcessor;
 use Avocado\AvocadoApplication\Exceptions\PageNotFoundException;
-use Avocado\AvocadoApplication\PreProcessors\PreProcessorsManager;
+use Avocado\AvocadoApplication\Middleware\MiddlewareProcessor;
+use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use ReflectionMethod;
 
 class AvocadoRouter {
@@ -150,9 +150,19 @@ class AvocadoRouter {
 
         $className = $route['CALLBACK'][0]::class;
         $methodName = $route['CALLBACK'][1];
-
         $ref = new ReflectionMethod("{$className}::{$methodName}");
+
+        /** @var MiddlewareProcessor $middlewareProcessor*/
+        $middlewareProcessor = DependencyInjectionService::getResourceByType(MiddlewareProcessor::class)->getTargetInstance();
+        $isNext = $middlewareProcessor->validRequest($ref, self::$request, self::$response);
+
+        if (!$isNext) {
+            return;
+        }
+
+
         $parameters = ControllerParametersProcessor::process($ref, self::$request, self::$response);
+
 
         call_user_func_array($route['CALLBACK'], $parameters);
     }

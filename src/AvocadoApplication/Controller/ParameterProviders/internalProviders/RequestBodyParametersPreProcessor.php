@@ -11,7 +11,9 @@ use Avocado\AvocadoApplication\PreProcessors\CannotBeProcessed;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
+use Avocado\Utils\AnnotationUtils;
 use Avocado\Utils\StandardObjectMapper;
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionParameter;
 
@@ -19,7 +21,7 @@ use ReflectionParameter;
 class RequestBodyParametersPreProcessor implements SpecificParametersPreProcessor {
 
     public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, AvocadoRequest $request, AvocadoResponse $response): mixed {
-        if (RequestBody::isAnnotated($parameterRef)) {
+        if (AnnotationUtils::isAnnotated($parameterRef, RequestBody::class)) {
             try {
                 $instanceOf = StandardObjectMapper::arrayToObject($request->body, $parameterRef->getType()->getName());
             } catch (MissingKeyException|ReflectionException) {

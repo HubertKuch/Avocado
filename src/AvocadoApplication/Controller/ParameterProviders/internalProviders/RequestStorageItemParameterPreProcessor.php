@@ -2,7 +2,7 @@
 
 namespace Avocado\AvocadoApplication\Controller\ParameterProviders\internalProviders;
 
-use Avocado\AvocadoApplication\Attributes\Request\RequestHeader;
+use Avocado\AvocadoApplication\Attributes\Request\RequestStorageItem;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\SpecificParametersPreProcessor;
 use Avocado\AvocadoApplication\PreProcessors\CannotBeProcessed;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
@@ -13,19 +13,20 @@ use ReflectionMethod;
 use ReflectionParameter;
 
 #[PreProcessor]
-class RequestHeaderParameterPreProcessor implements SpecificParametersPreProcessor {
+class RequestStorageItemParameterPreProcessor implements SpecificParametersPreProcessor {
 
     public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, AvocadoRequest $request, AvocadoResponse $response): mixed {
-        if (AnnotationUtils::isAnnotated($parameterRef, RequestHeader::class) && $parameterRef->getType()->getName() === "string") {
-            $instanceOfAnnotation = AnnotationUtils::getInstance($parameterRef, RequestHeader::class);
-            $name = $instanceOfAnnotation->getName();
+        if (AnnotationUtils::isAnnotated($parameterRef, RequestStorageItem::class)) {
+            /** @var RequestStorageItem $instance*/
+            $instance = AnnotationUtils::getInstance($parameterRef, RequestStorageItem::class);
+            $name = $instance->getName();
             $value = null;
 
-            if ($request->hasHeader($name)) {
-                $value = $request->headers[$name];
+            if (array_key_exists($name, $request->locals)) {
+                $value = $request->locals[$name];
             }
 
-            return $value;
+            return $value ?? ($instance->getDefaultValue() ?? null);
         }
 
         return CannotBeProcessed::of();

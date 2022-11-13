@@ -9,6 +9,7 @@ use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
 use Avocado\Tests\Unit\Application\RequestQuery;
+use Avocado\Utils\AnnotationUtils;
 use ReflectionMethod;
 use ReflectionParameter;
 
@@ -17,8 +18,8 @@ class RequestQueryParameterPreProcessor implements SpecificParametersPreProcesso
 
     public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, AvocadoRequest $request, AvocadoResponse $response): mixed {
 
-        if (RequestQuery::isAnnotated($parameterRef)) {
-            $instanceOfAnnotation = RequestQuery::getInstance($parameterRef);
+        if (AnnotationUtils::isAnnotated($parameterRef, RequestQuery::class)) {
+            $instanceOfAnnotation = AnnotationUtils::getInstance($parameterRef, RequestQuery::class);
             $name = $instanceOfAnnotation->getName();
 
             if (!array_key_exists($name, $request->query) && $instanceOfAnnotation->isRequired()) {

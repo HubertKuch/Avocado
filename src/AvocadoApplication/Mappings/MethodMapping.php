@@ -2,6 +2,7 @@
 
 namespace AvocadoApplication\Mappings;
 
+use Avocado\Utils\ClassFinder;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionAttribute;
@@ -57,7 +58,13 @@ class MethodMapping {
     }
 
     public static function isMethodMapping(ReflectionAttribute $attribute): bool {
-        return (new ReflectionClass($attribute->getName()))->getParentClass()->getName() === MethodMapping::class;
+        $ref = ClassFinder::getClassReflectionByName($attribute->getName());
+
+        if (!$ref->getParentClass()) {
+            return false;
+        }
+
+        return $ref->getParentClass()->getName() === MethodMapping::class;
     }
 
     public function getEndpoint(): string {

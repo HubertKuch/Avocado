@@ -16,6 +16,7 @@ use Avocado\ORM\AvocadoORMSettings;
 use Avocado\Router\AvocadoRouter;
 use Avocado\Utils\ClassFinder;
 use Avocado\Utils\ReflectionUtils;
+use AvocadoApplication\Attributes\Resource;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\Mappings\MethodMapping;
 use Exception;
@@ -184,7 +185,14 @@ final class Application {
     private static function getPreProcessors(): array {
         $validClasses = array_filter(self::$declaredClasses, fn($className) => PreProcessor::isAnnotated(ClassFinder::getClassReflectionByName($className)));
 
-        return array_map(fn($class) => ClassFinder::getClassReflectionByName($class)->newInstanceWithoutConstructor(), $validClasses);
+        return array_map(function($class) {
+            $ref = ClassFinder::getClassReflectionByName($class);
+            $instance = $ref -> newInstanceWithoutConstructor();
+
+            DependencyInjectionService::addResource(new Resource($class, ReflectionUtils::getAllTypes($instance), $class, $instance));
+
+            return $instance;
+        }, $validClasses);
     }
 
     /**

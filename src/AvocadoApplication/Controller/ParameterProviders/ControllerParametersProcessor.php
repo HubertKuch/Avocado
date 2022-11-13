@@ -39,6 +39,7 @@ class ControllerParametersProcessor {
 
             if (empty($validValues)) {
                 $parametersToProvide[] = null;
+                continue;
             }
 
             $parametersToProvide[] = $validValues[key($validValues)];

@@ -6,6 +6,10 @@ namespace Avocado\Tests\Unit\Application;
 use Avocado\Application\RestController;
 use Avocado\AvocadoApplication\Attributes\Request\RequestBody;
 use Avocado\AvocadoApplication\Attributes\Request\RequestHeader;
+use Avocado\AvocadoApplication\Attributes\Request\RequestStorageItem;
+use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
+use Avocado\AvocadoApplication\Middleware\BeforeRoute;
+use Avocado\AvocadoApplication\Middleware\Next;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
 use AvocadoApplication\Attributes\Autowired;
@@ -107,28 +111,71 @@ class MockedController {
     }
 
     #[GetMapping("/parsing-requiredParam/:param")]
-    public static function parsingRequiredParamsWhetherMissing(#[RequestParam(name: "param", required: true)] string $param) {
+    public function parsingRequiredParamsWhetherMissing(#[RequestParam(name: "param", required: true)] string $param) {
         print $param;
     }
 
     #[GetMapping("/parsing-defaultValue/")]
-    public static function parsingParamsWithDefaults(#[RequestParam(name: "param", defaultValue: "test")] string $param) {
+    public function parsingParamsWithDefaults(#[RequestParam(name: "param", defaultValue: "test")] string $param) {
         print $param;
     }
 
     #[GetMapping("/standard-query/")]
-    public static function parsingQueryVariables(#[RequestQuery(name: "name")] string $name) {
+    public function parsingQueryVariables(#[RequestQuery(name: "name")] string $name) {
         print $name;
     }
 
     #[GetMapping("/default-query/")]
-    public static function parsingDefaultQueryVariables(#[RequestQuery(name: "test", defaultValue: "Targaryen")] string $name) {
+    public function parsingDefaultQueryVariables(#[RequestQuery(name: "test", defaultValue: "Targaryen")] string $name) {
         print $name;
     }
 
 
     #[GetMapping("/required-query/")]
-    public static function parsingRequiredQuery(#[RequestQuery(name: "test", required: true)] string $name) {
+    public function parsingRequiredQuery(#[RequestQuery(name: "test", required: true)] string $name) {
         print $name;
     }
+
+    public static function customMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next) {
+        return $next;
+    }
+
+    public static function secondMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next) {
+        $request->locals['user'] = 'Jon';
+
+        return $next;
+    }
+
+    public static function storageKeyMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next) {
+        $request->locals['name'] = "Targaryen";
+
+        return $next;
+    }
+
+    public static function middlewareWithException() {
+        throw new InvalidRequestBodyException("TEST EXCEPTIONS IN MIDDLEWARE METHODS");
+    }
+
+    #[GetMapping("/middleware/")]
+    #[BeforeRoute([
+        "\Avocado\Tests\Unit\Application\MockedController::customMiddleware",
+        "\Avocado\Tests\Unit\Application\MockedController::secondMiddleware",
+    ])]
+    public function testMiddlewareWorkflow(AvocadoRequest $request) {
+        print $request->locals['user'];
+    }
+
+    #[GetMapping("/middleware-with-storage-items/")]
+    #[BeforeRoute([
+        "\Avocado\Tests\Unit\Application\MockedController::storageKeyMiddleware"
+    ])]
+    public function middlewareWithAttributes(#[RequestStorageItem(name: "name")] string $name) {
+        print $name;
+    }
+
+    #[GetMapping("/middleware-with-exception/")]
+    #[BeforeRoute([
+        "\Avocado\Tests\Unit\Application\MockedController::middlewareWithException"
+    ])]
+    public function middlewareWithExceptions() {}
 }
