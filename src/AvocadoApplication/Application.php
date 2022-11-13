@@ -2,25 +2,25 @@
 
 namespace Avocado\Application;
 
-use Avocado\AvocadoApplication\Controller\ParameterProviders\ParameterProvider;
+use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
+use Avocado\AvocadoApplication\Attributes\Avocado;
+use Avocado\AvocadoApplication\Attributes\Configuration;
+use Avocado\AvocadoApplication\Attributes\Exclude;
+use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
+use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
+use Avocado\AvocadoApplication\Leafs\LeafManager;
+use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
+use Avocado\DataSource\DataSource;
+use Avocado\HTTP\HTTPMethod;
+use Avocado\ORM\AvocadoORMSettings;
+use Avocado\Router\AvocadoRouter;
+use Avocado\Utils\ClassFinder;
+use Avocado\Utils\ReflectionUtils;
+use AvocadoApplication\DependencyInjection\DependencyInjectionService;
+use AvocadoApplication\Mappings\MethodMapping;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
-use Avocado\HTTP\HTTPMethod;
-use Avocado\Utils\ClassFinder;
-use Avocado\Router\AvocadoRouter;
-use Avocado\Utils\ReflectionUtils;
-use Avocado\DataSource\DataSource;
-use Avocado\ORM\AvocadoORMSettings;
-use AvocadoApplication\Mappings\MethodMapping;
-use Avocado\AvocadoApplication\Leafs\LeafManager;
-use Avocado\AvocadoApplication\Attributes\Exclude;
-use Avocado\AvocadoApplication\Attributes\Avocado;
-use Avocado\AvocadoApplication\Attributes\Configuration;
-use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
-use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
-use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
-use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 
 final class Application {
     private static array $declaredClasses = [];
@@ -28,6 +28,7 @@ final class Application {
     private static array $configurations = [];
     private static array $controllers = [];
     private static array $restControllers = [];
+    private static array $preProcessors = [];
     private static LeafManager $leafManager;
     private static DataSource $dataSource;
     private static Avocado $mainClass;
@@ -47,6 +48,7 @@ final class Application {
                 $class->getName(), ClassFinder::getDeclaredClasses($dir, $toExclude)
             );
 
+            self::$preProcessors = self::getPreProcessors();
             self::$configurations = self::getConfigurations();
             self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
 
@@ -177,5 +179,18 @@ final class Application {
 
     public static function getLeafManager(): LeafManager {
         return self::$leafManager;
+    }
+
+    private static function getPreProcessors(): array {
+        $validClasses = array_filter(self::$declaredClasses, fn($className) => PreProcessor::isAnnotated(ClassFinder::getClassReflectionByName($className)));
+
+        return array_map(fn($class) => ClassFinder::getClassReflectionByName($class)->newInstanceWithoutConstructor(), $validClasses);
+    }
+
+    /**
+     * @return array
+     */
+    public static function preProcessors(): array {
+        return self::$preProcessors;
     }
 }
