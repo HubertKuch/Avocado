@@ -100,4 +100,14 @@ class MockedController {
     public function parsingHeaders(#[RequestHeader(name: "Content-Type")] string $contentType) {
         print $contentType;
     }
+
+    #[GetMapping("/parsing-staticparams/:param")]
+    public function parsingStaticParams(#[RequestParam(name: "param")] string $param) {
+        print $param;
+    }
+
+    #[GetMapping("/parsing-requiredParam/:param")]
+    public static function parsingRequiredParamsWhetherMissing(#[RequestParam(name: "param", required: true)] string $param) {
+        print $param;
+    }
 }

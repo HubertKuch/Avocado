@@ -2,6 +2,7 @@
 
 namespace Avocado\Tests\Unit\Application;
 
+use Avocado\AvocadoApplication\Exceptions\MissingRequestParamException;
 use Avocado\Router\AvocadoRouter;
 use PHPUnit\Framework\TestCase;
 
@@ -53,6 +54,23 @@ class ParameterProviderTest extends TestCase {
         MockedApplication::init();
 
         self::assertSame($expected, ob_get_contents());
+    }
 
+    public function testParsingRequestParams() {
+        $expected = "testParam";
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'].="/avocado-test/parsing-staticparams/$expected";
+
+        MockedApplication::init();
+
+        self::assertSame($expected, ob_get_contents());
+    }
+
+    public function testParsingRequiredParams() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'].="/avocado-test/parsing-requiredParam/";
+        MockedApplication::init();
+
+        self::assertSame('{"message":"Missing `param` param.","status":400}', ob_get_contents());
     }
 }

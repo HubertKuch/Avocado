@@ -6,8 +6,10 @@ use Avocado\AvocadoApplication\Attributes\Request\RequestBody;
 use Avocado\AvocadoApplication\Attributes\Request\RequestHeader;
 use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
+use Avocado\AvocadoApplication\Exceptions\MissingRequestParamException;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
+use Avocado\Tests\Unit\Application\RequestParam;
 use Avocado\Utils\StandardObjectMapper;
 use ReflectionException;
 use ReflectionMethod;
@@ -56,6 +58,21 @@ class ParameterProvider {
                 }
 
                 $parametersToProvide[] = $value;
+                continue;
+            }
+
+            if (RequestParam::isAnnotated($parameterRef)) {
+                $instanceOfAnnotation = RequestParam::getInstance($parameterRef);
+                $nameOfParam = $instanceOfAnnotation->name;
+
+                if (!$request->hasParam($nameOfParam) && $instanceOfAnnotation->required) {
+                    throw new MissingRequestParamException(sprintf("Missing `%s` param.", $nameOfParam));
+                }
+
+                $value = $request->params[$nameOfParam] ?? null;
+
+                $parametersToProvide[] = $value;
+
                 continue;
             }
 
