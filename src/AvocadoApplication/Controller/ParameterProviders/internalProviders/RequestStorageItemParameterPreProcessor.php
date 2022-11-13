@@ -9,6 +9,7 @@ use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
 use Avocado\Utils\AnnotationUtils;
+use Avocado\Utils\Optional;
 use ReflectionMethod;
 use ReflectionParameter;
 
@@ -26,7 +27,13 @@ class RequestStorageItemParameterPreProcessor implements SpecificParametersPrePr
                 $value = $request->locals[$name];
             }
 
-            return $value ?? ($instance->getDefaultValue() ?? null);
+            $value = $value ?? ($instance->getDefaultValue() ?? null);
+
+            if ($parameterRef->getType()->getName() === Optional::class) {
+                return Optional::of($value);
+            }
+
+            return $value;
         }
 
         return CannotBeProcessed::of();

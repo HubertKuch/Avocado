@@ -12,6 +12,7 @@ use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
 use Avocado\Utils\AnnotationUtils;
+use Avocado\Utils\Optional;
 use Avocado\Utils\StandardObjectMapper;
 use ReflectionException;
 use ReflectionMethod;
@@ -23,8 +24,15 @@ class RequestBodyParametersPreProcessor implements SpecificParametersPreProcesso
     public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, AvocadoRequest $request, AvocadoResponse $response): mixed {
         if (AnnotationUtils::isAnnotated($parameterRef, RequestBody::class)) {
             try {
-                $instanceOf = StandardObjectMapper::arrayToObject($request->body, $parameterRef->getType()->getName());
-            } catch (MissingKeyException|ReflectionException) {
+                $annotationInstance = AnnotationUtils::getInstance($parameterRef, RequestBody::class);
+                $type = $annotationInstance->getType() ?? $parameterRef->getType()->getName();
+
+                $instanceOf = StandardObjectMapper::arrayToObject($request->body, $type);
+            } catch (MissingKeyException|ReflectionException $e) {
+                if ($parameterRef->getType()->getName() === Optional::class) {
+                    return Optional::empty();
+                }
+
                 throw new InvalidRequestBodyException("Invalid request body.");
             }
 

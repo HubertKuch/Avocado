@@ -10,6 +10,7 @@ use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
 use Avocado\Tests\Unit\Application\RequestQuery;
 use Avocado\Utils\AnnotationUtils;
+use Avocado\Utils\Optional;
 use ReflectionMethod;
 use ReflectionParameter;
 
@@ -23,10 +24,20 @@ class RequestQueryParameterPreProcessor implements SpecificParametersPreProcesso
             $name = $instanceOfAnnotation->getName();
 
             if (!array_key_exists($name, $request->query) && $instanceOfAnnotation->isRequired()) {
+                if ($parameterRef->getType()->getName() === Optional::class) {
+                    return Optional::empty();
+                }
+
                 throw new MissingRequestQueryException(sprintf("Missing `%s` query param.", $name));
             }
 
-            return $request->query[$name] ?? ($instanceOfAnnotation->getDefaultValue() ?? null);
+            $value = $request->query[$name] ?? ($instanceOfAnnotation->getDefaultValue() ?? null);
+
+            if ($parameterRef->getType()->getName() === Optional::class) {
+                return Optional::of($value);
+            }
+
+            return $value;
         }
 
         return CannotBeProcessed::of();

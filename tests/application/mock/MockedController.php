@@ -12,6 +12,7 @@ use Avocado\AvocadoApplication\Middleware\BeforeRoute;
 use Avocado\AvocadoApplication\Middleware\Next;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
+use Avocado\Utils\Optional;
 use AvocadoApplication\Attributes\Autowired;
 use AvocadoApplication\Attributes\BaseURL;
 use AvocadoApplication\Mappings\DeleteMapping;
@@ -178,4 +179,25 @@ class MockedController {
         "\Avocado\Tests\Unit\Application\MockedController::middlewareWithException"
     ])]
     public function middlewareWithExceptions() {}
+
+    #[GetMapping("/optionals-mapping/:testParam2/:testParam")]
+    public function testOptionals(
+        #[RequestBody(type: ObjectToParse::class)] Optional $optionalRequestBody,
+        #[RequestHeader(name: "Accept")] Optional $acceptHeader,
+        #[RequestStorageItem(name: "name", defaultValue: "Jon")] Optional $optionalName,
+        #[RequestParam(name: "testParam", required: false, defaultValue: "testParamValue")] Optional $optionalParam,
+        #[RequestParam(name: "testParam2", required: true)] Optional $optionRequiredValue,
+        #[RequestQuery(name: "testQuery1", defaultValue: "testQuery")] Optional $optionalQuery,
+        #[RequestQuery(name: "testQuery2", required: true)] Optional $optionalQueryRequired,
+    ) {
+        var_dump(
+            $optionalName->get(),
+            $acceptHeader->get(),
+            $optionalRequestBody->get(),
+            $optionalParam->get(),
+            $optionRequiredValue->get(),
+            $optionalQuery->get(),
+            $optionalQueryRequired->get()
+        );
+    }
 }

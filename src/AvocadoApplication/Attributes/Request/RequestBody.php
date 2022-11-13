@@ -8,10 +8,16 @@ use ReflectionParameter;
 #[Attribute(Attribute::TARGET_PARAMETER)]
 class RequestBody {
 
+    public function __construct(private readonly ?string $type = null) {}
+
     public static function isAnnotated(ReflectionParameter $reflectionProperty) {
         $requestBodyAnnotations = $reflectionProperty->getAttributes(self::class);
 
         return !empty($requestBodyAnnotations);
+    }
+
+    public function getType(): ?string {
+        return $this->type;
     }
 
 }

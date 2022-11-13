@@ -107,4 +107,16 @@ class ParameterProviderTest extends TestCase {
 
         self::assertSame($expected, ob_get_contents());
     }
+
+    public function testProvidingOptionals() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'] = "/avocado-test/optionals-mapping/4/";
+        MockedApplication::init();
+
+        self::assertStringContainsStringIgnoringCase("jon", ob_get_contents());
+        self::assertStringContainsStringIgnoringCase("4", ob_get_contents());
+        self::assertStringContainsStringIgnoringCase("NULL", ob_get_contents());
+        self::assertStringContainsStringIgnoringCase("testParamValue", ob_get_contents());
+        self::assertStringContainsStringIgnoringCase("testQuery", ob_get_contents());
+    }
 }

@@ -10,6 +10,7 @@ use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
 use Avocado\Tests\Unit\Application\RequestParam;
 use Avocado\Utils\AnnotationUtils;
+use Avocado\Utils\Optional;
 use ReflectionMethod;
 use ReflectionParameter;
 
@@ -22,10 +23,18 @@ class RequestParamParameterPreProcessor implements SpecificParametersPreProcesso
             $nameOfParam = $instanceOfAnnotation->getName();
 
             if (!$request->hasParam($nameOfParam) && $instanceOfAnnotation->isRequired()) {
+                if ($parameterRef->getType()->getName() === Optional::class) {
+                    return Optional::empty();
+                }
+
                 throw new MissingRequestParamException(sprintf("Missing `%s` param.", $nameOfParam));
             }
 
             $value = $request->params[$nameOfParam] ?? ($instanceOfAnnotation->getDefaultValue() ?? null);
+
+            if ($parameterRef->getType()->getName() === Optional::class) {
+                return Optional::of($value);
+            }
 
             return $value;
         }
