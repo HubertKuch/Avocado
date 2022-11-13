@@ -73,4 +73,12 @@ class ParameterProviderTest extends TestCase {
 
         self::assertSame('{"message":"Missing `param` param.","status":400}', ob_get_contents());
     }
+
+    public function testParsingWithDefaultValue() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'].="/avocado-test/parsing-defaultValue/";
+        MockedApplication::init();
+
+        self::assertSame('test', ob_get_contents());
+    }
 }

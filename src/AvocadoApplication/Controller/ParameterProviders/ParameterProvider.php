@@ -69,7 +69,7 @@ class ParameterProvider {
                     throw new MissingRequestParamException(sprintf("Missing `%s` param.", $nameOfParam));
                 }
 
-                $value = $request->params[$nameOfParam] ?? null;
+                $value = $request->params[$nameOfParam] ?? ($instanceOfAnnotation->defaultValue ?? null);
 
                 $parametersToProvide[] = $value;
 

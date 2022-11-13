@@ -110,4 +110,9 @@ class MockedController {
     public static function parsingRequiredParamsWhetherMissing(#[RequestParam(name: "param", required: true)] string $param) {
         print $param;
     }
+
+    #[GetMapping("/parsing-defaultValue/")]
+    public static function parsingParamsWithDefaults(#[RequestParam(name: "param", defaultValue: "test")] string $param) {
+        print $param;
+    }
 }
