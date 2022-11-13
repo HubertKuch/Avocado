@@ -115,4 +115,20 @@ class MockedController {
     public static function parsingParamsWithDefaults(#[RequestParam(name: "param", defaultValue: "test")] string $param) {
         print $param;
     }
+
+    #[GetMapping("/standard-query/")]
+    public static function parsingQueryVariables(#[RequestQuery(name: "name")] string $name) {
+        print $name;
+    }
+
+    #[GetMapping("/default-query/")]
+    public static function parsingDefaultQueryVariables(#[RequestQuery(name: "test", defaultValue: "Targaryen")] string $name) {
+        print $name;
+    }
+
+
+    #[GetMapping("/required-query/")]
+    public static function parsingRequiredQuery(#[RequestQuery(name: "test", required: true)] string $name) {
+        print $name;
+    }
 }

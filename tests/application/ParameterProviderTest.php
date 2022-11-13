@@ -2,7 +2,6 @@
 
 namespace Avocado\Tests\Unit\Application;
 
-use Avocado\AvocadoApplication\Exceptions\MissingRequestParamException;
 use Avocado\Router\AvocadoRouter;
 use PHPUnit\Framework\TestCase;
 
@@ -80,5 +79,32 @@ class ParameterProviderTest extends TestCase {
         MockedApplication::init();
 
         self::assertSame('test', ob_get_contents());
+    }
+
+    public function testParsingStandardQuery() {
+        $expected = "Jon Snow";
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'] = "/avocado-test/standard-query?name=$expected";
+        MockedApplication::init();
+
+        self::assertSame($expected, ob_get_contents());
+    }
+
+    public function testParsingDefaultQuery() {
+        $expected = "Targaryen";
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'] = "/avocado-test/default-query/";
+        MockedApplication::init();
+
+        self::assertSame($expected, ob_get_contents());
+    }
+
+    public function testParsingRequiredQuery() {
+        $expected = '{"message":"Missing `test` query param.","status":400}';
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'] = "/avocado-test/required-query/";
+        MockedApplication::init();
+
+        self::assertSame($expected, ob_get_contents());
     }
 }

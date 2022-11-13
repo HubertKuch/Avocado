@@ -85,11 +85,13 @@ class AvocadoRouter {
         if ($actPath && $actPath[0] === "/") $actPath = substr($actPath, 1);
         if (strlen($actPath) > 0 && $actPath[-1] === "/") $actPath = substr($actPath, 0, -1);
 
-
         $method = $_SERVER['REQUEST_METHOD'];
 
-        if (count($_GET) > 0) {
-            $actPath = explode("?", $actPath)[0];
+        if (str_contains($actPath, "?")) {
+            $query = explode("?", $actPath);
+            $actPath = $query[0];
+
+            parse_str($query[1], $_GET);
         }
 
         self::listenRoutes($actPath, $method);

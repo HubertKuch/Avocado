@@ -7,9 +7,11 @@ use Avocado\AvocadoApplication\Attributes\Request\RequestHeader;
 use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
 use Avocado\AvocadoApplication\Exceptions\MissingRequestParamException;
+use Avocado\AvocadoApplication\Exceptions\MissingRequestQueryException;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
 use Avocado\Tests\Unit\Application\RequestParam;
+use Avocado\Tests\Unit\Application\RequestQuery;
 use Avocado\Utils\StandardObjectMapper;
 use ReflectionException;
 use ReflectionMethod;
@@ -63,13 +65,28 @@ class ParameterProvider {
 
             if (RequestParam::isAnnotated($parameterRef)) {
                 $instanceOfAnnotation = RequestParam::getInstance($parameterRef);
-                $nameOfParam = $instanceOfAnnotation->name;
+                $nameOfParam = $instanceOfAnnotation->getName();
 
-                if (!$request->hasParam($nameOfParam) && $instanceOfAnnotation->required) {
+                if (!$request->hasParam($nameOfParam) && $instanceOfAnnotation->isRequired()) {
                     throw new MissingRequestParamException(sprintf("Missing `%s` param.", $nameOfParam));
                 }
 
-                $value = $request->params[$nameOfParam] ?? ($instanceOfAnnotation->defaultValue ?? null);
+                $value = $request->params[$nameOfParam] ?? ($instanceOfAnnotation->getDefaultValue() ?? null);
+
+                $parametersToProvide[] = $value;
+
+                continue;
+            }
+
+            if (RequestQuery::isAnnotated($parameterRef)) {
+                $instanceOfAnnotation = RequestQuery::getInstance($parameterRef);
+                $name = $instanceOfAnnotation->getName();
+
+                if (!array_key_exists($name, $request->query) && $instanceOfAnnotation->isRequired()) {
+                    throw new MissingRequestQueryException(sprintf("Missing `%s` query param.", $name));
+                }
+
+                $value = $request->query[$name] ?? ($instanceOfAnnotation->getDefaultValue() ?? null);
 
                 $parametersToProvide[] = $value;
 
