@@ -10,6 +10,8 @@ use Avocado\AvocadoApplication\Attributes\Request\RequestStorageItem;
 use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
 use Avocado\AvocadoApplication\Middleware\BeforeRoute;
 use Avocado\AvocadoApplication\Middleware\Next;
+use Avocado\HTTP\HTTPStatus;
+use Avocado\HTTP\ResponseBody;
 use Avocado\Router\AvocadoRequest;
 use Avocado\Router\AvocadoResponse;
 use Avocado\Utils\Optional;
@@ -199,5 +201,20 @@ class MockedController {
             $optionalQuery->get(),
             $optionalQueryRequired->get()
         );
+    }
+
+    #[GetMapping("/consuming/by-response-body-object")]
+    public function testConsumingResponseBody(): ResponseBody {
+        return new ResponseBody(["By response object"], HTTPStatus::OK);
+    }
+
+    #[GetMapping("/consuming/avocado-response")]
+    public function testConsumingAvocadoResponse(AvocadoResponse $response): AvocadoResponse {
+        return $response->json(["Consumed by avocado response"]);
+    }
+
+    #[GetMapping("/consuming/returned-data")]
+    public function testConsumingReturnedData(): mixed {
+        return ["Returned data was parsed."];
     }
 }

@@ -2,9 +2,13 @@
 
 namespace Avocado\Router;
 
+use Avocado\AvocadoApplication\Attributes\Exceptions\ResponseStatus;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\ControllerParametersProcessor;
 use Avocado\AvocadoApplication\Exceptions\PageNotFoundException;
 use Avocado\AvocadoApplication\Middleware\MiddlewareProcessor;
+use Avocado\HTTP\HTTPStatus;
+use Avocado\HTTP\ResponseBody;
+use Avocado\Utils\AnnotationUtils;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use ReflectionMethod;
 
@@ -141,9 +145,9 @@ class AvocadoRouter {
     }
 
 
-    public static function invokeMatchedRoute(): void {
+    public static function invokeMatchedRoute(): ?ResponseBody {
         if (count(self::$matchedRoute) == 0) {
-            return;
+            return null;
         }
 
         $route = self::$matchedRoute;
@@ -151,20 +155,24 @@ class AvocadoRouter {
         $className = $route['CALLBACK'][0]::class;
         $methodName = $route['CALLBACK'][1];
         $ref = new ReflectionMethod("{$className}::{$methodName}");
+        $hasDefinedStatusCode = AnnotationUtils::isAnnotated($ref, ResponseStatus::class);
+        $httpStatusCode = HTTPStatus::OK;
+
+        if ($hasDefinedStatusCode) {
+            $httpStatusCode =AnnotationUtils::getInstance($ref, ResponseStatus::class)->getStatus();
+        }
 
         /** @var MiddlewareProcessor $middlewareProcessor*/
         $middlewareProcessor = DependencyInjectionService::getResourceByType(MiddlewareProcessor::class)->getTargetInstance();
         $isNext = $middlewareProcessor->validRequest($ref, self::$request, self::$response);
 
         if (!$isNext) {
-            return;
+            return null;
         }
-
 
         $parameters = ControllerParametersProcessor::process($ref, self::$request, self::$response);
 
-
-        call_user_func_array($route['CALLBACK'], $parameters);
+        return new ResponseBody(call_user_func_array($route['CALLBACK'], $parameters), $httpStatusCode);
     }
 
     private static function getPathWithoutParams(string $endpoint, string $actPath, array &$params): string {
@@ -212,5 +220,19 @@ class AvocadoRouter {
         }
 
         return $isMiddlewareThrowNext;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getRoutesStack(): array {
+        return self::$routesStack;
+    }
+
+    /**
+     * @param array $matchedRoute
+     */
+    public static function setMatchedRoute(array $matchedRoute): void {
+        self::$matchedRoute = $matchedRoute;
     }
 }

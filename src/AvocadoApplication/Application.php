@@ -10,8 +10,10 @@ use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
 use Avocado\AvocadoApplication\Leafs\LeafManager;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
+use Avocado\AvocadoApplication\ResponseConsuming\MainHttpConsumer;
 use Avocado\DataSource\DataSource;
 use Avocado\HTTP\HTTPMethod;
+use Avocado\HTTP\Managers\HttpConsumer;
 use Avocado\ORM\AvocadoORMSettings;
 use Avocado\Router\AvocadoRouter;
 use Avocado\Utils\ClassFinder;
@@ -33,6 +35,7 @@ final class Application {
     private static LeafManager $leafManager;
     private static DataSource $dataSource;
     private static Avocado $mainClass;
+    private static HttpConsumer $httpConsumer;
 
     public static final function run(string $dir): void {
         try {
@@ -59,6 +62,8 @@ final class Application {
 
             DependencyInjectionService::init();
 
+            self::$httpConsumer = DependencyInjectionService::getResourceByType(MainHttpConsumer::class)->getTargetInstance();
+
             self::$controllers = self::getControllers();
             self::$restControllers = self::getRestControllers();
 
@@ -67,9 +72,13 @@ final class Application {
             self::$dataSource = self::getDataSource();
 
             AvocadoORMSettings::fromExistingSource(self::$dataSource);
-
             AvocadoRouter::listen();
-            AvocadoRouter::invokeMatchedRoute();
+            $data = AvocadoRouter::invokeMatchedRoute();
+
+            if ($data && $data->getData()) {
+                self::$httpConsumer -> consume($data->getData(), $data->getStatus());
+            }
+
         } catch (Exception $e) {
             ApplicationExceptionsAdvisor::process($e);
         }

@@ -2,6 +2,7 @@
 
 namespace Avocado\Tests\Unit\Application;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 
@@ -48,9 +49,12 @@ class MiddlewareTest extends TestCase {
     }
 
     public function testClassLevelMiddleware() {
+        $this->expectException(Exception::class);
         $_SERVER['PHP_SELF'] = "/middleware-test/";
         $_SERVER['REQUEST_METHOD'] = "GET";
 
         MockedApplication::init();
+
+        self::assertSame("", ob_get_contents());
     }
 }

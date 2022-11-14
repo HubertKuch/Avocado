@@ -3,6 +3,7 @@
 namespace AvocadoApplication\DependencyInjection;
 
 use Avocado\Application\Application;
+use Exception;
 use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
@@ -30,7 +31,6 @@ class DependencyInjectionService {
      * @throws TooMuchResourceConstructorParametersException
      */
     public static function init(): void {
-
         $resources = self::getClassNamesOfResources();
 
         self::createResources($resources);
@@ -45,7 +45,7 @@ class DependencyInjectionService {
 
         return array_filter($uniqueNames, function ($class) {
             try {
-                $reflection = new ReflectionClass($class);
+                $reflection = ClassFinder::getClassReflectionByName($class);
                 $resourceAttributes = $reflection->getAttributes(Resource::class);
 
                 return !empty($resourceAttributes);
@@ -111,8 +111,6 @@ class DependencyInjectionService {
 
             $instance = (new ReflectionClass($resourceName))->newInstance();;
 
-            self::inject(new ReflectionObject($instance), $instance);
-
             return $instance;
         } catch (ReflectionException){
             throw new TooMuchResourceConstructorParametersException(self::TOO_MUCH_RESOURCE_PROPERTIES_EXCEPTION);
@@ -125,7 +123,6 @@ class DependencyInjectionService {
      * @throws ResourceException
      */
     private static function createResources(array $resources): void {
-
         foreach ($resources as $resource) {
             self::validateResourceConstructor($resource);
 
@@ -139,10 +136,15 @@ class DependencyInjectionService {
 
             self::$resources[] = new Resource($resourceAttrInstance->getAlternativeName(), $types, $resource, $instance);
         }
+
+        foreach (self::$resources as $resource) {
+            self::inject(new ReflectionObject($resource->getTargetInstance()), $resource->getTargetInstance());
+        }
     }
 
     public static function getResourceByType(string $autowiredClassPropertyType): Resourceable|null {
         $resource = array_filter(self::$resources, fn($resource) => in_array($autowiredClassPropertyType, $resource->getTargetResourceTypes()));
+
         return key($resource) !== NULL ? $resource[key($resource)] : NULL;
     }
 
@@ -175,17 +177,10 @@ class DependencyInjectionService {
         return self::$resources;
     }
 
-    /**
-     * @throws ResourceNotFoundException
-     */
-    public static function getResourceByName(string $name): Resourceable {
+    public static function getResourceByName(string $name): ?Resourceable {
         $resource = array_filter(self::$resources, fn($resource) => $resource->getAlternativeName() == $name);
         $resource = key($resource) !== NULL ? $resource[key($resource)] : NULL;
 
-        if (!$resource) {
-            throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, $name));
-        }
-
-        return $resource;
+        return $resource ?? NULL;
     }
 }
