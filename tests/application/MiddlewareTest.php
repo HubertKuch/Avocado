@@ -46,4 +46,11 @@ class MiddlewareTest extends TestCase {
 
         self::assertSame('{"message":"TEST EXCEPTIONS IN MIDDLEWARE METHODS","status":400}', ob_get_contents());
     }
+
+    public function testClassLevelMiddleware() {
+        $_SERVER['PHP_SELF'] = "/middleware-test/";
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        MockedApplication::init();
+    }
 }

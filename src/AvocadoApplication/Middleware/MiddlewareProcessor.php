@@ -12,15 +12,23 @@ use ReflectionMethod;
 class MiddlewareProcessor {
 
     public function validRequest(ReflectionMethod $method, AvocadoRequest $request, AvocadoResponse $response): ?Next {
-        if (!AnnotationUtils::isAnnotated($method, BeforeRoute::class)) {
-            return new Next();
+        $class = $method->getDeclaringClass();
+        $middlewareStack = [];
+
+        if (AnnotationUtils::isAnnotated($class, BeforeRoute::class)) {
+            $beforeRoutes = AnnotationUtils::getInstance($class, BeforeRoute::class);
+
+            array_push($middlewareStack, ...$beforeRoutes->getCallbacks());
         }
 
-        $beforeRouteInstance = AnnotationUtils::getInstance($method, BeforeRoute::class);
-        $callbacks = $beforeRouteInstance->getCallbacks();
+        if (AnnotationUtils::isAnnotated($method, BeforeRoute::class)) {
+            $beforeRouteInstance = AnnotationUtils::getInstance($method, BeforeRoute::class);
+            array_push($middlewareStack, ...$beforeRouteInstance->getCallbacks());
+        }
+
         $previousReturnedData = new Next();
 
-        foreach ($callbacks as $callback) {
+        foreach ($middlewareStack as $callback) {
             $returnedData = call_user_func_array($callback, [$request, $response, $previousReturnedData]);
 
             if (!$returnedData) {
