@@ -24,6 +24,7 @@ use AvocadoApplication\Mappings\MethodMapping;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
+use Symfony\Component\Yaml\Yaml;
 
 final class Application {
     private static array $declaredClasses = [];
@@ -36,6 +37,7 @@ final class Application {
     private static DataSource $dataSource;
     private static Avocado $mainClass;
     private static HttpConsumer $httpConsumer;
+    private static ApplicationConfiguration $configuration;
 
     public static final function run(string $dir): void {
         try {
@@ -70,6 +72,8 @@ final class Application {
             self::declareRoutes();
 
             self::$dataSource = self::getDataSource();
+
+            self::$configuration = self::initConfiguration();
 
             AvocadoORMSettings::fromExistingSource(self::$dataSource);
             AvocadoRouter::listen();
@@ -209,5 +213,41 @@ final class Application {
      */
     public static function preProcessors(): array {
         return self::$preProcessors;
+    }
+
+    public static function getProjectDirectory(): string {
+        return dirname(ClassFinder::getClassReflectionByName(self::$mainClass->getClassName())->getFileName());
+    }
+
+    private static function getPropertiesConfigurations(): array {
+        $allConfigurations = self::$configurations;
+
+        return array_filter($allConfigurations, fn($configuration) => $configuration->isConfigurationsProperties());
+    }
+
+    private static function initConfiguration(): ApplicationConfiguration {
+        $mainDir = self::getProjectDirectory();
+        $CONFIGURATION_FILE_BASE = "application";
+
+        if (!is_dir($mainDir)) {
+            return new ApplicationConfiguration();
+        }
+
+        $baseFilePath = $mainDir.DIRECTORY_SEPARATOR.$CONFIGURATION_FILE_BASE;
+        $yamlFilePath =  $baseFilePath.".yaml";
+
+        $declaredConfigurationsPropertiesClasses = self::getPropertiesConfigurations();
+
+        if (file_exists($yamlFilePath)) {
+            $properties = Yaml::parseFile($yamlFilePath);
+
+            return ApplicationConfiguration::from($declaredConfigurationsPropertiesClasses, $properties);
+        }
+
+        return new ApplicationConfiguration();
+    }
+
+    public static function getConfiguration(): ApplicationConfiguration {
+        return self::$configuration;
     }
 }

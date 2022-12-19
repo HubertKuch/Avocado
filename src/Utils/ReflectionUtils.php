@@ -47,10 +47,22 @@ class ReflectionUtils {
             $name = $propertyRef->name;
 
             if (!array_key_exists($name, $data)) {
+                if ($propertyRef->getType()->allowsNull()) {
+                    $propertyRef -> setValue($instance, null);
+
+                    continue;
+                }
+
                 throw new MissingKeyException();
             }
 
-            $propertyRef->setValue($instance, $data[$name]);
+            $isObjectProperty = ClassFinder::getClassReflectionByName($propertyRef->getType()->getName()) !== null;
+
+            if ($isObjectProperty) {
+                $propertyRef->setValue($instance, self::instanceFromArray($data[$name], $propertyRef->getType()->getName()));
+            } else {
+                $propertyRef->setValue($instance, $data[$name]);
+            }
         }
 
         return $instance;

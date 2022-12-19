@@ -3,6 +3,8 @@
 namespace Avocado\AvocadoApplication\Attributes;
 
 use Attribute;
+use Avocado\Utils\ClassFinder;
+use Avocado\Utils\ReflectionUtils;
 use ReflectionClass;
 use ReflectionException;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
@@ -65,5 +67,39 @@ class Configuration {
                 fn($method) => !empty($method->getAttributes(Leaf::class))
             )
         );
+    }
+
+    public function isConfigurationsProperties(): bool {
+        return ReflectionUtils::getAttributeFromClass($this->targetReflection, ConfigurationProperties::class) !== null;
+    }
+
+    public function getConfigurationsPropertiesInstance(): ConfigurationProperties {
+        /** @var $instance ConfigurationProperties */
+        $instance = ReflectionUtils::getAttributeFromClass($this->targetReflection, ConfigurationProperties::class)->newInstance();
+
+        $instance->setTargetClass($this->targetReflection);
+
+        return $instance;
+    }
+
+    /** @return Configuration[] */
+    public function getNestedConfigurations(): array {
+        $properties = $this->targetReflection->getProperties();
+        $configurations = [];
+
+        foreach ($properties as $property) {
+            $isClass = ClassFinder::getClassReflectionByName($property->getType()->getName()) !== null;
+            var_dump($isClass);
+        }
+
+        return $configurations;
+    }
+
+    public function getTargetReflection(): ReflectionClass {
+        return $this->targetReflection;
+    }
+
+    public function getTargetClassName(): string {
+        return $this->targetClassName;
     }
 }

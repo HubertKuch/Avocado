@@ -186,4 +186,20 @@ class ApplicationTest extends TestCase {
 
         self::assertSame("4", ob_get_contents());
     }
+
+    public function testGetMainDir() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'] = "/avocado-test/param/4";
+
+        MockedApplication::init();
+        self::assertTrue(is_dir(Application::getProjectDirectory()));
+    }
+
+    public function testGetConfiguration() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'] = "/avocado-test/param/4";
+
+        MockedApplication::init();
+        Application::getConfiguration()->getConfigurations();
+    }
 }
