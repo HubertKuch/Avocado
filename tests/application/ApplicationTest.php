@@ -200,6 +200,6 @@ class ApplicationTest extends TestCase {
         $_SERVER['PHP_SELF'] = "/avocado-test/param/4";
 
         MockedApplication::init();
-        Application::getConfiguration()->getConfigurations();
+        self::assertNotEmpty(Application::getConfiguration()->getConfigurations());
     }
 }

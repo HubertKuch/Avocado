@@ -1,0 +1,12 @@
+{
+  "mocked-configuration": {
+    "test": "test",
+    "test2": "what is that?",
+    "anotherObject": {
+      "nestedTest": 2,
+      "secondObject": {
+        "test": 21
+      }
+    }
+  }
+}

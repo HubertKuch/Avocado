@@ -228,20 +228,23 @@ final class Application {
     private static function initConfiguration(): ApplicationConfiguration {
         $mainDir = self::getProjectDirectory();
         $CONFIGURATION_FILE_BASE = "application";
+        $ALLOWED_EXTENSIONS = ["json", "yaml"];
 
         if (!is_dir($mainDir)) {
             return new ApplicationConfiguration();
         }
 
-        $baseFilePath = $mainDir.DIRECTORY_SEPARATOR.$CONFIGURATION_FILE_BASE;
-        $yamlFilePath =  $baseFilePath.".yaml";
+        foreach ($ALLOWED_EXTENSIONS as $EXTENSION) {
+            $baseFilePath = $mainDir.DIRECTORY_SEPARATOR.$CONFIGURATION_FILE_BASE;
+            $baseFullPath =  $baseFilePath. "." .$EXTENSION;
 
-        $declaredConfigurationsPropertiesClasses = self::getPropertiesConfigurations();
+            $declaredConfigurationsPropertiesClasses = self::getPropertiesConfigurations();
 
-        if (file_exists($yamlFilePath)) {
-            $properties = Yaml::parseFile($yamlFilePath);
+            if (file_exists($baseFullPath)) {
+                $properties = self::getPropertiesFileAsArray($baseFullPath, $EXTENSION);
 
-            return ApplicationConfiguration::from($declaredConfigurationsPropertiesClasses, $properties);
+                return ApplicationConfiguration::from($declaredConfigurationsPropertiesClasses, $properties);
+            }
         }
 
         return new ApplicationConfiguration();
@@ -249,5 +252,17 @@ final class Application {
 
     public static function getConfiguration(): ApplicationConfiguration {
         return self::$configuration;
+    }
+
+    private static function getPropertiesFileAsArray(string $baseFullPath, string $EXTENSION) {
+        $content = file_get_contents($baseFullPath);
+
+        if ($EXTENSION === "yaml") {
+            return Yaml::parse($content);
+        } else if ($EXTENSION === "json") {
+            return json_decode($content, true);
+        }
+
+        return "[]";
     }
 }
