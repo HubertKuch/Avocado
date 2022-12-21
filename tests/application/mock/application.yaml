@@ -5,3 +5,6 @@ mocked-configuration:
     nestedTest: 2
     secondObject:
       test: 21
+  testArray:
+    - test
+    - test2

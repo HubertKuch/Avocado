@@ -4,14 +4,13 @@ namespace Avocado\Application;
 
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
-use Avocado\Utils\ClassFinder;
 use Avocado\Utils\StandardObjectMapper;
 use ReflectionException;
 
 class ApplicationConfiguration {
 
     /**
-     * @var $configurations Configuration[]
+     * @var $configurations object[]
      * */
     private array $configurations = [];
 
@@ -47,7 +46,7 @@ class ApplicationConfiguration {
     }
 
     /**
-     * @return Configuration[]
+     * @return object[]
      * */
     public function getConfigurations(): array {
         return $this->configurations;

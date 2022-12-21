@@ -197,9 +197,18 @@ class ApplicationTest extends TestCase {
 
     public function testGetConfiguration() {
         $_SERVER['REQUEST_METHOD'] = "GET";
-        $_SERVER['PHP_SELF'] = "/avocado-test/param/4";
 
         MockedApplication::init();
         self::assertNotEmpty(Application::getConfiguration()->getConfigurations());
+    }
+
+    public function testParseConfigurationArray() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        MockedApplication::init();
+        $applicationConfiguration = Application::getConfiguration();
+        $conf = $applicationConfiguration->getConfigurations()[0];
+
+        self::assertNotEmpty($conf->getTestArray());
     }
 }
