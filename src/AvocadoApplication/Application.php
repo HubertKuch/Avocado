@@ -60,7 +60,7 @@ final class Application {
 
             self::$configuration = self::initConfiguration();
 
-            DependencyInjectionService::init();
+            //DependencyInjectionService::init();
 
             foreach (self::$configuration->getConfigurations() as $conf) {
                 $configuration = new Configuration($conf::class, $conf);
@@ -73,12 +73,14 @@ final class Application {
                 self::$configurations[$indexOfPlainConfiguration] = $configuration;
             }
 
+
             self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
 
             foreach (self::$leafManager->getLeafs() as $leaf) {
                 DependencyInjectionService::addResource($leaf);
             }
 
+            //var_dump(DependencyInjectionService::getResources());
             DependencyInjectionService::init();
 
             self::$httpConsumer = DependencyInjectionService::getResourceByType(MainHttpConsumer::class)->getTargetInstance();

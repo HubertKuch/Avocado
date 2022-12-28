@@ -228,4 +228,22 @@ class ApplicationTest extends TestCase {
 
         self::assertNotNull($conf->getConf());
     }
+
+    public function testInjectingTwoLeafsOfTheSameType() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        MockedApplication::init();
+
+        $ref = new ReflectionClass(Application::class);
+
+        /** @var $confs Configuration[] */
+        $confs = $ref->getStaticPropertyValue("configurations");
+        $matchedParentConfs = array_filter($confs, fn($conf) => $conf->getTargetClassName() === InjectedTwoLeafsOfTheSameType::class);
+
+        /** @var $instance InjectedTwoLeafsOfTheSameType */
+        $instance = $matchedParentConfs[key($matchedParentConfs)]->getTargetInstance();
+
+        self::assertNotNull($instance->getTest());
+        self::assertNotNull($instance->getTest2());
+    }
 }
