@@ -3,6 +3,9 @@
 namespace AvocadoApplication\DependencyInjection;
 
 use Avocado\Application\Application;
+use Avocado\AvocadoApplication\Attributes\Configuration;
+use Avocado\Tests\Unit\Application\MockConfigurationPropertiesClass;
+use Avocado\Tests\Unit\Application\MockedConfigurationWithAutowiredConfiguration;
 use Exception;
 use ReflectionClass;
 use ReflectionObject;
@@ -163,7 +166,7 @@ class DependencyInjectionService {
             }
 
             if (!$resource) {
-                throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, ``));
+                throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, "$resourceType"));
             }
 
             $autowiredClassProperty->getReflectionProperty()->setValue($object, $resource->getTargetInstance());

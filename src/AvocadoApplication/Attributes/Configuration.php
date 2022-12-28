@@ -3,25 +3,32 @@
 namespace Avocado\AvocadoApplication\Attributes;
 
 use Attribute;
+use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 use Avocado\Utils\ClassFinder;
 use Avocado\Utils\ReflectionUtils;
+use AvocadoApplication\DependencyInjection\DependencyInjectionService;
+use AvocadoApplication\DependencyInjection\Exceptions\ResourceNotFoundException;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionObject;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Exceptions\InvalidResourceException;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class Configuration {
+class Configuration implements Resourceable {
     private string $targetClassName;
     private ReflectionClass $targetReflection;
+    private ?object $instance;
 
     /**
      * @throws ClassNotFoundException
      */
-    public function __construct(string $targetClassName = "") {
+    public function __construct(string $targetClassName = "", object $instance = null) {
         if ($targetClassName == "") {
             return;
         }
+
+        $this->instance = $instance;
 
         try {
             $this->targetClassName = $targetClassName;
@@ -47,6 +54,10 @@ class Configuration {
      */
     public function getInstance(): object {
         try {
+            if ($this->instance) {
+                return $this->instance;
+            }
+
             return $this->targetReflection->newInstance();
         } catch (ReflectionException) {
             throw new InvalidResourceException("Configuration cannot have any constructor parameters, only public constructor without parameters.");
@@ -82,24 +93,32 @@ class Configuration {
         return $instance;
     }
 
-    /** @return Configuration[] */
-    public function getNestedConfigurations(): array {
-        $properties = $this->targetReflection->getProperties();
-        $configurations = [];
-
-        foreach ($properties as $property) {
-            $isClass = ClassFinder::getClassReflectionByName($property->getType()->getName()) !== null;
-            var_dump($isClass);
-        }
-
-        return $configurations;
-    }
-
     public function getTargetReflection(): ReflectionClass {
         return $this->targetReflection;
     }
 
     public function getTargetClassName(): string {
         return $this->targetClassName;
+    }
+
+    public function getTargetResourceTypes(): array {
+        return [$this->getTargetClassName()];
+    }
+
+    public function getMainType(): string {
+        return $this->targetClassName;
+    }
+
+    public function getTargetInstance(): object|null {
+        try {
+            $instance = $this->getInstance();
+            DependencyInjectionService::inject(new ReflectionObject($instance), $instance);
+
+            return $instance;
+        } catch (ResourceNotFoundException) { return null; }
+    }
+
+    public function getAlternativeName(): string {
+        return "";
     }
 }

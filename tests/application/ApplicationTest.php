@@ -2,6 +2,7 @@
 
 namespace Avocado\Tests\Unit\Application;
 
+use Avocado\AvocadoApplication\Attributes\Configuration;
 use ReflectionClass;
 use PHPUnit\Framework\TestCase;
 use Avocado\Application\Controller;
@@ -210,5 +211,21 @@ class ApplicationTest extends TestCase {
         $conf = $applicationConfiguration->getConfigurations()[0];
 
         self::assertNotEmpty($conf->getTestArray());
+    }
+
+    public function testAutowiringConfigurationInAnotherConfiguration() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        MockedApplication::init();
+
+        $ref = new ReflectionClass(Application::class);
+
+        /** @var $confs Configuration[] */
+        $confs = $ref->getStaticPropertyValue("configurations");
+        $matchedParentConfs = array_filter($confs, fn($conf) => $conf->getTargetClassName() === MockedConfigurationWithAutowiredConfiguration::class);
+        /** @var $conf MockedConfigurationWithAutowiredConfiguration */
+        $conf = $matchedParentConfs[key($matchedParentConfs)]->getTargetInstance();
+
+        self::assertNotNull($conf->getConf());
     }
 }

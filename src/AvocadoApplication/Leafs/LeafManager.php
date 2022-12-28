@@ -22,8 +22,9 @@ class LeafManager {
     public static function ofConfigurations(array $configurations): LeafManager {
         $leafs = [];
 
-        foreach ($configurations as $configuration)
+        foreach ($configurations as $configuration) {
             $leafs = [...$leafs, ...$configuration->getLeafs($configuration)];
+        }
 
         return new LeafManager($leafs);
     }

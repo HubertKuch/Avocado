@@ -16,6 +16,7 @@ use Avocado\HTTP\HTTPMethod;
 use Avocado\HTTP\Managers\HttpConsumer;
 use Avocado\ORM\AvocadoORMSettings;
 use Avocado\Router\AvocadoRouter;
+use Avocado\Utils\Arrays;
 use Avocado\Utils\ClassFinder;
 use Avocado\Utils\ReflectionUtils;
 use AvocadoApplication\Attributes\Resource;
@@ -56,6 +57,22 @@ final class Application {
 
             self::$preProcessors = self::getPreProcessors();
             self::$configurations = self::getConfigurations();
+
+            self::$configuration = self::initConfiguration();
+
+            DependencyInjectionService::init();
+
+            foreach (self::$configuration->getConfigurations() as $conf) {
+                $configuration = new Configuration($conf::class, $conf);
+
+                DependencyInjectionService::addResource($configuration);
+
+                /** @var $conf Configuration */
+                $indexOfPlainConfiguration = Arrays::indexOf(self::$configurations, fn($appConf) => $appConf->getMainType() === $conf::class);
+
+                self::$configurations[$indexOfPlainConfiguration] = $configuration;
+            }
+
             self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
 
             foreach (self::$leafManager->getLeafs() as $leaf) {
@@ -72,8 +89,6 @@ final class Application {
             self::declareRoutes();
 
             self::$dataSource = self::getDataSource();
-
-            self::$configuration = self::initConfiguration();
 
             AvocadoORMSettings::fromExistingSource(self::$dataSource);
             AvocadoRouter::listen();
@@ -246,6 +261,7 @@ final class Application {
                 return ApplicationConfiguration::from($declaredConfigurationsPropertiesClasses, $properties);
             }
         }
+
 
         return new ApplicationConfiguration();
     }

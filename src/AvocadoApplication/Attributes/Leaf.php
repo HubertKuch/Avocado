@@ -37,7 +37,7 @@ class Leaf implements Resourceable {
 
         $this->returnType = $this->reflectionMethod->getReturnType()->getName();
         try {
-            $this->resourceInstance = $method->invoke($configuration1->getInstance());
+            $this->resourceInstance = $method->invoke($configuration1->getTargetInstance());
         } catch (ReflectionException $e) {
             throw new InvalidResourceException("Any Leaf must have to have exactly one non-primitive return type.");
         }

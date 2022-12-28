@@ -106,9 +106,7 @@ class Controller {
     }
 
     /**
-     * @throws ResourceException
      * @throws ResourceNotFoundException
-     * @throws TooMuchResourceConstructorParametersException
      */
     private function getInstance(): ?object {
         try {
