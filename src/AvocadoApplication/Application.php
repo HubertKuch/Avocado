@@ -60,8 +60,6 @@ final class Application {
 
             self::$configuration = self::initConfiguration();
 
-            //DependencyInjectionService::init();
-
             foreach (self::$configuration->getConfigurations() as $conf) {
                 $configuration = new Configuration($conf::class, $conf);
 
@@ -80,7 +78,6 @@ final class Application {
                 DependencyInjectionService::addResource($leaf);
             }
 
-            //var_dump(DependencyInjectionService::getResources());
             DependencyInjectionService::init();
 
             self::$httpConsumer = DependencyInjectionService::getResourceByType(MainHttpConsumer::class)->getTargetInstance();
@@ -97,7 +94,7 @@ final class Application {
             $data = AvocadoRouter::invokeMatchedRoute();
 
             if ($data && $data->getData()) {
-                self::$httpConsumer -> consume($data->getData(), $data->getStatus());
+                self::$httpConsumer -> consume($data);
             }
 
         } catch (Exception $e) {

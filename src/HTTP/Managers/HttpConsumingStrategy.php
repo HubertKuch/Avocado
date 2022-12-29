@@ -2,10 +2,10 @@
 
 namespace Avocado\HTTP\Managers;
 
-use Avocado\HTTP\HTTPStatus;
+use Avocado\HTTP\ResponseBody;
 
 interface HttpConsumingStrategy {
 
-    function consume(mixed $data, HTTPStatus $status): void;
+    function consume(ResponseBody $responseBody): void;
 
 }

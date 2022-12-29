@@ -5,7 +5,9 @@ namespace Avocado\Router;
 use Avocado\AvocadoApplication\Attributes\Exceptions\ResponseStatus;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\ControllerParametersProcessor;
 use Avocado\AvocadoApplication\Exceptions\PageNotFoundException;
+use Avocado\AvocadoApplication\Mappings\Produces;
 use Avocado\AvocadoApplication\Middleware\MiddlewareProcessor;
+use Avocado\HTTP\ContentType;
 use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\ResponseBody;
 use Avocado\Utils\AnnotationUtils;
@@ -155,12 +157,8 @@ class AvocadoRouter {
         $className = $route['CALLBACK'][0]::class;
         $methodName = $route['CALLBACK'][1];
         $ref = new ReflectionMethod("{$className}::{$methodName}");
-        $hasDefinedStatusCode = AnnotationUtils::isAnnotated($ref, ResponseStatus::class);
-        $httpStatusCode = HTTPStatus::OK;
-
-        if ($hasDefinedStatusCode) {
-            $httpStatusCode =AnnotationUtils::getInstance($ref, ResponseStatus::class)->getStatus();
-        }
+        $httpStatusCode = self::getStatusCode($ref);
+        $contentType = self::getContentType($ref);
 
         /** @var MiddlewareProcessor $middlewareProcessor*/
         $middlewareProcessor = DependencyInjectionService::getResourceByType(MiddlewareProcessor::class)->getTargetInstance();
@@ -172,7 +170,7 @@ class AvocadoRouter {
 
         $parameters = ControllerParametersProcessor::process($ref, self::$request, self::$response);
 
-        return new ResponseBody(call_user_func_array($route['CALLBACK'], $parameters), $httpStatusCode);
+        return new ResponseBody(call_user_func_array($route['CALLBACK'], $parameters), $httpStatusCode, $contentType);
     }
 
     private static function getPathWithoutParams(string $endpoint, string $actPath, array &$params): string {
@@ -234,5 +232,26 @@ class AvocadoRouter {
      */
     public static function setMatchedRoute(array $matchedRoute): void {
         self::$matchedRoute = $matchedRoute;
+    }
+
+    public static function getStatusCode(ReflectionMethod $ref): HTTPStatus {
+        $hasDefinedStatusCode = AnnotationUtils::isAnnotated($ref, ResponseStatus::class);
+        $httpStatusCode = HTTPStatus::OK;
+
+        if($hasDefinedStatusCode) {
+            $httpStatusCode = AnnotationUtils::getInstance($ref, ResponseStatus::class)->getStatus();
+        }
+        return $httpStatusCode;
+    }
+
+    public static function getContentType(ReflectionMethod $ref): ContentType {
+        $hasDefinedContentType = AnnotationUtils::isAnnotated($ref, Produces::class);
+        $contentType = ContentType::APPLICATION_JSON;
+
+        if($hasDefinedContentType) {
+            $contentType = AnnotationUtils::getInstance($ref, Produces::class)->getContentType();
+        }
+
+        return $contentType;
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Avocado\AvocadoApplication\ResponseConsuming;
 
-use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\Managers\HttpConsumingStrategy;
+use Avocado\HTTP\ResponseBody;
 use AvocadoApplication\Attributes\Resource;
 
 #[Resource(name: "standardResponseStrategy")]
@@ -12,5 +12,5 @@ class StandardAvocadoResponseConsumingStrategy implements HttpConsumingStrategy 
     public function __construct() {
     }
 
-    function consume(mixed $data, HTTPStatus $status): void {}
+    function consume(ResponseBody $responseBody): void {}
 }

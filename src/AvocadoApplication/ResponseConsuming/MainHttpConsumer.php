@@ -2,6 +2,7 @@
 
 namespace Avocado\AvocadoApplication\ResponseConsuming;
 
+use Avocado\HTTP\ContentType;
 use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\Managers\HttpConsumer;
 use Avocado\HTTP\Managers\HttpConsumingStrategy;
@@ -24,13 +25,13 @@ class MainHttpConsumer implements HttpConsumer {
 
     public function __construct() {}
 
-    public function consume(mixed $data, HTTPStatus $status) {
-        if ($data instanceof ResponseBody) {
-            $this->responseBodyStrategy->consume($data, $status);
-        } else if ($data instanceof AvocadoResponse) {
-            $this->standardResponseStrategy->consume($data, $status);
+    public function consume(ResponseBody $responseBody) {
+        if ($responseBody->getData() instanceof ResponseBody) {
+            $this->responseBodyStrategy->consume($responseBody);
+        } else if ($responseBody->getData() instanceof AvocadoResponse) {
+            $this->standardResponseStrategy->consume($responseBody);
         } else {
-            $this->parsingDataStrategy->consume($data, $status);
+            $this->parsingDataStrategy->consume($responseBody);
         }
     }
 }

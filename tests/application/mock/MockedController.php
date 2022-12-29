@@ -8,8 +8,10 @@ use Avocado\AvocadoApplication\Attributes\Request\RequestBody;
 use Avocado\AvocadoApplication\Attributes\Request\RequestHeader;
 use Avocado\AvocadoApplication\Attributes\Request\RequestStorageItem;
 use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
+use Avocado\AvocadoApplication\Mappings\Produces;
 use Avocado\AvocadoApplication\Middleware\BeforeRoute;
 use Avocado\AvocadoApplication\Middleware\Next;
+use Avocado\HTTP\ContentType;
 use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\ResponseBody;
 use Avocado\Router\AvocadoRequest;
@@ -216,5 +218,25 @@ class MockedController {
     #[GetMapping("/consuming/returned-data")]
     public function testConsumingReturnedData(): mixed {
         return ["Returned data was parsed."];
+    }
+
+    #[GetMapping("/consuming/produces")]
+    #[Produces(contentType: ContentType::TEXT_PLAIN)]
+    public function testConsumingProducesAnnotation(): string {
+        return "Test consuming produces annotation";
+    }
+
+    #[GetMapping("/consuming/image")]
+    #[Produces(contentType: ContentType::IMAGE_PNG)]
+    public function testConsumingImage(): string {
+        $url = "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1239&q=80";
+
+        $stream = file_get_contents($url);
+
+        if (!$stream) {
+            return "";
+        }
+
+        return $stream;
     }
 }

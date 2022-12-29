@@ -4,8 +4,9 @@ namespace Avocado\HTTP;
 
 class ResponseBody {
     public function __construct(
-        private mixed $data,
-        private HTTPStatus $status
+        private readonly mixed $data,
+        private readonly HTTPStatus $status,
+        private readonly ContentType $contentType = ContentType::APPLICATION_JSON
     ) {}
 
     public function getData(): mixed {
@@ -14,5 +15,9 @@ class ResponseBody {
 
     public function getStatus(): HTTPStatus {
         return $this->status;
+    }
+
+    public function getContentType(): ContentType {
+        return $this->contentType;
     }
 }

@@ -2,8 +2,9 @@
 
 namespace Avocado\AvocadoApplication\ResponseConsuming;
 
-use Avocado\HTTP\HTTPStatus;
+use Avocado\HTTP\ContentType;
 use Avocado\HTTP\Managers\HttpConsumingStrategy;
+use Avocado\HTTP\ResponseBody;
 use Avocado\Router\AvocadoResponse;
 use AvocadoApplication\Attributes\Resource;
 
@@ -13,9 +14,18 @@ class ParsingDataConsumingStrategy implements HttpConsumingStrategy {
     public function __construct() {
     }
 
-    function consume(mixed $data, HTTPStatus $status): void {
+    function consume(ResponseBody $responseBody): void {
+        if ($responseBody->getContentType() === ContentType::APPLICATION_JSON) {
+            (new AvocadoResponse())
+                ->json($responseBody->getData())
+                ->withStatus($responseBody->getStatus());
+
+            return;
+        }
+
         (new AvocadoResponse())
-            ->json($data)
-            ->withStatus($status);
+            ->setHeader("Content-Type", $responseBody->getContentType()->value)
+            ->write($responseBody->getData())
+            ->withStatus($responseBody->getStatus());
     }
 }
