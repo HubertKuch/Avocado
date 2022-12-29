@@ -18,9 +18,12 @@ class ExceptionResponseStatusStrategy implements ExceptionHandlerStrategy {
 
         $statusCode = $responseStatusInstance->getStatus();
 
-        return new ResponseBody([
-            "message" => $message,
-            "status" => $statusCode->value
-        ], $statusCode);
+        $body = ["message" => $message, "status" => $statusCode->value, "path" => str_replace("Standard input code", "", $_SERVER['PHP_SELF'])];
+
+        if ($exception->getPrevious()) {
+            $body['cause'] = $exception->getPrevious()->getMessage();
+        }
+
+        return new ResponseBody($body, $statusCode);
     }
 }

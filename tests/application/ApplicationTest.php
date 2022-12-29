@@ -144,7 +144,7 @@ class ApplicationTest extends TestCase {
 
         MockedApplication::init();
 
-        self::assertSame('{"message":"auto response","status":409}', ob_get_contents());
+        self::assertStringContainsString('"message":"auto response","status":409', ob_get_contents());
     }
 
     public function testPageNotFound() {

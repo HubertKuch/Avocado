@@ -38,7 +38,7 @@ class ParameterProviderTest extends TestCase {
 
         MockedApplication::init();
 
-        self::assertSame('{"message":"Invalid request body.","status":400}', ob_get_contents());
+        self::assertStringContainsString('"message":"Invalid request body.","status":400', ob_get_contents());
     }
 
     /**
@@ -70,7 +70,7 @@ class ParameterProviderTest extends TestCase {
         $_SERVER['PHP_SELF'].="/avocado-test/parsing-requiredParam/";
         MockedApplication::init();
 
-        self::assertSame('{"message":"Missing `param` param.","status":400}', ob_get_contents());
+        self::assertStringContainsString('"message":"Missing `param` param.","status":400', ob_get_contents());
     }
 
     public function testParsingWithDefaultValue() {
@@ -100,12 +100,12 @@ class ParameterProviderTest extends TestCase {
     }
 
     public function testParsingRequiredQuery() {
-        $expected = '{"message":"Missing `test` query param.","status":400}';
+        $expected = '"message":"Missing `test` query param.","status":400';
         $_SERVER['REQUEST_METHOD'] = "GET";
         $_SERVER['PHP_SELF'] = "/avocado-test/required-query/";
         MockedApplication::init();
 
-        self::assertSame($expected, ob_get_contents());
+        self::assertStringContainsString($expected, ob_get_contents());
     }
 
     public function testProvidingOptionals() {

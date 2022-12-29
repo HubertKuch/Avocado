@@ -45,7 +45,7 @@ class MiddlewareTest extends TestCase {
 
         MockedApplication::init();
 
-        self::assertSame('{"message":"TEST EXCEPTIONS IN MIDDLEWARE METHODS","status":400}', ob_get_contents());
+        self::assertStringContainsString('"message":"TEST EXCEPTIONS IN MIDDLEWARE METHODS","status":400', ob_get_contents());
     }
 
     public function testClassLevelMiddleware() {
