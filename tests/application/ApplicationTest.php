@@ -250,11 +250,11 @@ class ApplicationTest extends TestCase {
     public function testUploadingFiles() {
         $_FILES = [
             "file" => [
-                "name" => "test.png",
-                "type" => "image/png",
-                "tmp_name" => "/tmp/test",
-                "error" => 0,
-                "size" => 123
+                "name" => ["test.png"],
+                "type" => ["image/png"],
+                "tmp_name" => ["/tmp/test"],
+                "error" => [0],
+                "size" => [123]
             ]
         ];
 
@@ -277,11 +277,11 @@ class ApplicationTest extends TestCase {
 
             $_FILES = [
                 "file" => [
-                    "name" => "test.txt",
-                    "type" => "text/plain",
-                    "tmp_name" => $tempFile,
-                    "error" => 0,
-                    "size" => 123
+                    "name" => ["test.png"],
+                    "type" => ["image/png"],
+                    "tmp_name" => [$tempFile],
+                    "error" => [0],
+                    "size" => [123]
                 ]
             ];
 

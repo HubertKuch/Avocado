@@ -8,7 +8,10 @@ use ReflectionParameter;
 #[Attribute(Attribute::TARGET_PARAMETER)]
 class Multipart {
 
-    public function __construct(private readonly ?string $type = null) {}
+    public function __construct(
+        private readonly ?string $name = null,
+        private readonly ?string $type = null
+    ) {}
 
     public static function isAnnotated(ReflectionParameter $reflectionProperty): bool {
         $requestBodyAnnotations = $reflectionProperty->getAttributes(self::class);
@@ -18,6 +21,10 @@ class Multipart {
 
     public function getType(): ?string {
         return $this->type;
+    }
+
+    public function getName(): ?string {
+        return $this->name;
     }
 
 }

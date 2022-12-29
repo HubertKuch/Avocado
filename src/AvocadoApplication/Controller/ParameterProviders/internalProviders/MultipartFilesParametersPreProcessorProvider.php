@@ -19,16 +19,30 @@ class MultipartFilesParametersPreProcessorProvider implements SpecificParameters
 
     public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, AvocadoRequest $request, AvocadoResponse $response): mixed {
         if (AnnotationUtils::isAnnotated($parameterRef, Multipart::class)) {
-            $incomingFiles = $_FILES;
-            $files = [];
+            $name = $parameterRef->getName();
+            /** @var Multipart $annotationInstance */
+            $annotationInstance = AnnotationUtils::getInstance($parameterRef, Multipart::class);
 
-            foreach ($incomingFiles as $file) {
+            if ($annotationInstance->getName()) {
+                $name = $annotationInstance->getName();
+            }
+
+            $incomingFiles = $_FILES;
+
+            if (!$incomingFiles[$name]) {
+                return null;
+            }
+
+            $files = [];
+            $incomingFiles = $_FILES[$name];
+
+            for ($fileIndex = 0; $fileIndex < count($incomingFiles['name']); $fileIndex++) {
                 $files[] = new MultipartFile(
-                    $file['name'],
-                    $file['size'],
-                    $file['tmp_name'],
-                    $file['error'],
-                    ContentType::from($file['type']) ?? ContentType::TEXT_PLAIN
+                    $incomingFiles['name'][$fileIndex],
+                    $incomingFiles['size'][$fileIndex],
+                    $incomingFiles['tmp_name'][$fileIndex],
+                    $incomingFiles['error'][$fileIndex],
+                    ContentType::from($incomingFiles['type'][$fileIndex]) ?? ContentType::TEXT_PLAIN
                 );
             }
 
