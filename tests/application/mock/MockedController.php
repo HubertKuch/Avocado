@@ -4,10 +4,14 @@ namespace Avocado\Tests\Unit\Application;
 
 
 use Avocado\Application\RestController;
+use Avocado\AvocadoApplication\Attributes\Request\Multipart;
 use Avocado\AvocadoApplication\Attributes\Request\RequestBody;
 use Avocado\AvocadoApplication\Attributes\Request\RequestHeader;
 use Avocado\AvocadoApplication\Attributes\Request\RequestStorageItem;
 use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
+use Avocado\AvocadoApplication\Files\Exceptions\CannotMoveFileException;
+use Avocado\AvocadoApplication\Files\Exceptions\FileExistsException;
+use Avocado\AvocadoApplication\Files\MultipartFile;
 use Avocado\AvocadoApplication\Mappings\Produces;
 use Avocado\AvocadoApplication\Middleware\BeforeRoute;
 use Avocado\AvocadoApplication\Middleware\Next;
@@ -32,9 +36,9 @@ use http\Client;
 class MockedController {
 
     #[Autowired]
-    private MockedResource $mockedResource;
+    private readonly MockedResource $mockedResource;
     #[Autowired]
-    private MockedResourceWithAlternativeName $mockedResourceWithAlternativeName;
+    private readonly MockedResourceWithAlternativeName $mockedResourceWithAlternativeName;
 
     #[GetMapping("/")]
     public function getHelloWorld(AvocadoRequest $req, AvocadoResponse $res): void {
@@ -238,5 +242,37 @@ class MockedController {
         }
 
         return $stream;
+    }
+
+    #[PostMapping("/validate-file")]
+    #[Produces(ContentType::TEXT_PLAIN)]
+    public function validateFile(
+        #[Multipart] ?MultipartFile $file
+    ): string {
+
+        if (!$file) {
+            return "";
+        }
+
+        return "Uploaded";
+    }
+
+    /**
+     * @throws CannotMoveFileException
+     * @throws FileExistsException
+     */
+    #[PostMapping("/upload-file")]
+    #[Produces(ContentType::TEXT_PLAIN)]
+    public function testUploadingFiles(
+        #[Multipart] ?MultipartFile $file
+    ): string {
+
+        if (!$file) {
+            return "";
+        }
+
+        $file->moveTo(sys_get_temp_dir() . "/another_temp_file.txt");
+
+        return "Uploaded";
     }
 }

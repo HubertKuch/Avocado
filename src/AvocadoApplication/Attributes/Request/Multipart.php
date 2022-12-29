@@ -6,7 +6,7 @@ use Attribute;
 use ReflectionParameter;
 
 #[Attribute(Attribute::TARGET_PARAMETER)]
-class RequestBody {
+class Multipart {
 
     public function __construct(private readonly ?string $type = null) {}
 

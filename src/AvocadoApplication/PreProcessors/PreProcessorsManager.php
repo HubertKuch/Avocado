@@ -5,7 +5,6 @@ namespace Avocado\AvocadoApplication\PreProcessors;
 use Avocado\Application\Application;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\SpecificParametersPreProcessor;
 use Avocado\Utils\ClassFinder;
-use AvocadoApplication\Attributes\Resource;
 
 class PreProcessorsManager {
 

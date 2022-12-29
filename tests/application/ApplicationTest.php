@@ -246,4 +246,56 @@ class ApplicationTest extends TestCase {
         self::assertNotNull($instance->getTest());
         self::assertNotNull($instance->getTest2());
     }
+
+    public function testUploadingFiles() {
+        $_FILES = [
+            "file" => [
+                "name" => "test.png",
+                "type" => "image/png",
+                "tmp_name" => "/tmp/test",
+                "error" => 0,
+                "size" => 123
+            ]
+        ];
+
+        $_SERVER['REQUEST_METHOD'] = "POST";
+        $_SERVER['PHP_SELF'] = "/avocado-test/validate-file";
+
+        MockedApplication::init();
+
+        self::assertSame("Uploaded", ob_get_contents());
+    }
+
+    public function testMovingFiles() {
+        $filenamePath = sys_get_temp_dir() . "/another_temp_file.txt";
+
+        try {
+            $tempFile = tempnam(sys_get_temp_dir(), "temp_file.test");
+
+            $data = "Test";
+            file_put_contents($tempFile, $data, FILE_APPEND);
+
+            $_FILES = [
+                "file" => [
+                    "name" => "test.txt",
+                    "type" => "text/plain",
+                    "tmp_name" => $tempFile,
+                    "error" => 0,
+                    "size" => 123
+                ]
+            ];
+
+            $_SERVER['REQUEST_METHOD'] = "POST";
+            $_SERVER['PHP_SELF'] = "/avocado-test/upload-file";
+
+            MockedApplication::init();
+
+            self::assertTrue(file_exists($filenamePath));
+            self::assertSame("Uploaded", ob_get_contents());
+            self::assertSame($data, file_get_contents($filenamePath));
+
+        } finally {
+            unlink($filenamePath);
+        }
+    }
 }

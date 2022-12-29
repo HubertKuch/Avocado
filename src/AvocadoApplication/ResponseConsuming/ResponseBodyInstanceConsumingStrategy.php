@@ -20,7 +20,7 @@ class ResponseBodyInstanceConsumingStrategy implements HttpConsumingStrategy {
     function consume(ResponseBody $responseBody): void {
         if ($responseBody->getContentType() === ContentType::APPLICATION_JSON) {
             (new AvocadoResponse())
-                ->json($responseBody->getData())
+                ->json($responseBody->getData()->getData())
                 ->withStatus($responseBody->getStatus());
 
             return;

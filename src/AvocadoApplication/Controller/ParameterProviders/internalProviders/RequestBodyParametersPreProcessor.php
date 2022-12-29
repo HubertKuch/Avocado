@@ -21,6 +21,9 @@ use ReflectionParameter;
 #[PreProcessor]
 class RequestBodyParametersPreProcessor implements SpecificParametersPreProcessor {
 
+    /**
+     * @throws InvalidRequestBodyException
+     */
     public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, AvocadoRequest $request, AvocadoResponse $response): mixed {
         if (AnnotationUtils::isAnnotated($parameterRef, RequestBody::class)) {
             try {
