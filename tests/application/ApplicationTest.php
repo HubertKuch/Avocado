@@ -319,5 +319,6 @@ class ApplicationTest extends TestCase {
 
         MockedApplication::init();
 
+        assertSame("[]", ob_get_contents());
     }
 }

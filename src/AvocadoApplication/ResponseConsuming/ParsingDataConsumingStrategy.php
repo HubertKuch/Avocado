@@ -7,6 +7,7 @@ use Avocado\HTTP\Managers\HttpConsumingStrategy;
 use Avocado\HTTP\ResponseBody;
 use Avocado\Router\AvocadoResponse;
 use AvocadoApplication\Attributes\Resource;
+use stdClass;
 
 #[Resource(name: "parsingDataStrategy")]
 class ParsingDataConsumingStrategy implements HttpConsumingStrategy {
@@ -16,7 +17,6 @@ class ParsingDataConsumingStrategy implements HttpConsumingStrategy {
 
     function consume(ResponseBody $responseBody): void {
         if ($responseBody->getContentType() === ContentType::APPLICATION_JSON) {
-
             (new AvocadoResponse())
                 ->json($responseBody->getData())
                 ->withStatus($responseBody->getStatus());

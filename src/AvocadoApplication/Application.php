@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Avocado\Application;
 
 use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
@@ -94,7 +96,7 @@ final class Application {
             $data = AvocadoRouter::invokeMatchedRoute();
 
 
-            if ($data) {
+            if ($data && $data->getData() !== null) {
                 self::$httpConsumer->consume($data);
             }
 
