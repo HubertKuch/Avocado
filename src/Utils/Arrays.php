@@ -22,4 +22,20 @@ class Arrays {
         return null;
     }
 
+    /**
+     * @description Finds a element which matches a $callback function
+     * @param array $array
+     * @param callable $callback
+     * @return mixed Returns a item
+     * */
+    public static function find(array $array, callable $callback): mixed {
+        $index = self::indexOf($array, $callback);
+
+        if ($index == null) {
+            return null;
+        }
+
+        return $array[$index];
+    }
+
 }

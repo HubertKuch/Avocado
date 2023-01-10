@@ -9,6 +9,8 @@ use Avocado\Application\Controller;
 use Avocado\Application\Application;
 use AvocadoApplication\Mappings\MethodMapping;
 use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
+use Throwable;
+use function PHPUnit\Framework\assertSame;
 
 /**
  * @runTestsInSeparateProcesses
@@ -296,6 +298,18 @@ class ApplicationTest extends TestCase {
 
         } finally {
             unlink($filenamePath);
+        }
+    }
+
+    public function testErrorCatching() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'].="/avocado-test/error-catching";
+
+        try {
+            MockedApplication::init();
+            assertSame(true, true);
+        } catch (Throwable $throwable) {
+            assertSame(true, false);
         }
     }
 }

@@ -10,10 +10,14 @@ use Avocado\HTTP\ResponseBody;
 use Avocado\AvocadoApplication\Exceptions\InvalidResourceException;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
+use Throwable;
 
 class InvokeExceptionHandlerStrategy implements ExceptionHandlerStrategy {
 
-    public function handle(Exception $exception, ?ExceptionHandler $handler = null): ResponseBody {
+    /**
+     * @throws InvalidResourceException
+     */
+    public function handle(Throwable $throwable, ?ExceptionHandler $handler = null): ResponseBody {
         try {
             $ref = new ReflectionMethod($handler->getClassname(), $handler->getMethodName());
 
@@ -26,7 +30,7 @@ class InvokeExceptionHandlerStrategy implements ExceptionHandlerStrategy {
             }
 
             return $returns;
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException $ignored) {
             return new ResponseBody([], HTTPStatus::INTERNAL_SERVER_ERROR);
         }
     }

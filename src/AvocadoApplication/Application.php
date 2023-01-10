@@ -22,10 +22,10 @@ use Avocado\Utils\ReflectionUtils;
 use AvocadoApplication\Attributes\Resource;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\Mappings\MethodMapping;
-use Exception;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\Yaml\Yaml;
+use Throwable;
 
 final class Application {
     private static array $declaredClasses = [];
@@ -38,7 +38,7 @@ final class Application {
     private static DataSource $dataSource;
     private static Avocado $mainClass;
     private static HttpConsumer $httpConsumer;
-    private static ApplicationConfiguration $configuration;
+    private static ?ApplicationConfiguration $configuration;
 
     public static final function run(string $dir): void {
         try {
@@ -94,10 +94,10 @@ final class Application {
             $data = AvocadoRouter::invokeMatchedRoute();
 
             if ($data && $data->getData()) {
-                self::$httpConsumer -> consume($data);
+                self::$httpConsumer->consume($data);
             }
 
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             ApplicationExceptionsAdvisor::process($e);
         }
     }
@@ -265,8 +265,8 @@ final class Application {
         return new ApplicationConfiguration();
     }
 
-    public static function getConfiguration(): ApplicationConfiguration {
-        return self::$configuration;
+    public static function getConfiguration(): ?ApplicationConfiguration {
+        return self::$configuration ?? null;
     }
 
     private static function getPropertiesFileAsArray(string $baseFullPath, string $EXTENSION) {

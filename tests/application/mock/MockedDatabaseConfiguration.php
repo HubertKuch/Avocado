@@ -14,9 +14,9 @@ class MockedDatabaseConfiguration {
     #[Leaf]
     public function getDataSource(): DataSource {
         return (new DataSourceBuilder())
-            ->username("root")
-            ->password("")
-            ->server("127.0.0.1")
+            ->username("user")
+            ->password("user")
+            ->server("172.17.0.2")
             ->port(3306)
             ->databaseType(DatabaseType::MYSQL)
             ->databaseName("")

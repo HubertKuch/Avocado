@@ -8,3 +8,6 @@ mocked-configuration:
   testArray:
     - test
     - test2
+  avocado:
+    environment: DEVELOPMENT
+    throws: false

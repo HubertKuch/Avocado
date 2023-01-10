@@ -28,8 +28,8 @@ use AvocadoApplication\Mappings\GetMapping;
 use AvocadoApplication\Mappings\PatchMapping;
 use AvocadoApplication\Mappings\PostMapping;
 use AvocadoApplication\Mappings\PutMapping;
+use Error;
 use Exception;
-use http\Client;
 
 #[RestController]
 #[BaseURL("/avocado-test")]
@@ -275,4 +275,10 @@ class MockedController {
 
         return "Uploaded";
     }
+
+    #[GetMapping("/error-catching")]
+    public function errorCatching() {
+        throw new Error("test");
+    }
+
 }

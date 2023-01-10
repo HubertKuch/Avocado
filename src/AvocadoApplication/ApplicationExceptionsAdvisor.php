@@ -14,18 +14,19 @@ use Avocado\AvocadoApplication\ExceptionHandlerLogic\ExceptionHandlerStrategy;
 use Avocado\AvocadoApplication\ExceptionHandlerLogic\InvokeExceptionHandlerStrategy;
 use Avocado\AvocadoApplication\ExceptionHandlerLogic\ExceptionResponseStatusStrategy;
 use Avocado\AvocadoApplication\ExceptionHandlerLogic\StandardExceptionHandlerStrategy;
+use Throwable;
 
 class ApplicationExceptionsAdvisor {
 
     /** @var ExceptionHandler[] $handlers*/
     private static array $handlers;
 
-    public static function process(Exception $exception): void {
+    public static function process(Throwable $exception): void {
         self::getExceptionHandlers();
 
         $exceptionHandlerStrategy = self::getExceptionStrategy($exception);
 
-        $response = $exceptionHandlerStrategy->handle($exception, self::getHandlerForException($exception));
+        $response = $exceptionHandlerStrategy->handle($exception, self::getHandlerForThrowable($exception));
 
         self::throwResponse($response);
     }
@@ -71,11 +72,11 @@ class ApplicationExceptionsAdvisor {
         );
     }
 
-    private static function getExceptionStrategy(Exception $exception): ExceptionHandlerStrategy {
+    private static function getExceptionStrategy(Throwable $throwable): ExceptionHandlerStrategy {
         $strategy = new StandardExceptionHandlerStrategy();
 
-        $handler = self::getHandlerForException($exception);
-        $responseStatusAttribute = ReflectionUtils::getAttributeFromClass(get_class($exception), ResponseStatus::class);
+        $handler = self::getHandlerForThrowable($throwable);
+        $responseStatusAttribute = ReflectionUtils::getAttributeFromClass(get_class($throwable), ResponseStatus::class);
 
         if (!$handler && $responseStatusAttribute)
             $strategy = new ExceptionResponseStatusStrategy();
@@ -86,15 +87,15 @@ class ApplicationExceptionsAdvisor {
     }
 
     /**
-     * @param Exception $exception
+     * @param Throwable $throwable
      * @return ExceptionHandler|null
      */
-    private static function getHandlerForException(Exception $exception): ExceptionHandler|null {
+    private static function getHandlerForThrowable(Throwable $throwable): ExceptionHandler|null {
         $handlers = self::$handlers;
         $handler = null;
 
         foreach ($handlers as $item) {
-            if($item->isMatchException(get_class($exception))) {
+            if($item->isMatchException(get_class($throwable))) {
                 $handler = $item;
                 break;
             }

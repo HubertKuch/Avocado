@@ -49,12 +49,11 @@ class MiddlewareTest extends TestCase {
     }
 
     public function testClassLevelMiddleware() {
-        $this->expectException(Exception::class);
         $_SERVER['PHP_SELF'] = "/middleware-test/";
         $_SERVER['REQUEST_METHOD'] = "GET";
 
         MockedApplication::init();
 
-        self::assertSame("", ob_get_contents());
+        self::assertStringContainsString("Exception", ob_get_contents());
     }
 }

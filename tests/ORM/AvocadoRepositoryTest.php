@@ -18,9 +18,9 @@ use Avocado\DataSource\Database\DatabaseType;
 class AvocadoRepositoryTest extends TestCase {
     private DataSource $dataSource;
 
-    private const DATABASE = "avocado_test_db";
-    private const USER = "root";
-    private const PASSWORD = "";
+    private const DATABASE = "avocado_test";
+    private const USER = "user";
+    private const PASSWORD = "user";
 
     protected function setUp(): void {
         $this->dataSource = (new DataSourceBuilder())
@@ -29,7 +29,7 @@ class AvocadoRepositoryTest extends TestCase {
             ->databaseName(self::DATABASE)
             ->databaseType(DatabaseType::MYSQL)
             ->port(3306)
-            ->server("127.0.0.1")
+            ->server("172.17.0.2")
             ->build();
     }
 
