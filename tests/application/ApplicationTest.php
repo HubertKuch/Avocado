@@ -312,4 +312,12 @@ class ApplicationTest extends TestCase {
             assertSame(true, false);
         }
     }
+
+    public function testParsingEmptyArray() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'].="/avocado-test/empty-array";
+
+        MockedApplication::init();
+
+    }
 }

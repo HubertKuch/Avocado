@@ -12,4 +12,3 @@ services:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_ROOT_PASSWORD=
     network_mode: bridge
-

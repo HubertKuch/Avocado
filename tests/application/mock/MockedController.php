@@ -281,4 +281,9 @@ class MockedController {
         throw new Error("test");
     }
 
+    #[GetMapping("/empty-array")]
+    public function emptyarray(): array {
+        return [];
+    }
+
 }

@@ -93,7 +93,8 @@ final class Application {
             AvocadoRouter::listen();
             $data = AvocadoRouter::invokeMatchedRoute();
 
-            if ($data && $data->getData()) {
+
+            if ($data) {
                 self::$httpConsumer->consume($data);
             }
 
