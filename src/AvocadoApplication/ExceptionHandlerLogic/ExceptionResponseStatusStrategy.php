@@ -3,8 +3,9 @@
 namespace Avocado\AvocadoApplication\ExceptionHandlerLogic;
 
 use Avocado\Application\Application;
+use Avocado\AvocadoApplication\AutoConfigurations\nested\EnvironmentConfiguration;
 use Avocado\HTTP\HTTPStatus;
-use AvocadoApplication\AutoConfigurations\AvocadoEnvironmentConfiguration;
+use AvocadoApplication\AutoConfigurations\AvocadoConfiguration;
 use AvocadoApplication\Environment\EnvironmentType;
 use Exception;
 use Avocado\HTTP\ResponseBody;
@@ -16,8 +17,8 @@ use Throwable;
 class ExceptionResponseStatusStrategy implements ExceptionHandlerStrategy {
 
     public function handle(Throwable $throwable, ?ExceptionHandler $handler = null): ResponseBody {
-        /** @var $environmentConfiguration AvocadoEnvironmentConfiguration */
-        $environmentConfiguration = Application::getConfiguration()->getConfiguration(AvocadoEnvironmentConfiguration::class);
+        /** @var $environmentConfiguration EnvironmentConfiguration */
+        $environmentConfiguration = Application::getConfiguration()->getConfiguration(AvocadoConfiguration::class)->getEnvironmentConfiguration();
 
         $responseStatusAttr = ReflectionUtils::getAttribute($throwable, ResponseStatus::class);
         $responseStatusInstance = $responseStatusAttr?->newInstance() ?? new ResponseStatus(HTTPStatus::INTERNAL_SERVER_ERROR);

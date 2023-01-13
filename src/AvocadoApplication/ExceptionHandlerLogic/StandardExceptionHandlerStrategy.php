@@ -3,7 +3,8 @@
 namespace Avocado\AvocadoApplication\ExceptionHandlerLogic;
 
 use Avocado\Application\Application;
-use AvocadoApplication\AutoConfigurations\AvocadoEnvironmentConfiguration;
+use Avocado\AvocadoApplication\AutoConfigurations\nested\EnvironmentConfiguration;
+use AvocadoApplication\AutoConfigurations\AvocadoConfiguration;
 use AvocadoApplication\Environment\EnvironmentType;
 use Avocado\HTTP\ResponseBody;
 use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
@@ -15,8 +16,8 @@ class StandardExceptionHandlerStrategy implements ExceptionHandlerStrategy {
      * @throws Throwable
      */
     public function handle(Throwable $throwable, ?ExceptionHandler $handler = null): ResponseBody {
-        /** @var $environmentConfiguration AvocadoEnvironmentConfiguration */
-        $environmentConfiguration = Application::getConfiguration()?->getConfiguration(AvocadoEnvironmentConfiguration::class);
+        /** @var $environmentConfiguration EnvironmentConfiguration */
+        $environmentConfiguration = Application::getConfiguration()?->getConfiguration(AvocadoConfiguration::class)->getEnvironmentConfiguration();
 
         if ($environmentConfiguration === null || ($environmentConfiguration->getEnvironment() === EnvironmentType::DEVELOPMENT && $environmentConfiguration->isThrows())) {
             throw $throwable;

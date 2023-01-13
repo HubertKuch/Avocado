@@ -8,6 +8,9 @@ mocked-configuration:
   testArray:
     - test
     - test2
-  avocado:
-    environment: DEVELOPMENT
+avocado:
+  router:
+    matchingStrategy: SELF
+  environment:
+    type: DEVELOPMENT
     throws: false

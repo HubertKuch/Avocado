@@ -2,24 +2,28 @@
 
 namespace Avocado\Router;
 
+use Avocado\Application\Application;
 use Avocado\AvocadoApplication\Attributes\Exceptions\ResponseStatus;
+use Avocado\AvocadoApplication\AutoConfigurations\nested\ServerRouterConfiguration;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\ControllerParametersProcessor;
 use Avocado\AvocadoApplication\Exceptions\PageNotFoundException;
 use Avocado\AvocadoApplication\Mappings\Produces;
 use Avocado\AvocadoApplication\Middleware\MiddlewareProcessor;
+use Avocado\AvocadoRouter\MatchingStrategy;
 use Avocado\HTTP\ContentType;
 use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\ResponseBody;
 use Avocado\Utils\AnnotationUtils;
+use AvocadoApplication\AutoConfigurations\AvocadoConfiguration;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
+use PHPUnit\Exception;
 use ReflectionMethod;
+use Throwable;
 
 class AvocadoRouter {
     private static array $routesStack = array();
-    private static array $middlewareStack = array();
     private static array $settingsStack = array();
     private static bool $isNext = true;
-    private static array $notFoundStack = array();
     private static array $matchedRoute = array();
     private static AvocadoRequest $request;
     private static AvocadoResponse $response;
@@ -88,7 +92,7 @@ class AvocadoRouter {
     public static function listen(): void {
         self::setRequestMethod();
 
-        $actPath = str_replace($_SERVER['SCRIPT_NAME'], "", $_SERVER['PHP_SELF']);
+        $actPath = str_replace($_SERVER['SCRIPT_NAME'], "", self::getEndpoint());
         $actPath = trim($actPath);
         if ($actPath && $actPath[0] === "/") $actPath = substr($actPath, 1);
         if (strlen($actPath) > 0 && $actPath[-1] === "/") $actPath = substr($actPath, 0, -1);
@@ -141,7 +145,7 @@ class AvocadoRouter {
             $iterationCount++;
         }
 
-        if ($iterationCount == count(self::$routesStack) && $_SERVER['PHP_SELF'] !== "Standard input code") {
+        if ($iterationCount == count(self::$routesStack) && self::getEndpoint() !== "Standard input code") {
             throw new PageNotFoundException("Page was not found.");
         }
     }
@@ -253,5 +257,23 @@ class AvocadoRouter {
         }
 
         return $contentType;
+    }
+
+    public static function getEndpoint(): string {
+        try {
+            /** @var $conf ServerRouterConfiguration  */
+            $conf = Application::getConfiguration()
+                ->getConfiguration(AvocadoConfiguration::class)
+                ->getServerRouterConfiguration();
+
+            $matchingStrategy = $conf->getMatchingStrategy();
+
+            return match ($matchingStrategy) {
+                MatchingStrategy::SELF => $_SERVER['PHP_SELF'],
+                MatchingStrategy::URI => $_SERVER['REQUEST_URI']
+            };
+        } catch (Throwable) {
+            return $_SERVER['PHP_SELF'];
+        }
     }
 }

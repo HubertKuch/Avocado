@@ -14,7 +14,12 @@
     ]
   },
   "avocado": {
-    "environment": "DEVELOPMENT",
-    "throws": false
+    "environment": {
+      "type": "DEVELOPMENT",
+      "throws": false
+    },
+    "router": {
+      "matchingStrategy": "URI"
+    }
   }
 }

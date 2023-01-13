@@ -58,6 +58,7 @@ class ReflectionUtils {
 
             $isObjectProperty = ClassFinder::getClassReflectionByName($propertyRef->getType()->getName()) !== null;
 
+
             if ($isObjectProperty) {
                 $propertyRef->setValue($instance, self::instanceFromArray($data[$name], $propertyRef->getType()->getName()));
             } else {
