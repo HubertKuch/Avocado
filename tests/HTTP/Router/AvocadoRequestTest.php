@@ -3,6 +3,7 @@
 namespace Avocado\Tests\Unit;
 
 use Avocado\HTTP\HTTPMethod;
+use Avocado\Tests\Unit\Application\MockedApplication;
 use PHPUnit\Framework\TestCase;
 use Avocado\Router\AvocadoRouter;
 use Avocado\Router\AvocadoRequest;
@@ -17,9 +18,10 @@ class AvocadoRequestTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = "GET";
         $_POST['_method'] = HTTPMethod::DELETE->value;
 
+        MockedApplication::init();
         AvocadoRouter::listen();
         $excepted = HTTPMethod::DELETE->value;
-
+//
         self::assertSame($excepted, $_SERVER['REQUEST_METHOD']);
     }
 
@@ -27,6 +29,7 @@ class AvocadoRequestTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = "GET";
         $_POST['_method'] = HTTPMethod::PUT->value;
 
+        MockedApplication::init();
         AvocadoRouter::listen();
         $excepted = HTTPMethod::PUT->value;
 

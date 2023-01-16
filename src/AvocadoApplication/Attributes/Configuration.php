@@ -4,7 +4,7 @@ namespace Avocado\AvocadoApplication\Attributes;
 
 use Attribute;
 use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
-use Avocado\Utils\ClassFinder;
+use Avocado\Utils\AvocadoClassFinderUtil;
 use Avocado\Utils\ReflectionUtils;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\DependencyInjection\Exceptions\ResourceNotFoundException;

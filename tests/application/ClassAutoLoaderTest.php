@@ -2,7 +2,7 @@
 
 namespace Avocado\Tests\Unit\Application;
 
-use Avocado\Utils\ClassFinder;
+use Avocado\Utils\AvocadoClassFinderUtil;
 use PHPUnit\Framework\TestCase;
 use Avocado\AvocadoApplication\AutoControllers\ExceptionsAutoController;
 
@@ -18,7 +18,7 @@ class ClassAutoLoaderTest extends TestCase {
     public function testGettingClassesNames() {
         $_SERVER['REQUEST_METHOD'] = "GET";
 
-        $classes = ClassFinder::getDeclaredClasses(dirname(__DIR__), [ExceptionsAutoController::class]);
+        $classes = AvocadoClassFinderUtil::getDeclaredClasses(dirname(__DIR__), [ExceptionsAutoController::class]);
 
         self::assertNotEmpty($classes);
     }

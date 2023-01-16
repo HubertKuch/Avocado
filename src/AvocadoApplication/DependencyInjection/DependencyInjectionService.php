@@ -11,7 +11,7 @@ use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
 use ReflectionException;
-use Avocado\Utils\ClassFinder;
+use Avocado\Utils\AvocadoClassFinderUtil;
 use Avocado\Utils\ReflectionUtils;
 use AvocadoApplication\Attributes\Resource;
 use AvocadoApplication\Attributes\Autowired;
@@ -40,15 +40,11 @@ class DependencyInjectionService {
     }
 
     private static function getClassNamesOfResources(): array {
-        $classes = ClassFinder::getClasses();
+        $classes = AvocadoClassFinderUtil::getClasses();
 
-        $onlyNames = array_map(fn($class) => $class->getName(), $classes);
-
-        $uniqueNames = array_unique($onlyNames);
-
-        return array_filter($uniqueNames, function ($class) {
+        return array_filter($classes, function ($class) {
             try {
-                $reflection = ClassFinder::getClassReflectionByName($class);
+                $reflection = AvocadoClassFinderUtil::getClassReflectionByName($class) ?? new ReflectionClass($class);
                 $resourceAttributes = $reflection->getAttributes(Resource::class);
 
                 return !empty($resourceAttributes);
@@ -129,7 +125,7 @@ class DependencyInjectionService {
         foreach ($resources as $resource) {
             self::validateResourceConstructor($resource);
 
-            $ref = ClassFinder::getClassReflectionByName($resource);
+            $ref = AvocadoClassFinderUtil::getClassReflectionByName($resource);
 
             $resourceAttr = ReflectionUtils::getAttributeFromClass($ref, Resource::class);
             /** @var $resourceAttrInstance Resource*/

@@ -19,7 +19,7 @@ use Avocado\HTTP\Managers\HttpConsumer;
 use Avocado\ORM\AvocadoORMSettings;
 use Avocado\Router\AvocadoRouter;
 use Avocado\Utils\Arrays;
-use Avocado\Utils\ClassFinder;
+use Avocado\Utils\AvocadoClassFinderUtil;
 use Avocado\Utils\ReflectionUtils;
 use AvocadoApplication\Attributes\Resource;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
@@ -44,9 +44,8 @@ final class Application {
 
     public static final function run(string $dir): void {
         try {
-            self::$declaredClasses = array_map(fn($class) =>
-                $class->getName(), ClassFinder::getDeclaredClasses($dir)
-            );
+            self::$declaredClasses = AvocadoClassFinderUtil::getDeclaredClasses($dir);
+
 
             self::$mainClass = self::getMainClass();
 
@@ -54,8 +53,10 @@ final class Application {
             $toExclude = ($excludedAttribute?->newInstance()->getClasses()) ?? [];
 
             self::$declaredClasses = array_map(fn($class) =>
-                $class->getName(), ClassFinder::getDeclaredClasses($dir, $toExclude)
+                $class, AvocadoClassFinderUtil::getDeclaredClasses($dir, $toExclude)
             );
+
+            AvocadoClassFinderUtil::initReflections();
 
             self::$preProcessors = self::getPreProcessors();
             self::$configurations = self::getConfigurations();
@@ -72,7 +73,6 @@ final class Application {
 
                 self::$configurations[$indexOfPlainConfiguration] = $configuration;
             }
-
 
             self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
 
@@ -99,7 +99,6 @@ final class Application {
             if ($data && $data->getData() !== null) {
                 self::$httpConsumer->consume($data);
             }
-
         } catch (Throwable $e) {
             ApplicationExceptionsAdvisor::process($e);
         }
@@ -110,11 +109,11 @@ final class Application {
      */
     public static final function getMainClass(): Avocado {
 
-        foreach (ClassFinder::getClasses() as $class) {
+        foreach (AvocadoClassFinderUtil::getClasses() as $class) {
             $avAttr = ReflectionUtils::getAttributeFromClass($class, Avocado::class);
 
             if ($avAttr) {
-                return new Avocado($class->getName());
+                return new Avocado($class);
             }
         }
 
@@ -213,10 +212,10 @@ final class Application {
     }
 
     private static function getPreProcessors(): array {
-        $validClasses = array_filter(self::$declaredClasses, fn($className) => PreProcessor::isAnnotated(ClassFinder::getClassReflectionByName($className)));
+        $validClasses = array_filter(self::$declaredClasses, fn($className) => PreProcessor::isAnnotated(AvocadoClassFinderUtil::getClassReflectionByName($className)));
 
         return array_map(function($class) {
-            $ref = ClassFinder::getClassReflectionByName($class);
+            $ref = AvocadoClassFinderUtil::getClassReflectionByName($class);
             $instance = $ref -> newInstanceWithoutConstructor();
 
             DependencyInjectionService::addResource(new Resource($class, ReflectionUtils::getAllTypes($instance), $class, $instance));
@@ -233,7 +232,7 @@ final class Application {
     }
 
     public static function getProjectDirectory(): string {
-        return dirname(ClassFinder::getClassReflectionByName(self::$mainClass->getClassName())->getFileName());
+        return dirname(AvocadoClassFinderUtil::getClassReflectionByName(self::$mainClass->getClassName())->getFileName());
     }
 
     private static function getPropertiesConfigurations(): array {

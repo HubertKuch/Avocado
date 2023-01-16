@@ -321,4 +321,11 @@ class ApplicationTest extends TestCase {
 
         assertSame("[]", ob_get_contents());
     }
+
+    public function testSpeed() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'].="/avocado-test/empty-array";
+
+        MockedApplication::init();
+    }
 }

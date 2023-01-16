@@ -2,10 +2,19 @@
 
 namespace Avocado\Tests\Unit;
 
+use Avocado\Application\Application;
+use Avocado\Tests\Unit\Application\MockedApplication;
+use Avocado\Tests\Unit\Application\UriMatchingMockedApplication;
+use Avocado\Utils\AvocadoClassFinderUtil;
+use Composer\Autoload\ClassLoader;
 use ReflectionClass;
 use PHPUnit\Framework\TestCase;
 use Avocado\Router\AvocadoRouter;
 
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ * */
 class AvocadoRouterTest extends TestCase {
     public function testGettingRouteEndpoint() {
         $ref = new ReflectionClass(AvocadoRouter::class);

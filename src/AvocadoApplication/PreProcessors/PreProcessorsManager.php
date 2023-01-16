@@ -4,7 +4,7 @@ namespace Avocado\AvocadoApplication\PreProcessors;
 
 use Avocado\Application\Application;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\SpecificParametersPreProcessor;
-use Avocado\Utils\ClassFinder;
+use Avocado\Utils\AvocadoClassFinderUtil;
 
 class PreProcessorsManager {
 
@@ -16,7 +16,7 @@ class PreProcessorsManager {
 
         return array_filter(
             $processors,
-            fn($obj) => ClassFinder::getClassReflectionByName($obj::class)->implementsInterface(SpecificParametersPreProcessor::class)
+            fn($obj) => AvocadoClassFinderUtil::getClassReflectionByName($obj::class)->implementsInterface(SpecificParametersPreProcessor::class)
         );
     }
 

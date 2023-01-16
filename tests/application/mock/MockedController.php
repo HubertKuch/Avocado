@@ -286,4 +286,8 @@ class MockedController {
         return [];
     }
 
+    #[GetMapping("/uri-matching-strategy")]
+    public function uriMatchingRouterStrategy() {
+        return "MATCHED";
+    }
 }

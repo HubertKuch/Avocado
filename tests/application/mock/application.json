@@ -19,7 +19,7 @@
       "throws": false
     },
     "router": {
-      "matchingStrategy": "URI"
+      "matchingStrategy": "SELF"
     }
   }
 }

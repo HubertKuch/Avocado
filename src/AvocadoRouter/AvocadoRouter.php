@@ -16,9 +16,7 @@ use Avocado\HTTP\ResponseBody;
 use Avocado\Utils\AnnotationUtils;
 use AvocadoApplication\AutoConfigurations\AvocadoConfiguration;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
-use PHPUnit\Exception;
 use ReflectionMethod;
-use Throwable;
 
 class AvocadoRouter {
     private static array $routesStack = array();
@@ -260,20 +258,16 @@ class AvocadoRouter {
     }
 
     public static function getEndpoint(): string {
-        try {
-            /** @var $conf ServerRouterConfiguration  */
-            $conf = Application::getConfiguration()
-                ->getConfiguration(AvocadoConfiguration::class)
-                ->getServerRouterConfiguration();
+        /** @var $conf ServerRouterConfiguration  */
+        $conf = Application::getConfiguration()
+            ->getConfiguration(AvocadoConfiguration::class)
+            ->getServerRouterConfiguration();
 
-            $matchingStrategy = $conf->getMatchingStrategy();
+        $matchingStrategy = $conf->getMatchingStrategy();
 
-            return match ($matchingStrategy) {
-                MatchingStrategy::SELF => $_SERVER['PHP_SELF'],
-                MatchingStrategy::URI => $_SERVER['REQUEST_URI']
-            };
-        } catch (Throwable) {
-            return $_SERVER['PHP_SELF'];
-        }
+        return match ($matchingStrategy) {
+            MatchingStrategy::SELF => $_SERVER['PHP_SELF'],
+            MatchingStrategy::URI => $_SERVER['REQUEST_URI']
+        };
     }
 }

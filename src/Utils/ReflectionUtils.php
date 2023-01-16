@@ -56,7 +56,7 @@ class ReflectionUtils {
                 throw new MissingKeyException();
             }
 
-            $isObjectProperty = ClassFinder::getClassReflectionByName($propertyRef->getType()->getName()) !== null;
+            $isObjectProperty = AvocadoClassFinderUtil::getClassReflectionByName($propertyRef->getType()->getName()) !== null;
 
 
             if ($isObjectProperty) {

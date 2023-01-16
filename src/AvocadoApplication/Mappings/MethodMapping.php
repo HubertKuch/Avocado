@@ -2,12 +2,11 @@
 
 namespace AvocadoApplication\Mappings;
 
-use Avocado\Utils\ClassFinder;
-use ReflectionClass;
+use Avocado\Utils\AvocadoClassFinderUtil;
+use Exception;
 use ReflectionMethod;
 use ReflectionAttribute;
 use Avocado\HTTP\HTTPMethod;
-use _PHPStan_7a922a511\Nette\Neon\Exception;
 
 class MethodMapping {
     private string $endpoint;
@@ -58,7 +57,7 @@ class MethodMapping {
     }
 
     public static function isMethodMapping(ReflectionAttribute $attribute): bool {
-        $ref = ClassFinder::getClassReflectionByName($attribute->getName());
+        $ref = AvocadoClassFinderUtil::getClassReflectionByName($attribute->getName());
 
         if (!$ref->getParentClass()) {
             return false;
