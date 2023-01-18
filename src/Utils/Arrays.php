@@ -31,7 +31,7 @@ class Arrays {
     public static function find(array $array, callable $callback): mixed {
         $index = self::indexOf($array, $callback);
 
-        if ($index == null) {
+        if ($index === null) {
             return null;
         }
 
