@@ -11,6 +11,7 @@ use ReflectionObject;
 use ReflectionAttribute;
 use ReflectionException;
 use Avocado\ORM\Attributes\Field;
+use Utils\Strings;
 
 class ReflectionUtils {
 
@@ -46,6 +47,10 @@ class ReflectionUtils {
         foreach ($objectRef->getProperties() as $propertyRef) {
             $propertyRef->setAccessible(true);
             $name = $propertyRef->name;
+
+            if (!array_key_exists($name, $data)) {
+                $name = Strings::camelToUnderscore($name);
+            }
 
             if (!array_key_exists($name, $data)) {
                 if (
