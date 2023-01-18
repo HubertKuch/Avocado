@@ -19,7 +19,7 @@ class StandardExceptionHandlerStrategy implements ExceptionHandlerStrategy {
         /** @var $environmentConfiguration EnvironmentConfiguration */
         $environmentConfiguration = Application::getConfiguration()?->getConfiguration(AvocadoConfiguration::class)->getEnvironmentConfiguration();
 
-        if ($environmentConfiguration === null || ($environmentConfiguration->getEnvironment() === EnvironmentType::DEVELOPMENT && $environmentConfiguration->isThrows())) {
+        if ($environmentConfiguration === null || ($environmentConfiguration->getEnvironmentDefinedEnvironment() === EnvironmentType::DEVELOPMENT && $environmentConfiguration->isThrows())) {
             throw $throwable;
         }
 

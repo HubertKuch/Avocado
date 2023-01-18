@@ -28,7 +28,7 @@ class ExceptionResponseStatusStrategy implements ExceptionHandlerStrategy {
 
         $body = ["message" => $message, "status" => $statusCode->value, "path" => str_replace("Standard input code", "", $_SERVER['PHP_SELF'])];
 
-        if ($environmentConfiguration->getEnvironment() === EnvironmentType::DEVELOPMENT) {
+        if ($environmentConfiguration->getEnvironmentDefinedEnvironment() === EnvironmentType::DEVELOPMENT) {
             $body['error'] = $throwable::class;
             $body['error_code'] = $throwable->getCode();
             $body['stack_trace'] = $throwable->getTraceAsString();

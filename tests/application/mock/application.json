@@ -15,7 +15,6 @@
   },
   "avocado": {
     "environment": {
-      "type": "DEVELOPMENT",
       "throws": false
     },
     "router": {

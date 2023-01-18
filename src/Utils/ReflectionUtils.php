@@ -3,6 +3,7 @@
 namespace Avocado\Utils;
 
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
+use AvocadoApplication\Attributes\Nullable;
 use PHPUnit\Exception;
 use ReflectionClass;
 use ReflectionMethod;
@@ -47,17 +48,24 @@ class ReflectionUtils {
             $name = $propertyRef->name;
 
             if (!array_key_exists($name, $data)) {
-                if ($propertyRef->getType()->allowsNull()) {
-                    $propertyRef -> setValue($instance, null);
+                if (
+                    AnnotationUtils::isAnnotated($propertyRef, Nullable::class) &&
+                    $propertyRef->getType()->allowsNull()
+                ) {
+
+                    if ($propertyRef->isInitialized($instance)) {
+                        continue;
+                    }
+
+                    $propertyRef->setValue($instance, null);
 
                     continue;
+                } else {
+                    throw new MissingKeyException("Missing `{$propertyRef->getName()}` key in `{$propertyRef->getDeclaringClass()->getName()}` class");
                 }
-
-                throw new MissingKeyException();
             }
 
             $isObjectProperty = ClassFinder::getClassReflectionByName($propertyRef->getType()->getName()) !== null;
-
 
             if ($isObjectProperty) {
                 $propertyRef->setValue($instance, self::instanceFromArray($data[$name], $propertyRef->getType()->getName()));
