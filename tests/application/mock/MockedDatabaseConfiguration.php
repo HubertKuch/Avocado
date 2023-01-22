@@ -4,9 +4,9 @@ namespace Avocado\Tests\Unit\Application;
 
 use Avocado\DataSource\DataSource;
 use Avocado\DataSource\DataSourceBuilder;
-use Avocado\DataSource\Database\DatabaseType;
 use Avocado\AvocadoApplication\Attributes\Leaf;
 use Avocado\AvocadoApplication\Attributes\Configuration;
+use Avocado\DataSource\Drivers\MySQLDriver;
 
 #[Configuration]
 class MockedDatabaseConfiguration {
@@ -18,7 +18,7 @@ class MockedDatabaseConfiguration {
             ->password("user")
             ->server("172.17.0.2")
             ->port(3306)
-            ->databaseType(DatabaseType::MYSQL)
+            ->driver(MySQLDriver::class)
             ->databaseName("")
             ->build();
     }

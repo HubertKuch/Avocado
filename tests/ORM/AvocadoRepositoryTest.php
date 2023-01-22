@@ -2,6 +2,7 @@
 
 namespace Avocado\Tests\Unit;
 
+use Avocado\DataSource\Drivers\MySQLDriver;
 use stdClass;
 use ReflectionObject;
 use Avocado\ORM\Attributes\Id;
@@ -13,7 +14,6 @@ use Avocado\ORM\AvocadoRepository;
 use Avocado\ORM\AvocadoModelException;
 use Avocado\DataSource\DataSourceBuilder;
 use Avocado\AvocadoORM\Mappers\MySQLMapper;
-use Avocado\DataSource\Database\DatabaseType;
 
 class AvocadoRepositoryTest extends TestCase {
     private DataSource $dataSource;
@@ -27,7 +27,7 @@ class AvocadoRepositoryTest extends TestCase {
             ->username(self::USER)
             ->password(self::PASSWORD)
             ->databaseName(self::DATABASE)
-            ->databaseType(DatabaseType::MYSQL)
+            ->driver(MySQLDriver::class)
             ->port(3306)
             ->server("172.17.0.2")
             ->build();

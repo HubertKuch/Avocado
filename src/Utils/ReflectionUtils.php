@@ -147,4 +147,29 @@ class ReflectionUtils {
 
         return array_merge($types, $interfaces);
     }
+
+    public static function implements(string $className, string $interface): bool {
+        try {
+            $ref = new ReflectionClass($className);
+
+            return $ref->implementsInterface($interface);
+        } catch (ReflectionException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @template T
+     * @param class-string<T> $className
+     * @return ?T
+     * */
+    public static function instance(string $className, array $args): ?object {
+        try {
+            $ref = new ReflectionClass($className);
+
+            return $ref->newInstanceArgs($args);
+        } catch (ReflectionException $e) {
+            return null;
+        }
+    }
 }

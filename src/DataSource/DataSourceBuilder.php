@@ -2,15 +2,17 @@
 
 namespace Avocado\DataSource;
 
+use Avocado\DataSource\Drivers\Driver;
 use Avocado\DataSource\Drivers\MySQLDriver;
-use Avocado\DataSource\Database\DatabaseType;
+use Avocado\DataSource\Exceptions\CannotBuildDataSourceException;
+use Avocado\Utils\ReflectionUtils;
 
 class DataSourceBuilder {
     private string $url;
     private string $server;
     private string $username;
     private string $password;
-    private DatabaseType $databaseType;
+    private string $driverClassName;
     private string $database;
     private int $port;
     private string $charset = 'utf8';
@@ -27,8 +29,8 @@ class DataSourceBuilder {
         return $this;
     }
 
-    public function databaseType(DatabaseType $databaseType): DataSourceBuilder {
-        $this->databaseType = $databaseType;
+    public function driver(string $driverClassName): DataSourceBuilder {
+        $this->driverClassName = $driverClassName;
 
         return $this;
     }
@@ -63,19 +65,24 @@ class DataSourceBuilder {
         return $this;
     }
 
+    /**
+     * @throws CannotBuildDataSourceException
+     */
     public function build(): DataSource {
-        $driver = match ($this->databaseType) {
-            DatabaseType::MYSQL => new MySQLDriver(
+        if (ReflectionUtils::implements($this->driverClassName, Driver::class)) {
+            $instance = ReflectionUtils::instance($this->driverClassName, [
                 $this->username,
                 $this->password,
                 $this->server,
                 $this->database,
                 $this->port,
                 $this->charset
-            )
-        };
+            ]);
 
-        return new DataSource($driver);
+            return new DataSource($instance);
+        }
+
+        throw new CannotBuildDataSourceException("Invalid driver class name");
     }
 
     public function getUrl(): string {
