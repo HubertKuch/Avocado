@@ -2,51 +2,57 @@
 
 namespace Avocado\Utils;
 
+use Nette\Loaders\RobotLoader;
 use ReflectionClass;
-use Composer\Autoload\ClassLoader;
-use Kcs\ClassFinder\Finder\ComposerFinder;
+use ReflectionException;
+use Throwable;
 
 class ClassFinder {
-    private static ComposerFinder $finder;
-    private static $classes = [];
+    private static array $classes = [];
+    private static array $reflections = [];
 
     public static function getDeclaredClasses(string $dir, array $toExclude = []): array {
-        $loaders = ClassLoader::getRegisteredLoaders();
+        $loader = new RobotLoader();
 
-        self::$finder = new ComposerFinder($loaders[key($loaders)]);
-        self::$finder->in($dir);
+        $loader->addDirectory($dir);
+        $loader->setTempDirectory(".");
+        $loader->excludeDirectory($dir."/vendor");
+        $loader->register();
 
-        $classes = [];
-
-        foreach (self::$finder as $value) {
-            $classes[] = $value;
+        if (file_exists($dir . "/vendor/hubert/")) {
+            $loader->addDirectory($dir . "/vendor/hubert");
         }
 
-        $classes = [...$classes, ...self::getAvocadoClasses()];
+        $loader->refresh();
 
-        self::$classes = array_unique($classes);
-        self::$classes = self::excludeClasses($toExclude);
+        $classes = $loader->getIndexedClasses();
+        $classes = array_keys($classes);
+
+        if (!empty($toExclude)) {
+            $classes = self::excludeClasses($toExclude);
+        }
 
         if (($_ENV['AVOCADO_ENVIRONMENT'] ?? "DEVELOPMENT") == "PRODUCTION") {
-            self::$classes = self::excludeNamespace("AvocadoApplication\\Tests\\");
-            self::$classes = self::excludeNamespace("Avocado\\Tests\\");
+            $classes = self::excludeNamespace("AvocadoApplication\\Tests\\");
+            $classes = self::excludeNamespace("Avocado\\Tests\\");
         }
 
-        return self::$classes;
-    }
+        foreach ($classes as $class) {
+            try {
+                require_once $class;
+            } catch (Throwable $e) {
+                continue;
+            }
+        }
 
-    private static function getAvocadoClasses(): array {
-        $classes = [];
-        self::$finder->in(dirname(__DIR__, 1));
 
-        foreach (self::$finder as $value)
-            $classes[] = $value;
+        self::$classes = $classes;
 
         return $classes;
     }
 
     private static function excludeClasses(array $classes): array {
-        return array_filter(self::$classes, fn($class) => !in_array($class->getName(), $classes));
+        return array_filter(self::$classes, fn($class) => !in_array($class, $classes));
     }
 
     public static function getClasses(): array {
@@ -54,14 +60,23 @@ class ClassFinder {
     }
 
     public static function getClassReflectionByName(string $className): ?ReflectionClass {
-        $matched = array_filter(self::$classes, fn($class) => $class->getName() === $className);
+        $ref = Arrays::find(self::$reflections, fn($reflection) => $reflection->getName() === $className);
 
-        return $matched[key($matched)] ?? null;
+        if (!$ref) {
+            try {
+                $ref = new ReflectionClass($className);
+                self::$reflections[] = $ref;
+            } catch (ReflectionException $e) {
+                return null;
+            }
+        }
+
+        return $ref;
     }
 
     private static function excludeNamespace(string $namespace): array {
-        return array_filter(self::$classes, function($class) use ($namespace) {
-            return !str_starts_with($class->getName(), $namespace);
+        return array_filter(self::$classes, function ($class) use ($namespace) {
+            return !str_starts_with($class, $namespace);
         });
     }
 }

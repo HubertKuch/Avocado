@@ -7,10 +7,10 @@ use Avocado\AvocadoApplication\Attributes\Avocado;
 use Avocado\AvocadoApplication\Attributes\Exclude;
 
 #[Avocado]
-#[Exclude([TestClassToExclude::class])]
+#[Exclude([TestClassToExclude::class, MockedLeafController::class])]
 class MockedApplication {
 
     public static function init(): void {
-        Application::run(dirname(__DIR__, 2));
+        Application::run(dirname(__DIR__, 3));
     }
 }

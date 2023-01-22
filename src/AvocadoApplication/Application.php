@@ -26,7 +26,7 @@ use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\Mappings\MethodMapping;
 use ReflectionClass;
 use ReflectionException;
-use Symfony\Component\Yaml\Yaml;
+//use Symfony\Component\Yaml\Yaml;
 use Throwable;
 
 final class Application {
@@ -44,18 +44,14 @@ final class Application {
 
     public static final function run(string $dir): void {
         try {
-            self::$declaredClasses = array_map(fn($class) =>
-                $class->getName(), ClassFinder::getDeclaredClasses($dir)
-            );
+            self::$declaredClasses = ClassFinder::getDeclaredClasses($dir);
 
             self::$mainClass = self::getMainClass();
 
             $excludedAttribute = ReflectionUtils::getAttributeFromClass(self::$mainClass->getClassName(), Exclude::class);
             $toExclude = ($excludedAttribute?->newInstance()->getClasses()) ?? [];
 
-            self::$declaredClasses = array_map(fn($class) =>
-                $class->getName(), ClassFinder::getDeclaredClasses($dir, $toExclude)
-            );
+            self::$declaredClasses = ClassFinder::getDeclaredClasses($dir, $toExclude);
 
             self::$preProcessors = self::getPreProcessors();
             self::$configurations = self::getConfigurations();
@@ -95,7 +91,6 @@ final class Application {
             AvocadoRouter::listen();
             $data = AvocadoRouter::invokeMatchedRoute();
 
-
             if ($data && $data->getData() !== null) {
                 self::$httpConsumer->consume($data);
             }
@@ -110,11 +105,11 @@ final class Application {
      */
     public static final function getMainClass(): Avocado {
 
-        foreach (ClassFinder::getClasses() as $class) {
+        foreach (self::$declaredClasses as $class) {
             $avAttr = ReflectionUtils::getAttributeFromClass($class, Avocado::class);
 
             if ($avAttr) {
-                return new Avocado($class->getName());
+                return new Avocado($class);
             }
         }
 
@@ -213,7 +208,7 @@ final class Application {
     }
 
     private static function getPreProcessors(): array {
-        $validClasses = array_filter(self::$declaredClasses, fn($className) => PreProcessor::isAnnotated(ClassFinder::getClassReflectionByName($className)));
+        $validClasses = array_filter(self::$declaredClasses, fn($className) => PreProcessor::isAnnotated(new ReflectionClass($className)));
 
         return array_map(function($class) {
             $ref = ClassFinder::getClassReflectionByName($class);
@@ -276,7 +271,7 @@ final class Application {
         $content = file_get_contents($baseFullPath);
 
         if ($EXTENSION === "yaml") {
-            return Yaml::parse($content);
+            return [];
         } else if ($EXTENSION === "json") {
             return json_decode($content, true);
         }

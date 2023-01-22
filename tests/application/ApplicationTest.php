@@ -57,7 +57,7 @@ class ApplicationTest extends TestCase {
     public function testGetMapping(): void {
         $_SERVER['REQUEST_METHOD'] = "GET";
 
-        $_SERVER['PHP_SELF'].="/avocado-test";
+        $_SERVER['PHP_SELF'].="/avocado-test/";
 
         MockedApplication::init();
 
@@ -210,7 +210,7 @@ class ApplicationTest extends TestCase {
 
         MockedApplication::init();
         $applicationConfiguration = Application::getConfiguration();
-        $conf = $applicationConfiguration->getConfigurations()[0];
+        $conf = $applicationConfiguration->getConfiguration(MockConfigurationPropertiesClass::class);
 
         self::assertNotEmpty($conf->getTestArray());
     }
@@ -308,7 +308,7 @@ class ApplicationTest extends TestCase {
         try {
             MockedApplication::init();
             assertSame(true, true);
-        } catch (Throwable $throwable) {
+        } catch (Throwable) {
             assertSame(true, false);
         }
     }

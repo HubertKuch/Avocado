@@ -42,11 +42,7 @@ class DependencyInjectionService {
     private static function getClassNamesOfResources(): array {
         $classes = ClassFinder::getClasses();
 
-        $onlyNames = array_map(fn($class) => $class->getName(), $classes);
-
-        $uniqueNames = array_unique($onlyNames);
-
-        return array_filter($uniqueNames, function ($class) {
+        return array_filter($classes, function ($class) {
             try {
                 $reflection = ClassFinder::getClassReflectionByName($class);
                 $resourceAttributes = $reflection->getAttributes(Resource::class);

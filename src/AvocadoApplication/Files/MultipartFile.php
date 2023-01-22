@@ -47,7 +47,6 @@ class MultipartFile {
 
             fwrite($file, $content);
         } catch (Throwable $e) {
-            var_dump($e);
             throw new CannotMoveFileException("Cannot move file to `$path`", 1, $e);
         }
     }

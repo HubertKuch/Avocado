@@ -18,7 +18,7 @@ class ClassAutoLoaderTest extends TestCase {
     public function testGettingClassesNames() {
         $_SERVER['REQUEST_METHOD'] = "GET";
 
-        $classes = ClassFinder::getDeclaredClasses(dirname(__DIR__), [ExceptionsAutoController::class]);
+        $classes = ClassFinder::getDeclaredClasses(dirname(__DIR__, 2));
 
         self::assertNotEmpty($classes);
     }

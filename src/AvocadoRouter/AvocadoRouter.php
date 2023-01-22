@@ -94,6 +94,7 @@ class AvocadoRouter {
 
         $actPath = str_replace($_SERVER['SCRIPT_NAME'], "", self::getEndpoint());
         $actPath = trim($actPath);
+
         if ($actPath && $actPath[0] === "/") $actPath = substr($actPath, 1);
         if (strlen($actPath) > 0 && $actPath[-1] === "/") $actPath = substr($actPath, 0, -1);
 

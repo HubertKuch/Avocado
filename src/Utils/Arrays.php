@@ -10,13 +10,17 @@ class Arrays {
      * @param callable $callback Callback accepts an current element must return a boolean
      * *@return int|null Index of element. Returns null if no one elements matches callback
      */
-    public static function indexOf(array $array, callable $callback): ?int {
-        for ($index = 0; $index < count($array); $index++) {
-            $res = $callback($array[$index]);
+    public static function indexOf(array $array, callable $callback): int|string|null {
+        $iterator = new \ArrayIterator($array);
+
+        while($iterator->valid()) {
+            $res = $callback($array[$iterator->key()]);
 
             if ($res) {
-                return $index;
+                return $iterator->key();
             }
+
+            $iterator->next();
         }
 
         return null;

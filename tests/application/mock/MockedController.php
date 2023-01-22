@@ -89,7 +89,7 @@ class MockedController {
     }
 
     #[GetMapping("/alternative-resource-name")]
-    public function testResourceWithAlternativeName(AvocadoRequest $req, AvocadoResponse $res) {
+    public function testResourceWithAlternativeName(AvocadoRequest $req, AvocadoResponse $res): void {
         $res->json([$this->mockedResourceWithAlternativeName->getTest()]);
     }
 
@@ -105,62 +105,65 @@ class MockedController {
     public function parsingObjectTest(
         AvocadoResponse $response,
         #[RequestBody] ObjectToParse $objectShouldBeParsed,
-    ) {
+    ): void {
         print "parsed";
     }
 
     #[GetMapping("/parsing-headers")]
-    public function parsingHeaders(#[RequestHeader(name: "Content-Type")] string $contentType) {
+    public function parsingHeaders(#[RequestHeader(name: "Content-Type")] string $contentType): void {
         print $contentType;
     }
 
     #[GetMapping("/parsing-staticparams/:param")]
-    public function parsingStaticParams(#[RequestParam(name: "param")] string $param) {
+    public function parsingStaticParams(#[RequestParam(name: "param")] string $param): void {
         print $param;
     }
 
     #[GetMapping("/parsing-requiredParam/:param")]
-    public function parsingRequiredParamsWhetherMissing(#[RequestParam(name: "param", required: true)] string $param) {
+    public function parsingRequiredParamsWhetherMissing(#[RequestParam(name: "param", required: true)] string $param): void {
         print $param;
     }
 
     #[GetMapping("/parsing-defaultValue/")]
-    public function parsingParamsWithDefaults(#[RequestParam(name: "param", defaultValue: "test")] string $param) {
+    public function parsingParamsWithDefaults(#[RequestParam(name: "param", defaultValue: "test")] string $param): void {
         print $param;
     }
 
     #[GetMapping("/standard-query/")]
-    public function parsingQueryVariables(#[RequestQuery(name: "name")] string $name) {
+    public function parsingQueryVariables(#[RequestQuery(name: "name")] string $name): void {
         print $name;
     }
 
     #[GetMapping("/default-query/")]
-    public function parsingDefaultQueryVariables(#[RequestQuery(name: "test", defaultValue: "Targaryen")] string $name) {
+    public function parsingDefaultQueryVariables(#[RequestQuery(name: "test", defaultValue: "Targaryen")] string $name): void {
         print $name;
     }
 
 
     #[GetMapping("/required-query/")]
-    public function parsingRequiredQuery(#[RequestQuery(name: "test", required: true)] string $name) {
+    public function parsingRequiredQuery(#[RequestQuery(name: "test", required: true)] string $name): void {
         print $name;
     }
 
-    public static function customMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next) {
+    public static function customMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next): Next {
         return $next;
     }
 
-    public static function secondMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next) {
+    public static function secondMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next): Next {
         $request->locals['user'] = 'Jon';
 
         return $next;
     }
 
-    public static function storageKeyMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next) {
+    public static function storageKeyMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next): Next {
         $request->locals['name'] = "Targaryen";
 
         return $next;
     }
 
+    /**
+     * @throws InvalidRequestBodyException
+     */
     public static function middlewareWithException() {
         throw new InvalidRequestBodyException("TEST EXCEPTIONS IN MIDDLEWARE METHODS");
     }
@@ -170,7 +173,7 @@ class MockedController {
         "\Avocado\Tests\Unit\Application\MockedController::customMiddleware",
         "\Avocado\Tests\Unit\Application\MockedController::secondMiddleware",
     ])]
-    public function testMiddlewareWorkflow(AvocadoRequest $request) {
+    public function testMiddlewareWorkflow(AvocadoRequest $request): void {
         print $request->locals['user'];
     }
 
@@ -178,7 +181,7 @@ class MockedController {
     #[BeforeRoute([
         "\Avocado\Tests\Unit\Application\MockedController::storageKeyMiddleware"
     ])]
-    public function middlewareWithAttributes(#[RequestStorageItem(name: "name")] string $name) {
+    public function middlewareWithAttributes(#[RequestStorageItem(name: "name")] string $name): void {
         print $name;
     }
 
@@ -186,18 +189,18 @@ class MockedController {
     #[BeforeRoute([
         "\Avocado\Tests\Unit\Application\MockedController::middlewareWithException"
     ])]
-    public function middlewareWithExceptions() {}
+    public function middlewareWithExceptions(): void {}
 
     #[GetMapping("/optionals-mapping/:testParam2/:testParam")]
     public function testOptionals(
-        #[RequestBody(type: ObjectToParse::class)] Optional $optionalRequestBody,
-        #[RequestHeader(name: "Accept")] Optional $acceptHeader,
-        #[RequestStorageItem(name: "name", defaultValue: "Jon")] Optional $optionalName,
-        #[RequestParam(name: "testParam", required: false, defaultValue: "testParamValue")] Optional $optionalParam,
-        #[RequestParam(name: "testParam2", required: true)] Optional $optionRequiredValue,
-        #[RequestQuery(name: "testQuery1", defaultValue: "testQuery")] Optional $optionalQuery,
-        #[RequestQuery(name: "testQuery2", required: true)] Optional $optionalQueryRequired,
-    ) {
+        #[RequestBody(type: ObjectToParse::class)] Optional                                          $optionalRequestBody,
+        #[RequestHeader(name: "Accept")] Optional                                                    $acceptHeader,
+        #[RequestStorageItem(name: "name", defaultValue: "Jon")] Optional                            $optionalName,
+        #[RequestParam(name: "testParam", defaultValue: "testParamValue", required: false)] Optional $optionalParam,
+        #[RequestParam(name: "testParam2", required: true)] Optional                                 $optionRequiredValue,
+        #[RequestQuery(name: "testQuery1", defaultValue: "testQuery")] Optional                      $optionalQuery,
+        #[RequestQuery(name: "testQuery2", required: true)] Optional                                 $optionalQueryRequired,
+    ): void {
         var_dump(
             $optionalName->get(),
             $acceptHeader->get(),
@@ -220,7 +223,7 @@ class MockedController {
     }
 
     #[GetMapping("/consuming/returned-data")]
-    public function testConsumingReturnedData(): mixed {
+    public function testConsumingReturnedData(): array {
         return ["Returned data was parsed."];
     }
 
