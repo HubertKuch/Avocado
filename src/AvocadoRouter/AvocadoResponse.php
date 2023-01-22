@@ -2,7 +2,6 @@
 
 namespace Avocado\Router;
 
-use Avocado\HTTP\JSON\JSON;
 use Avocado\HTTP\HTTPStatus;
 
 class AvocadoResponse {
@@ -12,7 +11,7 @@ class AvocadoResponse {
         return $this;
     }
 
-    public function withStatus(HTTPStatus|int $status): AvocadoResponse{
+    public function withStatus(HTTPStatus|int $status): AvocadoResponse {
         http_response_code($status instanceof HTTPStatus ? $status->value : $status);
 
         return $this;
@@ -42,13 +41,7 @@ class AvocadoResponse {
     public function json(object|array $data): AvocadoResponse {
         header('Content-Type: application/json; charset=utf-8');
 
-        if ($data instanceof JSON) {
-            print($data->getSerializedData());
-
-            return $this;
-        }
-
-        print(json_encode($data));
+        echo json_encode($data);
 
         return $this;
     }

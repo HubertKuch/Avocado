@@ -4,6 +4,7 @@ namespace Avocado\Utils;
 
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
 use AvocadoApplication\Attributes\Nullable;
+use mysql_xdevapi\SqlStatement;
 use PHPUnit\Exception;
 use ReflectionClass;
 use ReflectionMethod;
@@ -11,6 +12,7 @@ use ReflectionObject;
 use ReflectionAttribute;
 use ReflectionException;
 use Avocado\ORM\Attributes\Field;
+use stdClass;
 use Utils\Strings;
 
 class ReflectionUtils {
