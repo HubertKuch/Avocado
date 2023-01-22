@@ -25,6 +25,7 @@ use Avocado\Utils\ReflectionUtils;
 use AvocadoApplication\Attributes\Resource;
 use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\Mappings\MethodMapping;
+use Exception;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
@@ -37,7 +38,7 @@ final class Application {
     private static array $restControllers = [];
     private static array $preProcessors = [];
     private static LeafManager $leafManager;
-    private static DataSource $dataSource;
+    private static ?DataSource $dataSource;
     private static Avocado $mainClass;
     private static HttpConsumer $httpConsumer;
     private static ?ApplicationConfiguration $configuration;
@@ -87,7 +88,10 @@ final class Application {
 
             self::$dataSource = self::getDataSource();
 
-            AvocadoORMSettings::fromExistingSource(self::$dataSource);
+            if (self::$dataSource) {
+                AvocadoORMSettings::fromExistingSource(self::$dataSource);
+            }
+
             AvocadoRouter::listen();
             $data = AvocadoRouter::invokeMatchedRoute();
 
@@ -200,8 +204,12 @@ final class Application {
         }
     }
 
-    private static function getDataSource(): DataSource {
-        return self::$leafManager->getLeafByClass(DataSource::class);
+    private static function getDataSource(): ?DataSource {
+        try {
+            return self::$leafManager->getLeafByClass(DataSource::class);
+        } catch (Exception) {
+            return null;
+        }
     }
 
     public static function getLeafManager(): LeafManager {
