@@ -11,6 +11,9 @@ class EnvironmentConfiguration {
      * */
     #[Nullable]
     private ?string $type = "DEVELOPMENT";
+    /**
+     * @description Is throws exception or return json representation.
+     * */
     private bool $throws;
 
     /**

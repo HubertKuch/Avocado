@@ -15,7 +15,7 @@ class ClassFinder {
         $loader = new RobotLoader();
 
         $loader->addDirectory($dir);
-        $loader->setTempDirectory(".");
+        $loader->setTempDirectory(sys_get_temp_dir());
         $loader->excludeDirectory($dir."/vendor");
         $loader->register();
 
