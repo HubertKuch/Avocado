@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "43cb84023c9ae71e9417ab25e45e38dc",
+    "content-hash": "65b62acb3d3d667b89c6fde5b82660e2",
     "packages": [
         {
             "name": "nette/finder",
@@ -225,6 +225,62 @@
                 "source": "https://github.com/nette/utils/tree/v3.2.9"
             },
             "time": "2023-01-18T03:26:20+00:00"
+        },
+        {
+            "name": "symplely/yaml",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symplely/yaml.git",
+                "reference": "fc5f1e10524cb41e168af53c0b676f4761891e59"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symplely/yaml/zipball/fc5f1e10524cb41e168af53c0b676f4761891e59",
+                "reference": "fc5f1e10524cb41e168af53c0b676f4761891e59",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">5.7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "Yaml/functions.php"
+                ],
+                "psr-4": {
+                    "Async\\": "Yaml/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "mustangostang",
+                    "email": "vlad.andersen@gmail.com"
+                },
+                {
+                    "name": "Lawrence Stubbs",
+                    "email": "lstubbs@techno.express"
+                }
+            ],
+            "description": "A Async simple YAML loader/dumper class for PHP",
+            "homepage": "https://github.com/symplely/yaml/",
+            "keywords": [
+                "async",
+                "yaml",
+                "yml"
+            ],
+            "support": {
+                "issues": "https://github.com/symplely/yaml/issues",
+                "source": "https://github.com/symplely/yaml/tree/v1"
+            },
+            "time": "2019-09-19T21:31:45+00:00"
         }
     ],
     "packages-dev": [

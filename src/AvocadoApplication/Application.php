@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Avocado\Application;
 
+use Async\Yaml;
 use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
 use Avocado\AvocadoApplication\Attributes\Avocado;
 use Avocado\AvocadoApplication\Attributes\Configuration;
@@ -26,7 +27,6 @@ use AvocadoApplication\DependencyInjection\DependencyInjectionService;
 use AvocadoApplication\Mappings\MethodMapping;
 use ReflectionClass;
 use ReflectionException;
-//use Symfony\Component\Yaml\Yaml;
 use Throwable;
 
 final class Application {
@@ -104,6 +104,7 @@ final class Application {
      * @throws MissingAnnotationException
      */
     public static final function getMainClass(): Avocado {
+
 
         foreach (self::$declaredClasses as $class) {
             $avAttr = ReflectionUtils::getAttributeFromClass($class, Avocado::class);
@@ -240,7 +241,7 @@ final class Application {
     private static function initConfiguration(): ApplicationConfiguration {
         $mainDir = self::getProjectDirectory();
         $CONFIGURATION_FILE_BASE = "application";
-        $ALLOWED_EXTENSIONS = ["json", "yaml"];
+        $ALLOWED_EXTENSIONS = ["yaml", "json"];
 
         if (!is_dir($mainDir)) {
             return new ApplicationConfiguration();
@@ -271,7 +272,7 @@ final class Application {
         $content = file_get_contents($baseFullPath);
 
         if ($EXTENSION === "yaml") {
-            return [];
+            return Yaml::parse($content);
         } else if ($EXTENSION === "json") {
             return json_decode($content, true);
         }

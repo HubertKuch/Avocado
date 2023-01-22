@@ -26,7 +26,6 @@ class ClassFinder {
         $loader->refresh();
 
         $classes = $loader->getIndexedClasses();
-        $classes = array_keys($classes);
 
         if (!empty($toExclude)) {
             $classes = self::excludeClasses($toExclude);
@@ -37,6 +36,7 @@ class ClassFinder {
             $classes = self::excludeNamespace("Avocado\\Tests\\");
         }
 
+
         foreach ($classes as $class) {
             try {
                 require_once $class;
@@ -45,6 +45,9 @@ class ClassFinder {
             }
         }
 
+        if (is_string(key($classes))) {
+            $classes = array_keys($classes);
+        }
 
         self::$classes = $classes;
 
