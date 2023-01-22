@@ -16,9 +16,9 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
 
     /**
-     * @param class-string $model
+     * @param class-string<T> $model
      */
-    public function __construct($model) {
+    public function __construct(string $model) {
         parent::__construct($model);
     }
 
@@ -187,7 +187,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
      * @return T|null
      * @throws ReflectionException|AvocadoModelException
      */
-    public function findFirst(array $criteria = []) {
+    public function findFirst(array $criteria = []): ?object {
         $sql = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria)->get();
         $sql.= " LIMIT 1";
 
@@ -201,7 +201,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
      * @return T|null
      * @throws ReflectionException|AvocadoModelException
      */
-    public function findById(int|string $id) {
+    public function findById(int|string $id): ?object {
         $sql = parent::getConnection()->queryBuilder()->find($this->tableName, [
             $this->primaryKey => $id
         ])->get();

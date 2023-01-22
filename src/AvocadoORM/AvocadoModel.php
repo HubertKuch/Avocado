@@ -2,6 +2,7 @@
 
 namespace Avocado\ORM;
 
+use Exception;
 use ReflectionClass;
 use ReflectionProperty;
 use ReflectionException;
@@ -15,6 +16,9 @@ class AvocadoModel extends AvocadoORMSettings {
     const FIELD = __NAMESPACE__."\Attributes\Field";
     const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
 
+    /**
+     * @param class-string<T> $model
+     * */
     protected string $model;
 
     public function getModel(): string {
@@ -39,7 +43,7 @@ class AvocadoModel extends AvocadoORMSettings {
             $this -> properties = $this -> ref -> getProperties();
             $this -> tableName = $this->getTableName();
             $this -> primaryKey = $this->getPrimaryKey();
-        } catch (\Exception $e) {}
+        } catch (Exception $e) {}
     }
 
     /**
@@ -65,16 +69,12 @@ class AvocadoModel extends AvocadoORMSettings {
         return $tableName;
     }
 
-    /**
-     * @throws ReflectionException
-     * @throws AvocadoModelException
-     */
     private function getPrimaryKey() {
         $attr = null;
         $propertyTarget = null;
 
         foreach($this->properties as $property) {
-            $ref = new \ReflectionProperty($this->model, $property->getName());
+            $ref = new ReflectionProperty($this->model, $property->getName());
             $idAttr = $ref->getAttributes(self::ID);
 
             if (!empty($idAttr)) {
@@ -114,36 +114,40 @@ class AvocadoModel extends AvocadoORMSettings {
     }
 
     protected function isModelPropertyIsType(string $property, string $type): bool {
-        if (!$this->ref->hasProperty($property)) {
-            $property = $this->getPropertyByAlias($property)->getName();
+        try {
+            if (!$this->ref->hasProperty($property)) {
+                $property = $this->getPropertyByAlias($property)->getName();
+            }
+
+            $reflectionProperty = new ReflectionProperty($this->model, $property);
+
+            if (!empty($reflectionProperty->getAttributes(self::IGNORE_FIELD_TYPE))) {
+                return true;
+            }
+
+            $propertyType = $reflectionProperty -> getType() -> getName();
+
+            if ($this->isPropertyIsEnum($reflectionProperty->getName()))
+                $propertyType = "object";
+
+
+            $type = match ($type) {
+                "integer" => "int",
+                "double" => "float",
+                "string" => "string",
+                "boolean" => "bool",
+                "object" => "object",
+                default => "NULL"
+            };
+
+            if ($type === "NULL") {
+                return $reflectionProperty->getType()->allowsNull();
+            }
+
+            return $propertyType === $type;
+        } catch (Exception) {
+            return false;
         }
-
-        $reflectionProperty = new ReflectionProperty($this->model, $property);
-
-        if (!empty($reflectionProperty->getAttributes(self::IGNORE_FIELD_TYPE))) {
-            return true;
-        }
-
-        $propertyType = $reflectionProperty -> getType() -> getName();
-
-        if ($this->isPropertyIsEnum($reflectionProperty->getName()))
-            $propertyType = "object";
-
-
-        $type = match ($type) {
-            "integer" => "int",
-            "double" => "float",
-            "string" => "string",
-            "boolean" => "bool",
-            "object" => "object",
-            default => "NULL"
-        };
-
-        if ($type === "NULL") {
-            return $reflectionProperty->getType()->allowsNull();
-        }
-
-        return $propertyType === $type;
     }
 
     protected function getPropertyByAlias(string $alias): ReflectionProperty {
