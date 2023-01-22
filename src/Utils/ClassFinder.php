@@ -25,19 +25,23 @@ class ClassFinder {
 
         $loader->refresh();
 
-        $classes = $loader->getIndexedClasses();
+        self::$classes = $loader->getIndexedClasses();
+
+        if (is_string(key(self::$classes))) {
+            self::$classes = array_keys(self::$classes);
+        }
+
 
         if (!empty($toExclude)) {
-            $classes = self::excludeClasses($toExclude);
+            self::$classes = self::excludeClasses($toExclude);
         }
 
         if (($_ENV['AVOCADO_ENVIRONMENT'] ?? "DEVELOPMENT") == "PRODUCTION") {
-            $classes = self::excludeNamespace("AvocadoApplication\\Tests\\");
-            $classes = self::excludeNamespace("Avocado\\Tests\\");
+            self::$classes = self::excludeNamespace("AvocadoApplication\\Tests\\");
+            self::$classes = self::excludeNamespace("Avocado\\Tests\\");
         }
 
-
-        foreach ($classes as $class) {
+        foreach (self::$classes as $class) {
             try {
                 require_once $class;
             } catch (Throwable $e) {
@@ -45,13 +49,7 @@ class ClassFinder {
             }
         }
 
-        if (is_string(key($classes))) {
-            $classes = array_keys($classes);
-        }
-
-        self::$classes = $classes;
-
-        return $classes;
+        return self::$classes;
     }
 
     private static function excludeClasses(array $classes): array {
