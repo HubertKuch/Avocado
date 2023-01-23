@@ -7,7 +7,7 @@ use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\Managers\HttpConsumer;
 use Avocado\HTTP\Managers\HttpConsumingStrategy;
 use Avocado\HTTP\ResponseBody;
-use Avocado\Router\AvocadoResponse;
+use Avocado\Router\HttpResponse;
 use AvocadoApplication\Attributes\Autowired;
 use AvocadoApplication\Attributes\Resource;
 
@@ -28,7 +28,7 @@ class MainHttpConsumer implements HttpConsumer {
     public function consume(ResponseBody $responseBody) {
         if ($responseBody->getData() instanceof ResponseBody) {
             $this->responseBodyStrategy->consume($responseBody);
-        } else if ($responseBody->getData() instanceof AvocadoResponse) {
+        } else if ($responseBody->getData() instanceof HttpResponse) {
             $this->standardResponseStrategy->consume($responseBody);
         } else {
             $this->parsingDataStrategy->consume($responseBody);

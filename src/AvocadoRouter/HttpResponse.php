@@ -4,20 +4,20 @@ namespace Avocado\Router;
 
 use Avocado\HTTP\HTTPStatus;
 
-class AvocadoResponse {
-    public function write($data): AvocadoResponse {
+class HttpResponse {
+    public function write($data): HttpResponse {
         echo $data;
 
         return $this;
     }
 
-    public function withStatus(HTTPStatus|int $status): AvocadoResponse {
+    public function withStatus(HTTPStatus|int $status): HttpResponse {
         http_response_code($status instanceof HTTPStatus ? $status->value : $status);
 
         return $this;
     }
 
-    public function withCookie(string $key, string $value, ?array $options = array()): AvocadoResponse {
+    public function withCookie(string $key, string $value, ?array $options = array()): HttpResponse {
         if (!empty($options)) {
             setcookie(
                 $key,
@@ -38,7 +38,7 @@ class AvocadoResponse {
         return $this;
     }
 
-    public function json(object|array $data): AvocadoResponse {
+    public function json(object|array $data): HttpResponse {
         header('Content-Type: application/json; charset=utf-8');
 
         echo json_encode($data);
@@ -46,7 +46,7 @@ class AvocadoResponse {
         return $this;
     }
 
-    public function setHeader(string $key, string $value): AvocadoResponse {
+    public function setHeader(string $key, string $value): HttpResponse {
         header("$key: $value");
         return $this;
     }

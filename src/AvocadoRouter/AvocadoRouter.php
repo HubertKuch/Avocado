@@ -25,15 +25,15 @@ class AvocadoRouter {
     private static array $settingsStack = array();
     private static bool $isNext = true;
     private static array $matchedRoute = array();
-    private static AvocadoRequest $request;
-    private static AvocadoResponse $response;
+    private static HttpRequest $request;
+    private static HttpResponse $response;
 
     public static function use(callable $setting): void {
         self::$settingsStack[] = $setting;
     }
 
     public static function useJSON(): void {
-        self::$settingsStack[] = function (AvocadoRequest $req, AvocadoResponse $res) {
+        self::$settingsStack[] = function (HttpRequest $req, HttpResponse $res) {
             $jsonBody = file_get_contents('php://input');
             $parsedBody = (array) json_decode($jsonBody);
 
@@ -73,7 +73,7 @@ class AvocadoRouter {
         self::addEndpointToStack(AvocadoRoute::createPut($endpoint), $middleware, $callable);
     }
 
-    private static function provideSettings(AvocadoRequest $req, AvocadoResponse $res): void {
+    private static function provideSettings(HttpRequest $req, HttpResponse $res): void {
         foreach (self::$settingsStack as $callback) {
             call_user_func($callback, $req, $res);
         }
@@ -126,10 +126,10 @@ class AvocadoRouter {
 
             $actPathWithoutParamsValues = self::getPathWithoutParams($endpoint, $actPath, $params);
 
-            $req = new AvocadoRequest($params);
+            $req = new HttpRequest($params);
             $req->method = $method;
 
-            $res = new AvocadoResponse();
+            $res = new HttpResponse();
 
             self::provideSettings($req, $res);
 
@@ -198,11 +198,11 @@ class AvocadoRouter {
 
     /**
      * @param mixed $middlewareStack
-     * @param AvocadoRequest $req
-     * @param AvocadoResponse $res
+     * @param HttpRequest $req
+     * @param HttpResponse $res
      * @return bool
      */
-    public static function isMiddlewareThrowNext(mixed $middlewareStack, AvocadoRequest $req, AvocadoResponse $res): bool {
+    public static function isMiddlewareThrowNext(mixed $middlewareStack, HttpRequest $req, HttpResponse $res): bool {
         $isMiddlewareThrowNext = true;
 
         if (count($middlewareStack) > 0) {

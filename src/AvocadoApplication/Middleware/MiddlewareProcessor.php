@@ -3,15 +3,15 @@
 namespace Avocado\AvocadoApplication\Middleware;
 
 use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
-use Avocado\Router\AvocadoRequest;
-use Avocado\Router\AvocadoResponse;
+use Avocado\Router\HttpRequest;
+use Avocado\Router\HttpResponse;
 use Avocado\Utils\AnnotationUtils;
 use ReflectionMethod;
 
 #[PreProcessor]
 class MiddlewareProcessor {
 
-    public function validRequest(ReflectionMethod $method, AvocadoRequest $request, AvocadoResponse $response): ?Next {
+    public function validRequest(ReflectionMethod $method, HttpRequest $request, HttpResponse $response): ?Next {
         $class = $method->getDeclaringClass();
         $middlewareStack = [];
 

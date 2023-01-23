@@ -6,8 +6,8 @@ use Avocado\AvocadoApplication\Controller\ParameterProviders\SpecificParametersP
 use Avocado\AvocadoApplication\Exceptions\MissingRequestParamException;
 use Avocado\AvocadoApplication\PreProcessors\CannotBeProcessed;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
-use Avocado\Router\AvocadoRequest;
-use Avocado\Router\AvocadoResponse;
+use Avocado\Router\HttpRequest;
+use Avocado\Router\HttpResponse;
 use Avocado\Tests\Unit\Application\RequestParam;
 use Avocado\Utils\AnnotationUtils;
 use Avocado\Utils\Optional;
@@ -17,7 +17,7 @@ use ReflectionParameter;
 #[PreProcessor]
 class RequestParamParameterPreProcessor implements SpecificParametersPreProcessor {
 
-    public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, AvocadoRequest $request, AvocadoResponse $response): mixed {
+    public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, HttpRequest $request, HttpResponse $response): mixed {
         if (AnnotationUtils::isAnnotated($parameterRef, RequestParam::class)) {
             $instanceOfAnnotation = AnnotationUtils::getInstance($parameterRef, RequestParam::class);
             $nameOfParam = $instanceOfAnnotation->getName();

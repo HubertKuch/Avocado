@@ -8,8 +8,8 @@ use Avocado\AvocadoApplication\Files\MultipartFile;
 use Avocado\AvocadoApplication\PreProcessors\CannotBeProcessed;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
 use Avocado\HTTP\ContentType;
-use Avocado\Router\AvocadoRequest;
-use Avocado\Router\AvocadoResponse;
+use Avocado\Router\HttpRequest;
+use Avocado\Router\HttpResponse;
 use Avocado\Utils\AnnotationUtils;
 use ReflectionMethod;
 use ReflectionParameter;
@@ -17,7 +17,7 @@ use ReflectionParameter;
 #[PreProcessor]
 class MultipartFilesParametersPreProcessorProvider implements SpecificParametersPreProcessor {
 
-    public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, AvocadoRequest $request, AvocadoResponse $response): mixed {
+    public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, HttpRequest $request, HttpResponse $response): mixed {
         if (AnnotationUtils::isAnnotated($parameterRef, Multipart::class)) {
             $name = $parameterRef->getName();
             /** @var Multipart $annotationInstance */

@@ -18,8 +18,8 @@ use Avocado\AvocadoApplication\Middleware\Next;
 use Avocado\HTTP\ContentType;
 use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\ResponseBody;
-use Avocado\Router\AvocadoRequest;
-use Avocado\Router\AvocadoResponse;
+use Avocado\Router\HttpRequest;
+use Avocado\Router\HttpResponse;
 use Avocado\Utils\Optional;
 use AvocadoApplication\Attributes\Autowired;
 use AvocadoApplication\Attributes\BaseURL;
@@ -41,42 +41,42 @@ class MockedController {
     private readonly MockedResourceWithAlternativeName $mockedResourceWithAlternativeName;
 
     #[GetMapping("/")]
-    public function getHelloWorld(AvocadoRequest $req, AvocadoResponse $res): void {
+    public function getHelloWorld(HttpRequest $req, HttpResponse $res): void {
         $res->json(["Get Hello World"]);
     }
 
     #[GetMapping("/param/:test")]
-    public function testGetParam(AvocadoRequest $req, AvocadoResponse $res): void {
+    public function testGetParam(HttpRequest $req, HttpResponse $res): void {
         echo $req->params['test'];
     }
 
     #[GetMapping("/di")]
-    public function getDITest(AvocadoRequest $req, AvocadoResponse $res): void {
+    public function getDITest(HttpRequest $req, HttpResponse $res): void {
         $res->json([$this->mockedResource->getTest()]);
     }
 
     #[GetMapping("/array/")]
-    public function getTestArray(AvocadoRequest $req, AvocadoResponse $res): void {
+    public function getTestArray(HttpRequest $req, HttpResponse $res): void {
         $res->json(["Get Hello World Array"]);
     }
 
     #[PostMapping("/")]
-    public function createTestArray(AvocadoRequest $req, AvocadoResponse $res): void {
+    public function createTestArray(HttpRequest $req, HttpResponse $res): void {
         $res->json(["Post Hello World"]);
     }
 
     #[DeleteMapping("/")]
-    public function deleteTest(AvocadoRequest $req, AvocadoResponse $res): void {
+    public function deleteTest(HttpRequest $req, HttpResponse $res): void {
         $res->json(["Delete Hello World"]);
     }
 
     #[PatchMapping("/")]
-    public function patchTest(AvocadoRequest $req, AvocadoResponse $res): void {
+    public function patchTest(HttpRequest $req, HttpResponse $res): void {
         $res->json(["Patch Hello World"]);
     }
 
     #[PutMapping("/")]
-    public function putTest(AvocadoRequest $req, AvocadoResponse $res): void {
+    public function putTest(HttpRequest $req, HttpResponse $res): void {
         $res->json(["Put Hello World"]);
     }
 
@@ -89,7 +89,7 @@ class MockedController {
     }
 
     #[GetMapping("/alternative-resource-name")]
-    public function testResourceWithAlternativeName(AvocadoRequest $req, AvocadoResponse $res): void {
+    public function testResourceWithAlternativeName(HttpRequest $req, HttpResponse $res): void {
         $res->json([$this->mockedResourceWithAlternativeName->getTest()]);
     }
 
@@ -103,7 +103,7 @@ class MockedController {
 
     #[PostMapping("/parsing-objects")]
     public function parsingObjectTest(
-        AvocadoResponse $response,
+        HttpResponse                 $response,
         #[RequestBody] ObjectToParse $objectShouldBeParsed,
     ): void {
         print "parsed";
@@ -145,17 +145,17 @@ class MockedController {
         print $name;
     }
 
-    public static function customMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next): Next {
+    public static function customMiddleware(HttpRequest $request, HttpResponse $response, Next $next): Next {
         return $next;
     }
 
-    public static function secondMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next): Next {
+    public static function secondMiddleware(HttpRequest $request, HttpResponse $response, Next $next): Next {
         $request->locals['user'] = 'Jon';
 
         return $next;
     }
 
-    public static function storageKeyMiddleware(AvocadoRequest $request, AvocadoResponse $response, Next $next): Next {
+    public static function storageKeyMiddleware(HttpRequest $request, HttpResponse $response, Next $next): Next {
         $request->locals['name'] = "Targaryen";
 
         return $next;
@@ -173,7 +173,7 @@ class MockedController {
         "\Avocado\Tests\Unit\Application\MockedController::customMiddleware",
         "\Avocado\Tests\Unit\Application\MockedController::secondMiddleware",
     ])]
-    public function testMiddlewareWorkflow(AvocadoRequest $request): void {
+    public function testMiddlewareWorkflow(HttpRequest $request): void {
         print $request->locals['user'];
     }
 
@@ -218,7 +218,7 @@ class MockedController {
     }
 
     #[GetMapping("/consuming/avocado-response")]
-    public function testConsumingAvocadoResponse(AvocadoResponse $response): AvocadoResponse {
+    public function testConsumingAvocadoResponse(HttpResponse $response): HttpResponse {
         return $response->json(["Consumed by avocado response"]);
     }
 

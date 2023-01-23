@@ -9,8 +9,8 @@ use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
 use Avocado\AvocadoApplication\PreProcessors\CannotBeProcessed;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
-use Avocado\Router\AvocadoRequest;
-use Avocado\Router\AvocadoResponse;
+use Avocado\Router\HttpRequest;
+use Avocado\Router\HttpResponse;
 use Avocado\Utils\AnnotationUtils;
 use Avocado\Utils\Optional;
 use Avocado\Utils\StandardObjectMapper;
@@ -24,7 +24,7 @@ class RequestBodyParametersPreProcessor implements SpecificParametersPreProcesso
     /**
      * @throws InvalidRequestBodyException
      */
-    public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, AvocadoRequest $request, AvocadoResponse $response): mixed {
+    public function process(ReflectionMethod $methodRef, ReflectionParameter $parameterRef, HttpRequest $request, HttpResponse $response): mixed {
         if (AnnotationUtils::isAnnotated($parameterRef, RequestBody::class)) {
             try {
                 $annotationInstance = AnnotationUtils::getInstance($parameterRef, RequestBody::class);

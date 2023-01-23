@@ -10,8 +10,8 @@ use Avocado\AvocadoApplication\Exceptions\MissingRequestParamException;
 use Avocado\AvocadoApplication\Exceptions\MissingRequestQueryException;
 use Avocado\AvocadoApplication\PreProcessors\CannotBeProcessed;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessorsManager;
-use Avocado\Router\AvocadoRequest;
-use Avocado\Router\AvocadoResponse;
+use Avocado\Router\HttpRequest;
+use Avocado\Router\HttpResponse;
 use Avocado\Tests\Unit\Application\RequestParam;
 use Avocado\Tests\Unit\Application\RequestQuery;
 use Avocado\Utils\StandardObjectMapper;
@@ -23,7 +23,7 @@ class ControllerParametersProcessor {
     /**
      * @return mixed[] Returns array of method parameters like [4, $request, $user, $route]
      * */
-    public static function process(ReflectionMethod $methodRef, AvocadoRequest $request, AvocadoResponse $response): array {
+    public static function process(ReflectionMethod $methodRef, HttpRequest $request, HttpResponse $response): array {
         $preProcessors = PreProcessorsManager::getControllerPreProcessors();
         $methodParameters = $methodRef->getParameters();
         $parametersToProvide = [];

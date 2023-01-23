@@ -5,7 +5,7 @@ namespace Avocado\AvocadoApplication;
 use Exception;
 use Avocado\HTTP\ResponseBody;
 use Avocado\Utils\ReflectionUtils;
-use Avocado\Router\AvocadoResponse;
+use Avocado\Router\HttpResponse;
 use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 use Avocado\AvocadoApplication\Attributes\Exceptions\ResponseStatus;
 use Avocado\AvocadoApplication\Attributes\Exceptions\ExceptionHandler;
@@ -32,7 +32,7 @@ class ApplicationExceptionsAdvisor {
     }
 
     private static function throwResponse(ResponseBody $responseBody): void {
-        $response = new AvocadoResponse();
+        $response = new HttpResponse();
 
         $response
             -> json($responseBody->getData())

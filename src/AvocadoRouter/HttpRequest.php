@@ -2,7 +2,7 @@
 
 namespace Avocado\Router;
 
-class AvocadoRequest {
+class HttpRequest {
     public array $body;
     public array $query;
     public array $cookies;

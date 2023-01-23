@@ -5,7 +5,7 @@ namespace Avocado\AvocadoApplication\ResponseConsuming;
 use Avocado\HTTP\ContentType;
 use Avocado\HTTP\Managers\HttpConsumingStrategy;
 use Avocado\HTTP\ResponseBody;
-use Avocado\Router\AvocadoResponse;
+use Avocado\Router\HttpResponse;
 use Avocado\Utils\Json\JsonSerializer;
 use AvocadoApplication\Attributes\Resource;
 use stdClass;
@@ -20,7 +20,7 @@ class ParsingDataConsumingStrategy implements HttpConsumingStrategy {
         if ($responseBody->getContentType() === ContentType::APPLICATION_JSON) {
             $parsedData = JsonSerializer::serialize($responseBody->getData());
 
-            (new AvocadoResponse())
+            (new HttpResponse())
                 ->setHeader("Content-Type", ContentType::APPLICATION_JSON->value)
                 ->write($parsedData)
                 ->withStatus($responseBody->getStatus());
@@ -28,7 +28,7 @@ class ParsingDataConsumingStrategy implements HttpConsumingStrategy {
             return;
         }
 
-        (new AvocadoResponse())
+        (new HttpResponse())
             ->setHeader("Content-Type", $responseBody->getContentType()->value)
             ->write($responseBody->getData())
             ->withStatus($responseBody->getStatus());
