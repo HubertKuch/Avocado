@@ -289,4 +289,10 @@ class MockedController {
         return [];
     }
 
+    #[CustomAnnotation]
+    #[GetMapping("/interceptor-test")]
+    public function interceptorTest(): array {
+        return [];
+    }
+
 }

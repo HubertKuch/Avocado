@@ -321,4 +321,13 @@ class ApplicationTest extends TestCase {
 
         assertSame("[]", ob_get_contents());
     }
+
+    public function testInterceptor() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'].="/avocado-test/interceptor-test";
+
+        MockedApplication::init();
+
+        self::assertStringContainsString("Hello from interceptor", ob_get_contents());
+    }
 }

@@ -59,6 +59,7 @@
     </PhpStan_settings>
   </component>
   <component name="PhpStanOptionsConfiguration">
+    <option name="level" value="7" />
     <option name="transferred" value="true" />
   </component>
   <component name="PhpUnit">

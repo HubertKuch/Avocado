@@ -15,13 +15,13 @@ use AvocadoApplication\Attributes\Resource;
 class MainHttpConsumer implements HttpConsumer {
 
     #[Autowired(autowiredResourceName: "responseBodyStrategy")]
-    private HttpConsumingStrategy $responseBodyStrategy;
+    private readonly HttpConsumingStrategy $responseBodyStrategy;
 
     #[Autowired(autowiredResourceName: "standardResponseStrategy")]
-    private HttpConsumingStrategy $standardResponseStrategy;
+    private readonly HttpConsumingStrategy $standardResponseStrategy;
 
     #[Autowired(autowiredResourceName: "parsingDataStrategy")]
-    private HttpConsumingStrategy $parsingDataStrategy;
+    private readonly HttpConsumingStrategy $parsingDataStrategy;
 
     public function __construct() {}
 

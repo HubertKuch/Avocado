@@ -7,6 +7,8 @@ use Avocado\AvocadoApplication\Attributes\Exceptions\ResponseStatus;
 use Avocado\AvocadoApplication\AutoConfigurations\nested\ServerRouterConfiguration;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\ControllerParametersProcessor;
 use Avocado\AvocadoApplication\Exceptions\PageNotFoundException;
+use Avocado\AvocadoApplication\Interceptors\Utils\WebRequestHandler;
+use Avocado\AvocadoApplication\Interceptors\WebRequestInterceptorsProcessor;
 use Avocado\AvocadoApplication\Mappings\Produces;
 use Avocado\AvocadoApplication\Middleware\MiddlewareProcessor;
 use Avocado\AvocadoRouter\MatchingStrategy;
@@ -167,9 +169,18 @@ class AvocadoRouter {
 
         /** @var MiddlewareProcessor $middlewareProcessor*/
         $middlewareProcessor = DependencyInjectionService::getResourceByType(MiddlewareProcessor::class)->getTargetInstance();
+        /**
+         * @var WebRequestInterceptorsProcessor $webRequestInterceptor
+         * */
+        $webRequestInterceptor = DependencyInjectionService::getResourceByType(WebRequestInterceptorsProcessor::class)->getTargetInstance();
+
         $isNext = $middlewareProcessor->validRequest($ref, self::$request, self::$response);
 
         if (!$isNext) {
+            return null;
+        }
+
+        if (!$webRequestInterceptor->process(self::$request,  self::$response, new WebRequestHandler($ref))) {
             return null;
         }
 

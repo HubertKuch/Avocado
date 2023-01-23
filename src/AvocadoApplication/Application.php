@@ -108,8 +108,6 @@ final class Application {
      * @throws MissingAnnotationException
      */
     public static final function getMainClass(): Avocado {
-
-
         foreach (self::$declaredClasses as $class) {
             $avAttr = ReflectionUtils::getAttributeFromClass($class, Avocado::class);
 
