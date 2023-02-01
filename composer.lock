@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38e34ef19a8a3d6fcb52f6cb24e0191d",
+    "content-hash": "ac4c7d5e9851ef3aca5303c429165d71",
     "packages": [
         {
             "name": "nette/finder",
@@ -353,6 +353,50 @@
                 }
             ],
             "time": "2022-12-30T00:15:36+00:00"
+        },
+        {
+            "name": "hubert/avocado-mysql-driver",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/HubertKuch/avocado-mysql-driver.git",
+                "reference": "df6b83c353f3296851abbc7a85a178bc0d28b22c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/HubertKuch/avocado-mysql-driver/zipball/df6b83c353f3296851abbc7a85a178bc0d28b22c",
+                "reference": "df6b83c353f3296851abbc7a85a178bc0d28b22c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-pdo": "*",
+                "hubert/avocado": "dev-main",
+                "php": "8.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Hubert\\MysqlDriver\\": "src/"
+                },
+                "classmap": [
+                    "src"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "HubertKuch",
+                    "email": "kuchhubert@gmail.com"
+                }
+            ],
+            "support": {
+                "issues": "https://github.com/HubertKuch/avocado-mysql-driver/issues",
+                "source": "https://github.com/HubertKuch/avocado-mysql-driver/tree/v2.0.0"
+            },
+            "time": "2023-02-01T17:54:20+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -873,16 +917,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.23",
+            "version": "9.2.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "9f1f0f9a2fbb680b26d1cf9b61b6eac43a6e4e9c"
+                "reference": "2cf940ebc6355a9d430462811b5aaa308b174bed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/9f1f0f9a2fbb680b26d1cf9b61b6eac43a6e4e9c",
-                "reference": "9f1f0f9a2fbb680b26d1cf9b61b6eac43a6e4e9c",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/2cf940ebc6355a9d430462811b5aaa308b174bed",
+                "reference": "2cf940ebc6355a9d430462811b5aaa308b174bed",
                 "shasum": ""
             },
             "require": {
@@ -938,7 +982,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.23"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.24"
             },
             "funding": [
                 {
@@ -946,7 +990,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-12-28T12:41:10+00:00"
+            "time": "2023-01-26T08:26:55+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -2373,7 +2417,7 @@
     "platform": {
         "ext-dom": "*",
         "ext-pdo": "*",
-        "php": "8.1.*"
+        "php": ">=8.1"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"

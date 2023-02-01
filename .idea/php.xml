@@ -50,6 +50,7 @@
       <path value="$PROJECT_DIR$/vendor/phpstan/phpstan" />
       <path value="$PROJECT_DIR$/vendor/myclabs/deep-copy" />
       <path value="$PROJECT_DIR$/vendor/symplely/yaml" />
+      <path value="$PROJECT_DIR$/vendor/hubert/avocado-mysql-driver" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />

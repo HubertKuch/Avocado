@@ -2,6 +2,7 @@
 
 namespace Avocado\DataSource\Builder;
 
+use Avocado\MysqlDriver\MySQLQueryBuilder;
 use PHPUnit\Framework\TestCase;
 use Avocado\Tests\Unit\UserRole;
 use Avocado\Tests\Unit\TableWithIgnoringType;
