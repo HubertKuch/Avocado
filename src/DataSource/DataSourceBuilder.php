@@ -3,7 +3,6 @@
 namespace Avocado\DataSource;
 
 use Avocado\DataSource\Drivers\Driver;
-use Avocado\DataSource\Drivers\MySQLDriver;
 use Avocado\DataSource\Exceptions\CannotBuildDataSourceException;
 use Avocado\Utils\ReflectionUtils;
 

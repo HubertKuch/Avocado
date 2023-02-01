@@ -45,59 +45,15 @@ final class Application {
 
     public static final function run(string $dir): void {
         try {
-            self::$declaredClasses = ClassFinder::getDeclaredClasses($dir);
+            self::loadClasses($dir);
+            self::initConfigurations();
+            self::initDependencyInjectionsService();
 
-            self::$mainClass = self::getMainClass();
-
-            $excludedAttribute = ReflectionUtils::getAttributeFromClass(self::$mainClass->getClassName(), Exclude::class);
-            $toExclude = ($excludedAttribute?->newInstance()->getClasses()) ?? [];
-
-            self::$declaredClasses = ClassFinder::getDeclaredClasses($dir, $toExclude);
-
-            self::$preProcessors = self::getPreProcessors();
-            self::$configurations = self::getConfigurations();
-
-            self::$configuration = self::initConfiguration();
-
-            foreach (self::$configuration->getConfigurations() as $conf) {
-                $configuration = new Configuration($conf::class, $conf);
-
-                DependencyInjectionService::addResource($configuration);
-
-                /** @var $conf Configuration */
-                $indexOfPlainConfiguration = Arrays::indexOf(self::$configurations, fn($appConf) => $appConf->getMainType() === $conf::class);
-
-                self::$configurations[$indexOfPlainConfiguration] = $configuration;
-            }
-
-
-            self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
-
-            foreach (self::$leafManager->getLeafs() as $leaf) {
-                DependencyInjectionService::addResource($leaf);
-            }
-
-            DependencyInjectionService::init();
-
-            self::$httpConsumer = DependencyInjectionService::getResourceByType(MainHttpConsumer::class)->getTargetInstance();
-
-            self::$controllers = self::getControllers();
-            self::$restControllers = self::getRestControllers();
+            self::initRestControllers();
 
             self::declareRoutes();
-
-            self::$dataSource = self::getDataSource();
-
-            if (self::$dataSource) {
-                AvocadoORMSettings::fromExistingSource(self::$dataSource);
-            }
-
-            AvocadoRouter::listen();
-            $data = AvocadoRouter::invokeMatchedRoute();
-
-            if ($data && $data->getData() !== null) {
-                self::$httpConsumer->consume($data);
-            }
+            self::initDataSource();
+            self::consumeHttp();
 
         } catch (Throwable $e) {
             ApplicationExceptionsAdvisor::process($e);
@@ -284,5 +240,103 @@ final class Application {
         }
 
         return "[]";
+    }
+
+    /**
+     * @return void
+     * @throws ClassNotFoundException
+     */
+    public static function parsePlainConfigurations(): void {
+        foreach (self::$configuration->getConfigurations() as $conf) {
+            $configuration = new Configuration($conf::class, $conf);
+
+            DependencyInjectionService::addResource($configuration);
+
+            /** @var $conf Configuration */
+            $indexOfPlainConfiguration = Arrays::indexOf(self::$configurations,
+                fn($appConf) => $appConf->getMainType() === $conf::class);
+
+            self::$configurations[$indexOfPlainConfiguration] = $configuration;
+        }
+    }
+
+    /**
+     * @return void
+     * @throws ClassNotFoundException
+     * @throws \Avocado\AvocadoApplication\Exceptions\InvalidResourceException
+     */
+    public static function initConfigurations(): void {
+        self::$preProcessors = self::getPreProcessors();
+        self::$configurations = self::getConfigurations();
+
+        self::$configuration = self::initConfiguration();
+
+        self::parsePlainConfigurations();
+
+        self::$leafManager = LeafManager::ofConfigurations(self::$configurations);
+    }
+
+    /**
+     * @param string $dir
+     * @return void
+     * @throws MissingAnnotationException
+     */
+    public static function loadClasses(string $dir): void {
+        self::$declaredClasses = ClassFinder::getDeclaredClasses($dir);
+
+        self::$mainClass = self::getMainClass();
+
+        $excludedAttribute = ReflectionUtils::getAttributeFromClass(self::$mainClass->getClassName(), Exclude::class);
+        $toExclude = ($excludedAttribute?->newInstance()->getClasses()) ?? [];
+
+        self::$declaredClasses = ClassFinder::getDeclaredClasses($dir, $toExclude);
+    }
+
+    /**
+     * @return void
+     * @throws \AvocadoApplication\DependencyInjection\Exceptions\ResourceException
+     * @throws \AvocadoApplication\DependencyInjection\Exceptions\ResourceNotFoundException
+     * @throws \AvocadoApplication\DependencyInjection\Exceptions\TooMuchResourceConstructorParametersException
+     */
+    public static function initDependencyInjectionsService(): void {
+        foreach (self::$leafManager->getLeafs() as $leaf) {
+            DependencyInjectionService::addResource($leaf);
+        }
+
+        DependencyInjectionService::init();
+    }
+
+    /**
+     * @return void
+     */
+    public static function consumeHttp(): void {
+        AvocadoRouter::listen();
+        $data = AvocadoRouter::invokeMatchedRoute();
+
+        if ($data && $data->getData() !== null) {
+            self::$httpConsumer->consume($data);
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public static function initDataSource(): void {
+        self::$dataSource = self::getDataSource();
+
+        if (self::$dataSource) {
+            AvocadoORMSettings::fromExistingSource(self::$dataSource);
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public static function initRestControllers(): void {
+        self::$httpConsumer = DependencyInjectionService::getResourceByType(MainHttpConsumer::class)
+                                                        ->getTargetInstance();
+
+        self::$controllers = self::getControllers();
+        self::$restControllers = self::getRestControllers();
     }
 }

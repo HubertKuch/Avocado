@@ -2,7 +2,7 @@
 
 namespace Avocado\AvocadoORM\Actions;
 
-interface   Actions {
+interface Actions {
     public function findMany(array $criteria);
     public function findFirst(array $criteria);
     public function findById(string|int $id);
