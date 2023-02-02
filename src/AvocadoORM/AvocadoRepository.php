@@ -2,118 +2,36 @@
 
 namespace Avocado\ORM;
 
-use ReflectionException;
 use Avocado\AvocadoORM\Actions\Actions;
+use Avocado\AvocadoORM\Order;
+use Avocado\Utils\TypesUtils;
+use ReflectionClass;
+use ReflectionException;
 
 /**
  * @template T
  */
 class AvocadoRepository extends AvocadoModel implements Actions {
     const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
-    const TABLE = __NAMESPACE__."\Attributes\Table";
-    const ID = __NAMESPACE__."\Attributes\Id";
-    const FIELD = __NAMESPACE__."\Attributes\Field";
-    const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
+    const TABLE = __NAMESPACE__ . "\Attributes\Table";
+    const ID = __NAMESPACE__ . "\Attributes\Id";
+    const FIELD = __NAMESPACE__ . "\Attributes\Field";
+    const IGNORE_FIELD_TYPE = __NAMESPACE__ . "\Attributes\IgnoreFieldType";
 
     /**
-     * @param class-string<T> $model
+     * @param string $model
      */
     public function __construct(string $model) {
         parent::__construct($model);
     }
 
     /**
-     * @throws AvocadoRepositoryException
+     * @param string $query
+     * @return T[]
      */
-    private function checkIsCriteriaTypesAreCompatibleWithModel(array $criteria) {
-        foreach ($criteria as $key => $value) {
-            $propertyNotFoundMessage = sprintf("%s model does not have %s property. Add it to model with #[Field] attribute", $this->model, $key);
-            $propertyTypeIsDifferentMessage = sprintf("%s property is not %s type on %s model", $key, gettype($value), $this->model);
-
-            if (!self::isModelHasProperty($key)) {
-                throw new AvocadoRepositoryException($propertyNotFoundMessage);
-            }
-
-            if (!self::isModelPropertyIsType($key, gettype($value))) {
-                throw new AvocadoRepositoryException($propertyTypeIsDifferentMessage);
-            }
-        }
-    }
-
-    /**
-     * @throws AvocadoRepositoryException
-     */
-    private function provideCriteria(string &$sql, array $criteria): void {
-        $this->checkIsCriteriaTypesAreCompatibleWithModel($criteria);
-
-        $sql.= " WHERE ";
-        foreach ($criteria as $key => $value) {
-            $valueType = gettype($value);
-
-            if (is_object($value)) {
-                $valueType = $value->value ?? "";
-            }
-
-            if ($valueType === "integer" || $valueType === "double" || $valueType === "boolean") $sql.=" $key = $value AND ";
-            else if ($valueType === "string") $sql.= " $key LIKE \"$value\" AND";
-        }
-
-        $sql = substr($sql, 0,-4);
-    }
-
-    /**
-     * @throws AvocadoRepositoryException
-     */
-    private function provideUpdateCriteria(string &$sql, array $criteria): void {
-        $this->checkIsCriteriaTypesAreCompatibleWithModel($criteria);
-
-        foreach ($criteria as $key => $value) {
-            $valueType = gettype($value);
-
-            if (is_object($value)) {
-                $valueType = $value->value ?? NULL;
-            }
-
-            if ($valueType === "integer" || $valueType === "double" || $valueType === "boolean") $sql.=" $key = $value, ";
-            else if ($valueType === "string") $sql.= " $key = \"$value\" , ";
-        }
-
-        $sql = substr($sql, 0, -2);
-    }
-
-    /**
-     * @param array|FindForeign $findCriteria
-     * @return string
-     */
-    private function formatSubQuery(array|FindForeign $findCriteria): string {
-        if ($findCriteria instanceof FindForeign) {
-            $findCriteria = $findCriteria->criteria;
-        }
-
-        $findCriteria = array_change_key_case($findCriteria, CASE_UPPER);
-
-        $foreignKey = $findCriteria['FOREIGNKEY'] ?? null;
-        $reference = $findCriteria['REFERENCE'] ?? null;
-        $by = $findCriteria['BY'] ?? null;
-        $equals = $findCriteria['EQ'] ?? null;
-        $equalsType = gettype($equals);
-
-        $sql = "SELECT * FROM $this->tableName WHERE $foreignKey IN (SELECT $reference.$by FROM $reference WHERE $reference.$by ?)";
-
-        return str_replace(
-            "?",
-            ($equalsType === "integer" || $equalsType === "double" || $equalsType === "boolean") ? " = $equals ": "LIKE \"$equals\"",
-            $sql);
-    }
-
-    /**
-     * @param string $sql
-     * @return array<T>
-     * @throws ReflectionException|AvocadoModelException
-     */
-    private function query(string $sql): array {
-        $stmt = self::getConnection()->prepare($sql);
-        $data = $stmt -> execute();
+    private function queryWithMapper(string $query): array {
+        $stmt = self::getConnection()->prepare($query);
+        $data = $stmt->execute();
         $entities = [];
 
         $mapper = self::getConnection()->mapper();
@@ -125,73 +43,37 @@ class AvocadoRepository extends AvocadoModel implements Actions {
         return $entities;
     }
 
-    /**
-     * @param object $object
-     * @return string
-     * @throws AvocadoRepositoryException
-     * @throws ReflectionException
-     */
-    private function getObjectAttributesAsSQLString(object $object): string {
-        $ref = new \ReflectionClass($object);
-        $output = "";
-        $isFirstProperty = true;
+    private function query(string $query): array {
+        $stmt = self::getConnection()->prepare($query);
 
-        foreach ($ref->getProperties() as $property) {
-            $refToProperty = new \ReflectionProperty(get_class($object), $property->getName());
-            $isEntityField = !empty($refToProperty->getAttributes(self::FIELD));
-            $propertyName = $refToProperty->getName();
-
-            if ($isEntityField) {
-                $valueOfProperty = $refToProperty->getValue($object);
-                $propertyType = gettype($valueOfProperty);
-
-                if ($this->isPropertyIsEnum($propertyName)) {
-                    $enumValue = $this->getValueOfEnumProperty($object, $propertyName);
-                    $valueOfProperty =  $enumValue;
-                    $propertyType = gettype($enumValue);
-                }
-
-                if (is_null($valueOfProperty)) {
-                    $output .= $isFirstProperty ? " NULL " : ", NULL";
-                } else if ($propertyType == "string") {
-                    $output .= $isFirstProperty ? " \"$valueOfProperty\" " : " , \"$valueOfProperty\"";
-                } else {
-                    $output .= $isFirstProperty ? " $valueOfProperty " : " , $valueOfProperty";
-                }
-
-                $isFirstProperty = false;
-            }
-        }
-
-        if ($output == "") {
-            throw new AvocadoRepositoryException('Model must have fields if you want save it.');
-        }
-
-        return $output;
+        return $stmt->execute();
     }
-
 
     /**
      * @param array $criteria
+     * @param string|null $orderBy
+     * @param Order $order
      * @return array<T>
-     * @throws ReflectionException|AvocadoModelException
      */
-    public function findMany(array $criteria = []): array {
-        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria)->get();
+    public function findMany(array $criteria = [], string $orderBy = null, Order $order = Order::ASCENDING): array {
+        $query = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria, []);
 
-        return ($this->query($sql)) ?: [];
+        if ($orderBy !== null) {
+            $query->orderBy($orderBy, $order);
+        }
+
+        return ($this->queryWithMapper($query->get())) ?: [];
     }
 
     /**
      * @param array $criteria
      * @return T|null
-     * @throws ReflectionException|AvocadoModelException
      */
     public function findFirst(array $criteria = []): ?object {
-        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria)->get();
-        $sql.= " LIMIT 1";
+        $query = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria, [])->get();
+        $query .= " LIMIT 1";
 
-        $res = $this->query($sql);
+        $res = $this->queryWithMapper($query);
 
         return empty($res) ? null : $res[0];
     }
@@ -199,89 +81,74 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     /**
      * @param int|string $id
      * @return T|null
-     * @throws ReflectionException|AvocadoModelException
      */
     public function findById(int|string $id): ?object {
-        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, [
-            $this->primaryKey => $id
-        ])->get();
+        $query = parent::getConnection()->queryBuilder()->find($this->tableName, [$this->primaryKey => $id], [])->get();
 
-        $res = $this->query($sql);
+        $res = $this->queryWithMapper($query);
 
         return empty($res) ? null : $res[0];
     }
 
-    /**
-     * @param array|FindForeign $findCriteria
-     * @param array|null $criteria
-     * @return bool|array
-     */
-    public function findOneToManyRelation(array|FindForeign $findCriteria, ?array $criteria = []): bool|array {
-        $sql = $this->formatSubQuery($findCriteria);
-
-        return $this->query($sql);
-    }
-
     public function paginate(int $limit, int $offset): array {
-        $sql = parent::getConnection()->queryBuilder()->find($this->tableName, [])
-            ->limit($limit)
-            ->offset($offset)
-            ->get();
+        $query = parent::getConnection()
+                     ->queryBuilder()
+                     ->find($this->tableName, [], [])
+                     ->limit($limit)
+                     ->offset($offset)
+                     ->get();
 
-        return $this->query($sql." LIMIT $limit OFFSET $offset");
+        return $this->queryWithMapper($query . " LIMIT $limit OFFSET $offset");
     }
 
     /**
-     * @throws AvocadoRepositoryException|ReflectionException|AvocadoModelException
+     * @throws AvocadoRepositoryException
      */
     public function updateMany(array $updateCriteria, array $criteria = []) {
         if (empty($updateCriteria)) {
             throw new AvocadoRepositoryException(self::EXCEPTION_UPDATE_CRITERIA_MESSAGE);
         }
 
-        $sql = parent::getConnection()->queryBuilder()->update($this->tableName, $updateCriteria, $criteria)->get();
+        $query = parent::getConnection()->queryBuilder()->update($this->tableName, $updateCriteria, $criteria)->get();
 
-        $this->query($sql);
+        $this->queryWithMapper($query);
     }
 
     /**
-     * @throws ReflectionException|AvocadoModelException
+     * @throws AvocadoModelException
      */
     public function updateById(array $updateCriteria, string|int $id) {
         if (empty($updateCriteria)) {
             throw new AvocadoModelException(self::EXCEPTION_UPDATE_CRITERIA_MESSAGE);
         }
 
-        $sql = parent::getConnection()->queryBuilder()->update($this->tableName, $updateCriteria, [
-            $this->primaryKey => $id
-        ])->get();
+        $query = parent::getConnection()
+                     ->queryBuilder()
+                     ->update($this->tableName, $updateCriteria, [$this->primaryKey => $id])
+                     ->get();
 
-        $this->query($sql);
+        $this->queryWithMapper($query);
     }
 
 
     /**
      * @param array $criteria
      * @return void
-     * @throws ReflectionException|AvocadoModelException
      */
-    public function deleteMany(array $criteria) {
-        $sql = parent::getConnection()->queryBuilder()->delete($this->tableName, $criteria)->get();
+    public function deleteMany(array $criteria): void {
+        $query = parent::getConnection()->queryBuilder()->delete($this->tableName, $criteria)->get();
 
-        $this->query($sql);
+        $this->queryWithMapper($query);
     }
 
     /**
      * @param int|string $id
      * @return void
-     * @throws ReflectionException|AvocadoModelException
      */
     public function deleteOneById(int|string $id): void {
-        $sql = parent::getConnection()->queryBuilder()->delete($this->tableName, [
-            $this->primaryKey => $id
-        ])->get();
+        $query = parent::getConnection()->queryBuilder()->delete($this->tableName, [$this->primaryKey => $id])->get();
 
-        $this->query($sql);
+        $this->queryWithMapper($query);
     }
 
     /**
@@ -289,73 +156,67 @@ class AvocadoRepository extends AvocadoModel implements Actions {
      * @return string
      */
     private function getInsertColumns(object $object): string {
-        $ref = new \ReflectionClass($object);
+        $ref = new ReflectionClass($object);
         $columnStatement = "(";
 
         foreach ($ref->getProperties() as $property) {
             $propertyName = $property->getName();
 
             if (!empty($property->getAttributes(self::FIELD))) {
-                if(!empty($property->getAttributes(self::FIELD)[0]->getArguments())) {
+                if (!empty($property->getAttributes(self::FIELD)[0]->getArguments())) {
                     $propertyName = $property->getAttributes(self::FIELD)[0]->getArguments()[0];
                 }
             }
 
-            $columnStatement.="$propertyName,";
+            $columnStatement .= "$propertyName,";
         }
 
         if (str_ends_with($columnStatement, ",")) {
             $columnStatement = substr($columnStatement, 0, -1);
         }
 
-        return $columnStatement.")";
+        return $columnStatement . ")";
     }
 
     /**
      * @param object $entity
      * @return void
-     * @throws ReflectionException|AvocadoModelException|AvocadoRepositoryException
      */
     public function save(object $entity): void {
-        $sql = parent::getConnection()->queryBuilder()::save($this->tableName, $entity)->get();
+        $query = parent::getConnection()->queryBuilder()::save($this->tableName, $entity)->get();
 
-        parent::getConnection()->prepare($sql)->execute();
+        parent::getConnection()->prepare($query)->execute();
     }
 
     /**
      * @param ...$entities
      * @return void
-     * @throws AvocadoRepositoryException
-     * @throws ReflectionException|AvocadoModelException
      */
     public function saveMany(...$entities): void {
-        $insertColumnStatement = $this->getInsertColumns((object)$entities[0]);
-        $sql = "INSERT INTO $this->tableName $insertColumnStatement VALUES ";
-
         foreach ($entities as $entity) {
-            $sql .= "(NULL, ";
-            $sql .= $this->getObjectAttributesAsSQLString($entity);
-            $sql .= "),";
+            $this->save($entity);
+        }
+    }
+
+    public function customWithSingleDataset(string $query, string $type = null): object {
+        if ($type !== null && TypesUtils::stringContainsPrimitiveType($type)) {
+            return $this->queryWithMapper($query);
         }
 
-        $sql = substr($sql, 0, -1);
+        $dataset = $this->query($query);
 
-        $this->query($sql);
+        $object = $dataset[key($dataset)];
+
+        $vars = get_object_vars($object);
+
+        return $object[$vars[key($vars)]];
     }
 
-    /**
-     * @return void
-     */
-    public function truncate(): void {
-        $this->query("TRUNCATE TABLE $this->tableName");
+    public function customWithDataset(string $query): array {
+        return $this->queryWithMapper($query);
     }
 
-
-    /**
-     * @param string $to
-     * @return void
-     */
-    public function renameTo(string $to): void {
-        $this->query("ALTER TABLE $this->tableName RENAME TO $to");
+    public function custom(string $query) {
+        $this->query($query);
     }
 }

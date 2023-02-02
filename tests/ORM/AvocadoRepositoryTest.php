@@ -2,18 +2,15 @@
 
 namespace Avocado\Tests\Unit;
 
+use Avocado\DataSource\DataSource;
+use Avocado\DataSource\DataSourceBuilder;
 use Avocado\MysqlDriver\MySQLDriver;
 use Avocado\MysqlDriver\MySQLMapper;
-use stdClass;
-use ReflectionObject;
-use Avocado\ORM\Attributes\Id;
-use PHPUnit\Framework\TestCase;
-use Avocado\ORM\Attributes\Field;
-use Avocado\ORM\Attributes\Table;
-use Avocado\DataSource\DataSource;
-use Avocado\ORM\AvocadoRepository;
 use Avocado\ORM\AvocadoModelException;
-use Avocado\DataSource\DataSourceBuilder;
+use Avocado\ORM\AvocadoRepository;
+use PHPUnit\Framework\TestCase;
+use ReflectionObject;
+use stdClass;
 
 class AvocadoRepositoryTest extends TestCase {
     private DataSource $dataSource;
@@ -23,48 +20,34 @@ class AvocadoRepositoryTest extends TestCase {
     private const PASSWORD = "user";
 
     protected function setUp(): void {
-        $this->dataSource = (new DataSourceBuilder())
-            ->username(self::USER)
-            ->password(self::PASSWORD)
-            ->databaseName(self::DATABASE)
-            ->driver(MySQLDriver::class)
-            ->port(3306)
-            ->server("172.17.0.2")
-            ->build();
+        $this->dataSource = (new DataSourceBuilder())->username(self::USER)
+                                                     ->password(self::PASSWORD)
+                                                     ->databaseName(self::DATABASE)
+                                                     ->driver(MySQLDriver::class)
+                                                     ->port(3306)
+                                                     ->server("172.17.0.2")
+                                                     ->build();
     }
 
     public function testCreatingNewModelInstancesByEntity() {
         $usersRepo = $this->createMock(AvocadoRepository::class);
-        $usersRepo->method("findMany")
-            ->willReturn([new TestUser("", "", 24, UserRole::USER)]);
+        $usersRepo->method("findMany")->willReturn([new TestUser("", "", 24, UserRole::USER)]);
 
-        self::assertTrue((($usersRepo -> findMany())[0]) instanceof TestUser);
+        self::assertTrue((($usersRepo->findMany())[0]) instanceof TestUser);
     }
 
     public function testFindManyActionWithoutCriteria(): void {
         $usersRepo = $this->createMock(AvocadoRepository::class);
-        $usersRepo->method("findMany")
-            ->willReturn([new TestUser("", "", 24, UserRole::USER)]);
+        $usersRepo->method("findMany")->willReturn([new TestUser("", "", 24, UserRole::USER)]);
 
-        self::assertIsArray($usersRepo -> findMany());
+        self::assertIsArray($usersRepo->findMany());
     }
 
     public function testFindManyActionWithCriteria(): void {
         $usersRepo = $this->createMock(AvocadoRepository::class);
-        $usersRepo->method("findMany")
-            ->willReturn([new TestUser("test1", "", 24, UserRole::USER)]);
+        $usersRepo->method("findMany")->willReturn([new TestUser("test1", "", 24, UserRole::USER)]);
 
-        self::assertIsArray($usersRepo -> findMany(array(
-            "username" => "test1"
-        )));
-    }
-
-    public function testMappingEnumsToSQL(): void {
-        $testObject = new TableWithIgnoringType(1, UserRole::USER);
-        $repository = new AvocadoRepository(TableWithIgnoringType::class);
-
-        $ref = new ReflectionObject($repository);
-        self::assertSame(" \"user\" ", $ref->getMethod('getObjectAttributesAsSQLString')?->invokeArgs($repository, [$testObject]));
+        self::assertIsArray($usersRepo->findMany(array("username" => "test1")));
     }
 
     public function testMappingSQLToObjectIfEnumWasNotFound(): void {
@@ -95,7 +78,7 @@ class AvocadoRepositoryTest extends TestCase {
         $repository = new AvocadoRepository(TableWithIgnoringType::class);
 
         $mapper = new MySQLMapper();
-        $result = $mapper -> entityToObject($repository, $testObject);
+        $result = $mapper->entityToObject($repository, $testObject);
 
         self::assertSame(UserRole::ADMIN, $result->getRole());
     }
@@ -103,8 +86,7 @@ class AvocadoRepositoryTest extends TestCase {
     public function testSavingObjectsWithEnums(): void {
         $repo = $this->createMock(AvocadoRepository::class);
 
-        $repo->method('findFirst')
-            ->willReturn(new TestUser("test_with_enum", "test", 2.0, UserRole::USER));
+        $repo->method('findFirst')->willReturn(new TestUser("test_with_enum", "test", 2.0, UserRole::USER));
 
         $testObject = $repo->findFirst(["username" => "test_with_enum"]);
 
@@ -114,40 +96,32 @@ class AvocadoRepositoryTest extends TestCase {
     public function testFindingByEnumType(): void {
         $repo = $this->createMock(AvocadoRepository::class);
 
-        $repo->method("findFirst")
-            ->willReturn(new TestUser("", "", 2, UserRole::USER));
+        $repo->method("findFirst")->willReturn(new TestUser("", "", 2, UserRole::USER));
 
-        $user = $repo -> findFirst(["role" => UserRole::USER]);
-        self::assertTrue($user instanceof TestUser && $user -> getRole() === UserRole::USER);
+        $user = $repo->findFirst(["role" => UserRole::USER]);
+        self::assertTrue($user instanceof TestUser && $user->getRole() === UserRole::USER);
     }
 
     public function testFindFindOne(): void {
         $repo = $this->createMock(AvocadoRepository::class);
 
-        $repo->method("findFirst")
-            ->willReturn(new TestUser("test1", "", 23, UserRole::USER));
+        $repo->method("findFirst")->willReturn(new TestUser("test1", "", 23, UserRole::USER));
 
-        self::assertIsObject($repo -> findFirst(array(
-            "username" => "test1"
-        )));
+        self::assertIsObject($repo->findFirst(array("username" => "test1")));
     }
 
     public function testFindOneWithCriteria(): void {
         $repo = $this->createMock(AvocadoRepository::class);
 
-        $repo->method("findFirst")
-            ->willReturn(new TestUser("test1", "", 23, UserRole::USER));
+        $repo->method("findFirst")->willReturn(new TestUser("test1", "", 23, UserRole::USER));
 
-        self::assertIsObject($repo -> findFirst(array(
-            "username" => "%test%"
-        )));
+        self::assertIsObject($repo->findFirst(array("username" => "%test%")));
     }
 
     public function testUpdateMany() {
         $repo = $this->createMock(AvocadoRepository::class);
 
-        $repo->method("findFirst")
-            ->willReturn(new TestUser("", "", 10.0, UserRole::USER));
+        $repo->method("findFirst")->willReturn(new TestUser("", "", 10.0, UserRole::USER));
 
         $updatedUsers = $repo->findFirst();
 
@@ -159,11 +133,8 @@ class AvocadoRepositoryTest extends TestCase {
     public function testDelete(): void {
         $usersRepo = $this->createMock(AvocadoRepository::class);
 
-        $usersRepo->method('findFirst')
-            ->willReturn(null);
+        $usersRepo->method('findFirst')->willReturn(null);
 
-        self::assertNull($usersRepo -> findFirst(array(
-            "username" => "test1"
-        )));
+        self::assertNull($usersRepo->findFirst(array("username" => "test1")));
     }
 }

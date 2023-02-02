@@ -2,11 +2,12 @@
 
 namespace Avocado\AvocadoORM\Actions;
 
+use Avocado\AvocadoORM\Order;
+
 interface Actions {
-    public function findMany(array $criteria);
+    public function findMany(array $criteria, string $orderBy = null, Order $order = Order::ASCENDING);
     public function findFirst(array $criteria);
     public function findById(string|int $id);
-    public function findOneToManyRelation(array $findCriteria, ?array $criteria);
     public function paginate(int $limit, int $offset);
 
     public function updateMany(array $updateCriteria, array $criteria);
@@ -17,7 +18,7 @@ interface Actions {
 
     public function save(object $entity);
     public function saveMany(array $entities);
-
-    public function truncate();
-    public function renameTo(string $to);
+    public function customWithSingleDataset(string $query, string $type = null);
+    public function customWithDataset(string $query);
+    public function custom(string $query);
 }
