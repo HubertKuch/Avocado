@@ -295,4 +295,8 @@ class MockedController {
         return [];
     }
 
+    #[GetMapping("/private-properties")]
+    public function privateProperties(): array {
+        return [new SecondTestObject(4)];
+    }
 }

@@ -330,4 +330,13 @@ class ApplicationTest extends TestCase {
 
         self::assertStringContainsString("Hello from interceptor", ob_get_contents());
     }
+
+    public function testParsingPrivateProperties() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_SERVER['PHP_SELF'].="/avocado-test/private-properties";
+
+        MockedApplication::init();
+
+        self::assertStringContainsString('{"test":4}', ob_get_contents());
+    }
 }

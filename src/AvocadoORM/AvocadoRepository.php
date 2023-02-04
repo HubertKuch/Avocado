@@ -205,7 +205,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
 
         $dataset = $this->query($query);
 
-        $object = $dataset[key($dataset)];
+        $object = $dataset->{key($dataset)};
 
         $vars = get_object_vars($object);
 
