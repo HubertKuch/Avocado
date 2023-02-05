@@ -92,11 +92,11 @@ class AvocadoRepository extends AvocadoModel implements Actions {
 
     public function paginate(int $limit, int $offset): array {
         $query = parent::getConnection()
-                     ->queryBuilder()
-                     ->find($this->tableName, [], [])
-                     ->limit($limit)
-                     ->offset($offset)
-                     ->get();
+                       ->queryBuilder()
+                       ->find($this->tableName, [], [])
+                       ->limit($limit)
+                       ->offset($offset)
+                       ->get();
 
         return $this->queryWithMapper($query . " LIMIT $limit OFFSET $offset");
     }
@@ -123,9 +123,9 @@ class AvocadoRepository extends AvocadoModel implements Actions {
         }
 
         $query = parent::getConnection()
-                     ->queryBuilder()
-                     ->update($this->tableName, $updateCriteria, [$this->primaryKey => $id])
-                     ->get();
+                       ->queryBuilder()
+                       ->update($this->tableName, $updateCriteria, [$this->primaryKey => $id])
+                       ->get();
 
         $this->queryWithMapper($query);
     }
@@ -198,18 +198,22 @@ class AvocadoRepository extends AvocadoModel implements Actions {
         }
     }
 
-    public function customWithSingleDataset(string $query, string $type = null): object {
+    public function customWithSingleDataset(string $query, string $type = null): ?object {
         if ($type !== null && TypesUtils::stringContainsPrimitiveType($type)) {
-            return $this->queryWithMapper($query);
+            $dataset = $this->query($query);
+
+            if (empty($dataset)) {
+                return null;
+            }
+
+            $vars = get_object_vars($dataset[0]);
+
+            return $dataset[0]->{$vars[key($vars)]};
         }
 
-        $dataset = $this->query($query);
+        $dataset = $this->queryWithMapper($query);
 
-        $object = $dataset->{key($dataset)};
-
-        $vars = get_object_vars($object);
-
-        return $object[$vars[key($vars)]];
+        return empty($dataset) ? null : $dataset[0];
     }
 
     public function customWithDataset(string $query): array {
