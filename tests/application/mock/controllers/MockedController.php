@@ -18,6 +18,7 @@ use Avocado\AvocadoApplication\Middleware\Next;
 use Avocado\HTTP\ContentType;
 use Avocado\HTTP\HTTPStatus;
 use Avocado\HTTP\ResponseBody;
+use Avocado\ORM\AvocadoRepository;
 use Avocado\Router\HttpRequest;
 use Avocado\Router\HttpResponse;
 use Avocado\Utils\Optional;

@@ -23,7 +23,7 @@ class MockedDatabaseConfiguration {
             ->server("172.17.0.2")
             ->port(3306)
             ->driver(MySQLDriver::class)
-            ->databaseName("")
+            ->databaseName("avocado_test")
             ->build();
     }
 }

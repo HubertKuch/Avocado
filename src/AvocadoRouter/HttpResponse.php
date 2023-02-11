@@ -5,6 +5,9 @@ namespace Avocado\Router;
 use Avocado\HTTP\HTTPStatus;
 
 class HttpResponse {
+
+    private static string $contentType;
+
     public function write($data): HttpResponse {
         echo $data;
 
@@ -39,15 +42,22 @@ class HttpResponse {
     }
 
     public function json(object|array $data): HttpResponse {
-        header('Content-Type: application/json; charset=utf-8');
-
+        $this->setHeader("Content-Type", "application/json; charset=utf-8");
         echo json_encode($data);
 
         return $this;
     }
 
     public function setHeader(string $key, string $value): HttpResponse {
+        if (strtolower($key) == "content-type") {
+            static::$contentType = $value;
+        }
+
         header("$key: $value");
         return $this;
+    }
+
+    public static function getContentType(): string {
+        return static::$contentType;
     }
 }

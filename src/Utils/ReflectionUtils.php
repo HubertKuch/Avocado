@@ -3,16 +3,14 @@
 namespace Avocado\Utils;
 
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
+use Avocado\ORM\Attributes\Field;
 use AvocadoApplication\Attributes\Nullable;
-use mysql_xdevapi\SqlStatement;
-use PHPUnit\Exception;
+use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionEnum;
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionObject;
-use ReflectionAttribute;
-use ReflectionException;
-use Avocado\ORM\Attributes\Field;
-use stdClass;
 use Utils\Strings;
 
 class ReflectionUtils {
@@ -26,7 +24,7 @@ class ReflectionUtils {
             $propertyName = $property->getName();
 
             if (!empty($property->getAttributes(Field::class))) {
-                if(!empty($property->getAttributes(Field::class)[0]->getArguments())) {
+                if (!empty($property->getAttributes(Field::class)[0]->getArguments())) {
                     $propertyName = $property->getAttributes(Field::class)[0]->getArguments()[0];
                 }
             }
@@ -47,7 +45,6 @@ class ReflectionUtils {
         $objectRef = new ReflectionObject($instance);
 
         foreach ($objectRef->getProperties() as $propertyRef) {
-            $propertyRef->setAccessible(true);
             $name = $propertyRef->name;
 
             if (!array_key_exists($name, $data)) {
@@ -55,10 +52,8 @@ class ReflectionUtils {
             }
 
             if (!array_key_exists($name, $data)) {
-                if (
-                    AnnotationUtils::isAnnotated($propertyRef, Nullable::class) &&
-                    $propertyRef->getType()->allowsNull()
-                ) {
+                if (AnnotationUtils::isAnnotated($propertyRef, Nullable::class) && $propertyRef->getType()
+                                                                                               ->allowsNull()) {
 
                     if ($propertyRef->isInitialized($instance)) {
                         continue;
@@ -72,10 +67,16 @@ class ReflectionUtils {
                 }
             }
 
-            $isObjectProperty = ClassFinder::getClassReflectionByName($propertyRef->getType()->getName()) !== null;
 
-            if ($isObjectProperty) {
-                $propertyRef->setValue($instance, self::instanceFromArray($data[$name], $propertyRef->getType()->getName()));
+            $objectPropertyReflection = ClassFinder::getClassReflectionByName($propertyRef->getType()->getName());
+
+            if ($objectPropertyReflection !== null && $objectPropertyReflection->isEnum()) {
+                $enumRef = new ReflectionEnum($propertyRef->getType()->getName());
+
+                $propertyRef->setValue($instance, $enumRef->getCase($data[$name]["name"])->getValue());
+            } else if ($objectPropertyReflection !== null) {
+                $propertyRef->setValue($instance,
+                    self::instanceFromArray($data[$name], $propertyRef->getType()->getName()));
             } else {
                 $propertyRef->setValue($instance, $data[$name]);
             }
@@ -89,7 +90,7 @@ class ReflectionUtils {
 
         $attribute = $reflection->getAttributes($attribute);
 
-        return !empty($attribute)  ? $attribute[key($attribute)] : null;
+        return !empty($attribute) ? $attribute[key($attribute)] : null;
     }
 
     public static function getAttributeFromClass(string|ReflectionClass $class, string $attribute): ReflectionAttribute|null {
@@ -105,7 +106,7 @@ class ReflectionUtils {
 
         $attribute = $reflection->getAttributes($attribute);
 
-        return !empty($attribute)  ? $attribute[key($attribute)] : null;
+        return !empty($attribute) ? $attribute[key($attribute)] : null;
     }
 
     public static function getAttributeFromMethod(string $className, string $methodName, string $attribute): ReflectionAttribute|null {
@@ -117,7 +118,7 @@ class ReflectionUtils {
 
         $attribute = $reflection->getAttributes($attribute);
 
-        return !empty($attribute)  ? $attribute[key($attribute)] : null;
+        return !empty($attribute) ? $attribute[key($attribute)] : null;
     }
 
     /** @return ReflectionMethod[] */
@@ -126,7 +127,7 @@ class ReflectionUtils {
             $methods = (new ReflectionClass($className))->getMethods();
 
             if (!is_null($attributeName)) {
-                $methods = array_filter($methods, function($method) use ($attributeName) {
+                $methods = array_filter($methods, function ($method) use ($attributeName) {
                     return !empty($method->getAttributes($attributeName));
                 });
             }

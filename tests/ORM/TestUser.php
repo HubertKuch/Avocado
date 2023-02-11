@@ -14,7 +14,7 @@ class TestUser {
     private string $username;
     #[Field]
     private string $password;
-    #[Field('amount2')]
+    #[Field('amount')]
     private float $amount;
     #[Field]
     private UserRole $role;
