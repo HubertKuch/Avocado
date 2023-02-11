@@ -3,6 +3,8 @@
 namespace Avocado\Tests\Unit\Application;
 
 use Avocado\AvocadoApplication\Attributes\Configuration;
+use Avocado\AvocadoApplication\AutoConfigurations\nested\EnvironmentConfiguration;
+use AvocadoApplication\AutoConfigurations\AvocadoConfiguration;
 use ReflectionClass;
 use PHPUnit\Framework\TestCase;
 use Avocado\Application\Controller;
@@ -338,5 +340,16 @@ class ApplicationTest extends TestCase {
         MockedApplication::init();
 
         self::assertStringContainsString('{"test":4}', ob_get_contents());
+    }
+
+    public function testParsingEmptyConfiguration() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+
+        MockedApplication::init();
+
+        $conf = Application::getConfiguration()->getConfiguration(ConfigurationWithoutMockedProperties::class);
+
+        self::assertNotNull($conf);
+        self::assertNull($conf->getTest());
     }
 }

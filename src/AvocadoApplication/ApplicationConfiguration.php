@@ -32,6 +32,8 @@ class ApplicationConfiguration {
 
             if ($root) {
                 $parsed[] = self::parse($root, $propertiesClass->getTargetReflection()->getName());
+            } else {
+                $parsed[] = $propertiesClass->getInstance();
             }
         }
 
