@@ -10,7 +10,7 @@ class AvocadoRouterTest extends TestCase {
     public function testGettingRouteEndpoint() {
         $ref = new ReflectionClass(AvocadoRouter::class);
 
-        AvocadoRouter::GET("/test", [], function(){}, ["req", "res"]);
+        AvocadoRouter::GET("/test", [], function(){});
 
         $excepted = "test";
 
@@ -20,7 +20,7 @@ class AvocadoRouterTest extends TestCase {
     public function testGettingRouteHTTPMethod() {
         $ref = new ReflectionClass(AvocadoRouter::class);
 
-        AvocadoRouter::GET("/test", [], function(){}, ["req", "res"]);
+        AvocadoRouter::GET("/test", [], function(){});
 
         $excepted = "GET";
 
