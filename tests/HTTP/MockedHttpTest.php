@@ -20,7 +20,7 @@ class MockedHttpTest extends TestCase {
 
         MockedApplication::init();
 
-        $response = MockedHttp::getResponse();
+        $response = MockedHttp::getResponse(TestUser::class);
 
         self::assertTrue($response->getData()[0] instanceof TestUser);
         self::assertTrue($response->getContentType() == ContentType::APPLICATION_JSON);

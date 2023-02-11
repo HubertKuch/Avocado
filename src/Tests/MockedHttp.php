@@ -19,7 +19,7 @@ class MockedHttp {
         $_SERVER['PHP_SELF'] = $endpoint;
     }
 
-    public static function getResponse(): ResponseBody {
+    public static function getResponse(string $target): ResponseBody {
         $headers = $_SERVER;
         $body = ob_get_contents();
         $status = http_response_code();
@@ -32,7 +32,7 @@ class MockedHttp {
         }
 
         if ($contentType == ContentType::APPLICATION_JSON) {
-            $body = JsonSerializer::deserialize($body, TestUser::class);
+            $body = JsonSerializer::deserialize($body, $target);
         }
 
         return new ResponseBody($body, HTTPStatus::from($status), $contentType);
