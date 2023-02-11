@@ -9,6 +9,7 @@ use Avocado\AvocadoApplication\ApplicationExceptionsAdvisor;
 use Avocado\AvocadoApplication\Attributes\Avocado;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Attributes\Exclude;
+use Avocado\AvocadoApplication\Attributes\PropertiesSource;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
 use Avocado\AvocadoApplication\Leafs\LeafManager;
@@ -68,11 +69,17 @@ final class Application {
             $avAttr = ReflectionUtils::getAttributeFromClass($class, Avocado::class);
 
             if ($avAttr) {
-                return new Avocado($class);
+                try {
+                    return new Avocado($class, new ReflectionClass($class));
+                } catch (ReflectionException $e) {
+                    throw new MissingAnnotationException(sprintf("Missing %s annotation on main application class.",
+                        Avocado::class));
+                }
             }
         }
 
-        throw new MissingAnnotationException(sprintf("Missing %s annotation on main application class.", Avocado::class));
+        throw new MissingAnnotationException(sprintf("Missing %s annotation on main application class.",
+            Avocado::class));
     }
 
     private static function getControllers(): array {
@@ -118,7 +125,8 @@ final class Application {
             if (Configuration::isConfiguration($class)) {
                 try {
                     $configurations[] = new Configuration($class);
-                } catch (ClassNotFoundException) {}
+                } catch (ClassNotFoundException) {
+                }
             }
         }
 
@@ -151,7 +159,7 @@ final class Application {
     private static function declareRoutes(): void {
         foreach (self::$restControllers as $controller) {
             foreach ($controller->getMappings() as $mapping) {
-                if($mapping) {
+                if ($mapping) {
                     self::declareRoute($mapping);
                 }
             }
@@ -171,13 +179,17 @@ final class Application {
     }
 
     private static function getPreProcessors(): array {
-        $validClasses = array_filter(self::$declaredClasses, fn($className) => PreProcessor::isAnnotated(new ReflectionClass($className)));
+        $validClasses = array_filter(self::$declaredClasses,
+            fn($className) => PreProcessor::isAnnotated(new ReflectionClass($className)));
 
-        return array_map(function($class) {
+        return array_map(function ($class) {
             $ref = ClassFinder::getClassReflectionByName($class);
-            $instance = $ref -> newInstanceWithoutConstructor();
+            $instance = $ref->newInstanceWithoutConstructor();
 
-            DependencyInjectionService::addResource(new Resource($class, ReflectionUtils::getAllTypes($instance), $class, $instance));
+            DependencyInjectionService::addResource(new Resource($class,
+                ReflectionUtils::getAllTypes($instance),
+                $class,
+                $instance));
 
             return $instance;
         }, $validClasses);
@@ -200,8 +212,13 @@ final class Application {
         return array_filter($allConfigurations, fn($configuration) => $configuration->isConfigurationsProperties());
     }
 
-    private static function initConfiguration(): ApplicationConfiguration {
+    private static function initConfiguration(?string $path = null): ApplicationConfiguration {
         $mainDir = self::getProjectDirectory();
+
+        if ($path) {
+            $mainDir = $path;
+        }
+
         $CONFIGURATION_FILE_BASE = "application";
         $ALLOWED_EXTENSIONS = ["yaml", "json"];
 
@@ -210,8 +227,8 @@ final class Application {
         }
 
         foreach ($ALLOWED_EXTENSIONS as $EXTENSION) {
-            $baseFilePath = $mainDir.DIRECTORY_SEPARATOR.$CONFIGURATION_FILE_BASE;
-            $baseFullPath =  $baseFilePath. "." .$EXTENSION;
+            $baseFilePath = $mainDir . DIRECTORY_SEPARATOR . $CONFIGURATION_FILE_BASE;
+            $baseFullPath = $baseFilePath . "." . $EXTENSION;
 
             $declaredConfigurationsPropertiesClasses = self::getPropertiesConfigurations();
 
@@ -269,7 +286,13 @@ final class Application {
         self::$preProcessors = self::getPreProcessors();
         self::$configurations = self::getConfigurations();
 
-        self::$configuration = self::initConfiguration();
+        $propertiesSourceAttribute = ReflectionUtils::getAttributeFromClass(self::$mainClass->getReflectionClass(),PropertiesSource::class);
+
+        if ($propertiesSourceAttribute) {
+            self::$configuration = self::initConfiguration($propertiesSourceAttribute->newInstance()->getPath());
+        } else {
+            self::$configuration = self::initConfiguration();
+        }
 
         self::parsePlainConfigurations();
 
