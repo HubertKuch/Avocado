@@ -232,4 +232,11 @@ class ControllerTest extends TestCase {
 
         self::assertStringContainsString('{"test":4}', ob_get_contents());
     }
+
+    public function testStatusCode() {
+        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/exception/auto-response");
+        MockedApplication::init();
+
+        assertSame(409, http_response_code());
+    }
 }

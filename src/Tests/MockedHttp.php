@@ -19,7 +19,7 @@ class MockedHttp {
         $_SERVER['PHP_SELF'] = $endpoint;
     }
 
-    public static function getResponse(string $target): ResponseBody {
+    public static function getResponse(string $target = ""): ResponseBody {
         $headers = $_SERVER;
         $body = ob_get_contents();
         $status = http_response_code();
@@ -28,10 +28,13 @@ class MockedHttp {
         if ($contentType) {
             $contentType = str_replace("Content-Type: ", "", $contentType);
             $contentType = trim($contentType);
+            if (str_contains($contentType, ";")) {
+                $contentType = substr($contentType, 0, strpos($contentType, ";"));
+            }
             $contentType = ContentType::from(trim($contentType));
         }
 
-        if ($contentType == ContentType::APPLICATION_JSON) {
+        if ($contentType == ContentType::APPLICATION_JSON && strlen($target) > 0) {
             $body = JsonSerializer::deserialize($body, $target);
         }
 
