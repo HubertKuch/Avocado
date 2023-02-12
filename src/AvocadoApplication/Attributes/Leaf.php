@@ -8,6 +8,9 @@ use ReflectionException;
 use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 use Avocado\AvocadoApplication\Exceptions\InvalidResourceException;
 
+/**
+ * @template T
+ * */
 #[Attribute(Attribute::TARGET_METHOD)]
 class Leaf implements Resourceable {
     private string $methodName;
@@ -57,6 +60,7 @@ class Leaf implements Resourceable {
     }
 
     /**
+     * @return T
      * @throws InvalidResourceException
      */
     public static function instance(ReflectionMethod $method, Configuration $configuration): Leaf {

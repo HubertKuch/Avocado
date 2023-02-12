@@ -141,6 +141,9 @@ class DependencyInjectionService {
         }
     }
 
+    /*
+     *
+     * */
     public static function getResourceByType(string $autowiredClassPropertyType): Resourceable|null {
         $resource = array_filter(self::$resources, fn($resource) => in_array($autowiredClassPropertyType, $resource->getTargetResourceTypes()));
 

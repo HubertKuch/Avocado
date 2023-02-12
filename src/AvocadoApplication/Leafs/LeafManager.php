@@ -30,6 +30,9 @@ class LeafManager {
     }
 
     /**
+     * @template T
+     * @param class-string<T> $class
+     * @return T
      * @throws InvalidResourceException
      */
     public function getLeafByClass(string $class): object {

@@ -17,7 +17,6 @@ use Throwable;
 class ExceptionResponseStatusStrategy implements ExceptionHandlerStrategy {
 
     public function handle(Throwable $throwable, ?ExceptionHandler $handler = null): ResponseBody {
-        /** @var $environmentConfiguration EnvironmentConfiguration */
         $environmentConfiguration = Application::getConfiguration()->getConfiguration(AvocadoConfiguration::class)->getEnvironmentConfiguration();
 
         $responseStatusAttr = ReflectionUtils::getAttribute($throwable, ResponseStatus::class);

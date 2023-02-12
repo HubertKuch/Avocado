@@ -7,9 +7,6 @@ use ReflectionClass;
 use ReflectionProperty;
 use ReflectionException;
 
-/**
- * @template T
- */
 class AvocadoModel extends AvocadoORMSettings {
     const TABLE = __NAMESPACE__."\Attributes\Table";
     const ID = __NAMESPACE__."\Attributes\Id";
@@ -32,9 +29,6 @@ class AvocadoModel extends AvocadoORMSettings {
     protected string $primaryKey;
     protected string $tableName;
 
-    /**
-     * @param class-string<T> $model
-     */
     public function __construct(string $model) {
         try {
             $this -> model = $model;

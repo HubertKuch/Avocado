@@ -4,12 +4,14 @@ namespace Avocado\ORM;
 
 use Avocado\AvocadoORM\Actions\Actions;
 use Avocado\AvocadoORM\Order;
+use Avocado\Tests\Unit\TestUser;
 use Avocado\Utils\TypesUtils;
 use ReflectionClass;
 use ReflectionException;
 
 /**
  * @template T
+ * @implements Actions<T>
  */
 class AvocadoRepository extends AvocadoModel implements Actions {
     const EXCEPTION_UPDATE_CRITERIA_MESSAGE = "Update criteria don't have to be empty.";
@@ -18,9 +20,6 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     const FIELD = __NAMESPACE__ . "\Attributes\Field";
     const IGNORE_FIELD_TYPE = __NAMESPACE__ . "\Attributes\IgnoreFieldType";
 
-    /**
-     * @param string $model
-     */
     public function __construct(string $model) {
         parent::__construct($model);
     }
@@ -80,6 +79,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
 
     /**
      * @param int|string $id
+     * @template T
      * @return T|null
      */
     public function findById(int|string $id): ?object {

@@ -4,6 +4,7 @@ namespace Avocado\Tests\Unit\Application;
 
 use Avocado\Application\RestController;
 use Avocado\ORM\AvocadoRepository;
+use Avocado\Tests\Unit\TestUser;
 use AvocadoApplication\Attributes\Autowired;
 use AvocadoApplication\Attributes\BaseURL;
 use AvocadoApplication\Mappings\GetMapping;

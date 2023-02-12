@@ -14,7 +14,7 @@ class EnvironmentConfiguration {
     /**
      * @description Is throws exception or return json representation.
      * */
-    private bool $throws;
+    private bool $throws = false;
 
     /**
      * @description Returns environment type from application.{yaml,json} file

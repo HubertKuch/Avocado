@@ -3,6 +3,7 @@
 namespace Avocado\Application;
 
 use Avocado\AvocadoApplication\Attributes\Configuration;
+use Avocado\AvocadoApplication\AutoConfigurations\nested\EnvironmentConfiguration;
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
 use Avocado\Utils\Arrays;
 use Avocado\Utils\StandardObjectMapper;
@@ -56,8 +57,9 @@ class ApplicationConfiguration {
     }
 
     /**
-     * @param string $class Class string fqn
-     * @return object|null Returns a instance of configuration class
+     * @template T
+     * @param class-string<T> $class Class name or FQN
+     * @return T|null Returns a instance of configuration class
      */
     public function getConfiguration(string $class): ?object {
         return Arrays::find(self::getConfigurations(), fn($conf) => $conf::class === $class);

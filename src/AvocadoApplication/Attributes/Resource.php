@@ -5,6 +5,9 @@ namespace AvocadoApplication\Attributes;
 use Attribute;
 use Avocado\AvocadoApplication\DependencyInjection\Resourceable;
 
+/**
+ * @template T
+ * */
 #[Attribute(Attribute::TARGET_CLASS)]
 class Resource implements Resourceable {
     private ?array $resourceTypes;
@@ -12,6 +15,9 @@ class Resource implements Resourceable {
     private ?object $targetInstance;
     private ?string $alternativeName;
 
+    /**
+     * @param class-string<T> $mainType
+     * */
     public function __construct(?string $name = "", ?array $types = null, ?string $mainType = null, ?object $targetInstance = null) {
         $this->alternativeName = $name;
         $this->resourceTypes = $types;
@@ -23,6 +29,9 @@ class Resource implements Resourceable {
         return $this->resourceTypes;
     }
 
+    /**
+     * @return T
+     * */
     public function getTargetInstance(): object {
         return $this->targetInstance;
     }
