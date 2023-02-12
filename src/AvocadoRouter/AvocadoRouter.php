@@ -82,7 +82,7 @@ class AvocadoRouter {
     }
 
     private static function setRequestMethod(): void {
-        $method = $_SERVER['REQUEST_METHOD'];
+        $method = $_SERVER['REQUEST_METHOD'] ?? '';
         $postBodyCopy = json_decode(json_encode($_POST), true);
         $postBodyCopy = array_change_key_case($postBodyCopy);
 

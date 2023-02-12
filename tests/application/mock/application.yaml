@@ -8,6 +8,7 @@ mocked-configuration:
   testArray:
     - test
     - test2
+  enumToParse: TEST
 avocado:
   router:
     matchingStrategy: SELF

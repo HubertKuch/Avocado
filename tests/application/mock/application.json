@@ -11,7 +11,8 @@
     "testArray": [
       "test",
       "test2"
-    ]
+    ],
+    "enumToParse": "TEST"
   },
   "avocado": {
     "environment": {

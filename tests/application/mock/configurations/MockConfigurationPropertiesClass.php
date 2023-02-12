@@ -12,8 +12,13 @@ class MockConfigurationPropertiesClass {
     private string $test2;
     private ?AnotherObject $anotherObject;
     private array $testArray;
+    private TestEnumToParse $enumToParse;
 
     public function getTestArray(): array {
         return $this->testArray;
+    }
+
+    public function getEnumToParse(): TestEnumToParse {
+        return $this->enumToParse;
     }
 }

@@ -73,7 +73,7 @@ class ReflectionUtils {
             if ($objectPropertyReflection !== null && $objectPropertyReflection->isEnum()) {
                 $enumRef = new ReflectionEnum($propertyRef->getType()->getName());
 
-                $propertyRef->setValue($instance, $enumRef->getCase($data[$name]["name"])->getValue());
+                $propertyRef->setValue($instance, $enumRef->getCase($data[$name]["name"] ?? $data[$name])->getValue());
             } else if ($objectPropertyReflection !== null) {
                 $propertyRef->setValue($instance,
                     self::instanceFromArray($data[$name], $propertyRef->getType()->getName()));
