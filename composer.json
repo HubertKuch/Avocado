@@ -1,37 +1,42 @@
 {
-    "name": "hubert/avocado",
-    "description": "Avocado is hobbyist PHP framework which implements routing and ORM",
-    "autoload": {
-        "classmap": [
-            "src", "tests"
-        ],
-        "psr-4": {
-            "Avocado\\": "src/",
-            "Avocado\\ORM\\": "src/AvocadoORM/",
-            "Avocado\\Router\\": "src/AvocadoRouter/",
-            "Avocado\\AvocadoView\\": "src/AvocadoView/"
-        }
-    },
-    "license": "Apache-2.0",
-    "type": "framework",
-    "authors": [
-        {
-            "name": "Hubert Kuch",
-            "email": "kuchhubert@gmail.com"
-        }
+  "name": "hubert/avocado",
+  "description": "Avocado is hobbyist PHP framework which implements routing and ORM",
+  "autoload": {
+    "classmap": [
+      "src"
     ],
-    "minimum-stability": "stable",
-    "homepage": "https://avocadoframework.com",
-    "require": {
-        "ext-dom": "*",
-        "ext-pdo": "*",
-        "php": ">=8.1",
-        "nette/robot-loader": "^3.4",
-        "symplely/yaml": "^1.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "9.5.18",
-        "phpstan/phpstan": "1.9.14",
-        "hubert/avocado-mysql-driver": "v2.0.0"
+    "psr-4": {
+      "Avocado\\": "src/",
+      "Avocado\\ORM\\": "src/AvocadoORM/",
+      "Avocado\\Router\\": "src/AvocadoRouter/",
+      "Avocado\\AvocadoView\\": "src/AvocadoView/"
     }
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests"
+    ]
+  },
+  "license": "Apache-2.0",
+  "type": "framework",
+  "authors": [
+    {
+      "name": "Hubert Kuch",
+      "email": "kuchhubert@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "homepage": "https://avocadoframework.com",
+  "require": {
+    "ext-dom": "*",
+    "ext-pdo": "*",
+    "php": ">=8.1",
+    "nette/robot-loader": "^3.4",
+    "symplely/yaml": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "9.5.18",
+    "phpstan/phpstan": "1.9.14",
+    "hubert/avocado-mysql-driver": "v2.0.0"
+  }
 }

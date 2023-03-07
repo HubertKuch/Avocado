@@ -1,10 +1,11 @@
 <?php
 
-namespace Avocado\Utils;
+namespace Avocado\Tests\Utils;
 
 use Avocado\AvocadoApplication\Attributes\Json\JsonIgnore;
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
 use Avocado\Tests\Unit\Application\ObjectToParse;
+use Avocado\Utils\StandardObjectMapper;
 use PHPUnit\Framework\TestCase;
 
 

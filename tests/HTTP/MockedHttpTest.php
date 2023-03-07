@@ -1,10 +1,11 @@
 <?php
 
-namespace Avocado\Tests;
+namespace Avocado\Tests\Unit;
 
 use Avocado\HTTP\ContentType;
 use Avocado\HTTP\HTTPMethod;
 use Avocado\HTTP\HTTPStatus;
+use Avocado\Tests\MockedHttp;
 use Avocado\Tests\Unit\Application\MockedApplication;
 use Avocado\Tests\Unit\TestUser;
 use PHPUnit\Framework\TestCase;

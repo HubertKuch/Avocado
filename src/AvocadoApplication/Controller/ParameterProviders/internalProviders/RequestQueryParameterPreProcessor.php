@@ -2,13 +2,13 @@
 
 namespace Avocado\AvocadoApplication\Controller\ParameterProviders\internalProviders;
 
+use Avocado\AvocadoApplication\Attributes\Request\RequestQuery;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\SpecificParametersPreProcessor;
 use Avocado\AvocadoApplication\Exceptions\MissingRequestQueryException;
 use Avocado\AvocadoApplication\PreProcessors\CannotBeProcessed;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
 use Avocado\Router\HttpRequest;
 use Avocado\Router\HttpResponse;
-use Avocado\Tests\Unit\Application\RequestQuery;
 use Avocado\Utils\AnnotationUtils;
 use Avocado\Utils\Optional;
 use ReflectionMethod;

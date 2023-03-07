@@ -1,7 +1,8 @@
 <?php
 
-namespace Avocado\Utils;
+namespace Avocado\Tests\Utils;
 
+use Avocado\Utils\ReflectionUtils;
 use PHPUnit\Framework\TestCase;
 use Avocado\Tests\Unit\UserRole;
 use Avocado\Tests\Unit\TableWithIgnoringType;

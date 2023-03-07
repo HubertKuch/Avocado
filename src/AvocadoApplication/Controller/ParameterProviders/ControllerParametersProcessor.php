@@ -12,8 +12,8 @@ use Avocado\AvocadoApplication\PreProcessors\CannotBeProcessed;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessorsManager;
 use Avocado\Router\HttpRequest;
 use Avocado\Router\HttpResponse;
-use Avocado\Tests\Unit\Application\RequestParam;
-use Avocado\Tests\Unit\Application\RequestQuery;
+use Avocado\AvocadoApplication\Attributes\Request\RequestQuery;
+use Avocado\AvocadoApplication\Attributes\Request\Req;
 use Avocado\Utils\StandardObjectMapper;
 use ReflectionException;
 use ReflectionMethod;
@@ -22,7 +22,9 @@ class ControllerParametersProcessor {
 
     /**
      * @return mixed[] Returns array of method parameters like [4, $request, $user, $route]
-     * */
+     *
+     * @throws ReflectionException
+     */
     public static function process(ReflectionMethod $methodRef, HttpRequest $request, HttpResponse $response): array {
         $preProcessors = PreProcessorsManager::getControllerPreProcessors();
         $methodParameters = $methodRef->getParameters();

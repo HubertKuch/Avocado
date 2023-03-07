@@ -1,7 +1,8 @@
 <?php
 
-namespace Avocado\Utils\Json;
+namespace Avocado\Tests\Utils\Json;
 
+use Avocado\Utils\Json\JsonSerializer;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 

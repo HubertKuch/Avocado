@@ -1,6 +1,6 @@
 <?php
 
-namespace Avocado\Tests\Unit\Application;
+namespace Avocado\AvocadoApplication\Attributes\Request;
 
 use Attribute;
 use ReflectionParameter;

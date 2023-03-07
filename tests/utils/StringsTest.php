@@ -1,6 +1,6 @@
 <?php
 
-namespace Avocado\Utils;
+namespace Avocado\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
 use Utils\Strings;

@@ -1,7 +1,8 @@
 <?php
 
-namespace Avocado\Utils;
+namespace Avocado\Tests\Utils;
 
+use Avocado\Utils\Arrays;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 

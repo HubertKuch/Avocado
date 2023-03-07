@@ -7,6 +7,8 @@ use Avocado\Application\RestController;
 use Avocado\AvocadoApplication\Attributes\Request\Multipart;
 use Avocado\AvocadoApplication\Attributes\Request\RequestBody;
 use Avocado\AvocadoApplication\Attributes\Request\RequestHeader;
+use Avocado\AvocadoApplication\Attributes\Request\RequestParam;
+use Avocado\AvocadoApplication\Attributes\Request\RequestQuery;
 use Avocado\AvocadoApplication\Attributes\Request\RequestStorageItem;
 use Avocado\AvocadoApplication\Exceptions\InvalidRequestBodyException;
 use Avocado\AvocadoApplication\Files\Exceptions\CannotMoveFileException;
