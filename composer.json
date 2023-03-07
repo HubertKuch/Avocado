@@ -38,5 +38,23 @@
     "phpunit/phpunit": "9.5.18",
     "phpstan/phpstan": "1.9.14",
     "hubert/avocado-mysql-driver": "v2.0.0"
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "@php bin/cleanup.php",
+      "composer install --ignore-platform-reqs --classmap-authoritative --no-dev --quiet"
+    ],
+    "post-update-cmd": [
+      "@php bin/cleanup.php",
+      "composer install --ignore-platform-reqs --classmap-authoritative --no-dev --quiet"
+    ],
+    "post-install-cmd": [
+      "@php bin/cleanup.php",
+      "composer install --ignore-platform-reqs --classmap-authoritative --no-dev --quiet"
+    ],
+    "post-package-install": [
+      "@php bin/cleanup.php",
+      "composer install --ignore-platform-reqs --classmap-authoritative --no-dev --quiet"
+    ]
   }
 }
