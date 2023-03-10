@@ -235,8 +235,7 @@ final class Application {
             }
         }
 
-
-        return new ApplicationConfiguration();
+        return ApplicationConfiguration::from($declaredConfigurationsPropertiesClasses, []);
     }
 
     public static function getConfiguration(): ?ApplicationConfiguration {

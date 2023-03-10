@@ -175,4 +175,33 @@ class ReflectionUtils {
             return null;
         }
     }
+
+    public static function initializeWithDefaultProperties(object $currentInstance): object {
+        $properties = (new ReflectionObject($currentInstance))->getProperties();
+
+        foreach ($properties as $property) {
+            $typeName = $property->getType()->getName();
+
+            if (enum_exists($typeName)) {
+                continue;
+            }
+
+            if (class_exists($typeName)) {
+                $valueInstance = (new ReflectionClass($typeName))->newInstance();
+
+                $property->setValue($currentInstance, self::initializeWithDefaultProperties($valueInstance));
+                continue;
+            }
+
+            if ($property->getDefaultValue()) {
+                continue;
+            }
+
+            if ($property->getType()->allowsNull() && !$property->getDefaultValue()) {
+                $property->setValue($currentInstance, null);
+            }
+        }
+
+        return $currentInstance;
+    }
 }

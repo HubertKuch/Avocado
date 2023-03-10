@@ -4,9 +4,11 @@ namespace Avocado\Tests\Unit\Application;
 
 use Avocado\Application\Application;
 use Avocado\AvocadoApplication\Attributes\Configuration;
-use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
 use Avocado\HTTP\HTTPMethod;
 use Avocado\HTTP\HttpTemplate;
+use Avocado\Tests\Unit\MockedApplicationWithNullableProperties;
+use AvocadoApplication\AutoConfigurations\AvocadoConfiguration;
+use AvocadoApplication\Environment\EnvironmentType;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -33,7 +35,8 @@ class ApplicationTest extends TestCase {
 
         /** @var $confs Configuration[] */
         $confs = $ref->getStaticPropertyValue("configurations");
-        $matchedParentConfs = array_filter($confs, fn($conf) => $conf->getTargetClassName() === InjectedTwoLeafsOfTheSameType::class);
+        $matchedParentConfs = array_filter($confs,
+            fn($conf) => $conf->getTargetClassName() === InjectedTwoLeafsOfTheSameType::class);
 
         /** @var $instance InjectedTwoLeafsOfTheSameType */
         $instance = $matchedParentConfs[key($matchedParentConfs)]->getTargetInstance();
@@ -47,5 +50,17 @@ class ApplicationTest extends TestCase {
         MockedApplicationToTestFilters::init();
 
         self::assertEmpty(ob_get_contents());
+    }
+
+    public function testNotGivenApplicationFile_thenProcess_returnEmptyInstancesWithDefaults() {
+        MockedApplicationWithNullableProperties::run();
+
+        self::assertNotNull(Application::getConfiguration()
+                                       ->getConfiguration(AvocadoConfiguration::class)
+                                       ->getEnvironmentConfiguration());
+        self::assertNotNull(Application::getConfiguration()
+                                       ->getConfiguration(AvocadoConfiguration::class)
+                                       ->getEnvironmentConfiguration()
+                                       ->getEnvironmentType() === EnvironmentType::DEVELOPMENT);
     }
 }

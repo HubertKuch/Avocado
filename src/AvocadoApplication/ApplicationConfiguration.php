@@ -6,6 +6,7 @@ use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\AutoConfigurations\nested\EnvironmentConfiguration;
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
 use Avocado\Utils\Arrays;
+use Avocado\Utils\ReflectionUtils;
 use Avocado\Utils\StandardObjectMapper;
 use ReflectionException;
 
@@ -34,7 +35,10 @@ class ApplicationConfiguration {
             if ($root) {
                 $parsed[] = self::parse($root, $propertiesClass->getTargetReflection()->getName());
             } else {
-                $parsed[] = $propertiesClass->getInstance();
+                $instance = $propertiesClass->getTargetInstance();
+                $filedInstance = ReflectionUtils::initializeWithDefaultProperties($instance);
+
+                $parsed[] = $filedInstance;
             }
         }
 
