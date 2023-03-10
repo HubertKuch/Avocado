@@ -85,15 +85,10 @@ class DependencyInjectionService {
 
         $resourceReflection = new ReflectionClass($resourceClass);
 
-        if (!$resourceReflection->getConstructor()) {
-            throw new ResourceException(self::CONSTRUCTOR_WAS_NOT_SET_RESOURCE_EXCEPTION);
-        }
-
-        if (!$resourceReflection->getConstructor()->isPublic()) {
-            throw new ResourceException(self::PUBLIC_CONSTRUCTOR_RESOURCE_EXCEPTION);
-        }
-
-        if ($resourceReflection->getConstructor()->getNumberOfParameters() != 0) {
+        if ($resourceReflection->getConstructor() &&
+            $resourceReflection->getConstructor()->isPublic() &&
+            $resourceReflection->getConstructor()->getNumberOfParameters() != 0
+        ) {
             throw new TooMuchResourceConstructorParametersException(self::TOO_MUCH_RESOURCE_PROPERTIES_EXCEPTION);
         }
     }
@@ -108,7 +103,7 @@ class DependencyInjectionService {
                 throw new ResourceNotFoundException(sprintf(self::RESOURCE_NOT_FOUND_EXCEPTION, $resourceName));
             }
 
-            $instance = (new ReflectionClass($resourceName))->newInstance();;
+            $instance = (new ReflectionClass($resourceName))->newInstance();
 
             return $instance;
         } catch (ReflectionException){
@@ -141,9 +136,11 @@ class DependencyInjectionService {
         }
     }
 
-    /*
-     *
-     * */
+    /**
+     * @template T
+     * @param class-string<T> $autowiredClassPropertyType
+     * @return Resourceable<T>|null
+     */
     public static function getResourceByType(string $autowiredClassPropertyType): Resourceable|null {
         $resource = array_filter(self::$resources, fn($resource) => in_array($autowiredClassPropertyType, $resource->getTargetResourceTypes()));
 

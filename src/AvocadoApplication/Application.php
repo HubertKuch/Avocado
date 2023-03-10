@@ -10,6 +10,7 @@ use Avocado\AvocadoApplication\Attributes\Avocado;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Attributes\Exclude;
 use Avocado\AvocadoApplication\Attributes\PropertiesSource;
+use Avocado\AvocadoApplication\Cache\CacheProvider;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
 use Avocado\AvocadoApplication\Filters\Filter;
@@ -57,6 +58,8 @@ final class Application {
             self::loadClasses($dir);
             self::initConfigurations();
             self::initDependencyInjectionsService();
+
+            self::initCache();
 
             self::initRestControllers();
 
@@ -383,4 +386,10 @@ final class Application {
 
         AvocadoRouter::registerFilters(self::$requestFilters);
     }
+
+    private static function initCache(): void {
+        $cacheProvider = DependencyInjectionService::getResourceByType(CacheProvider::class)->getTargetInstance();
+        $cacheProvider->init();
+    }
+
 }
