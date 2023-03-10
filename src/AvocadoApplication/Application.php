@@ -50,6 +50,7 @@ final class Application {
     private static string $mainClassName;
     private static HttpConsumer $httpConsumer;
     private static ?ApplicationConfiguration $configuration;
+    private static CacheProvider $cacheProvider;
 
     public static final function run(string $mainClass, string $dir): void {
         try {
@@ -390,6 +391,11 @@ final class Application {
     private static function initCache(): void {
         $cacheProvider = DependencyInjectionService::getResourceByType(CacheProvider::class)->getTargetInstance();
         $cacheProvider->init();
+
+        self::$cacheProvider = $cacheProvider;
     }
 
+    public static function getCacheProvider(): CacheProvider {
+        return self::$cacheProvider;
+    }
 }
