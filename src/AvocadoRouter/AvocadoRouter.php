@@ -158,10 +158,6 @@ class AvocadoRouter {
         }
     }
 
-    public static function matchedAnyRoute(): bool {
-        return count(self::$matchedRoute) !== 0;
-    }
-
     public static function invokeMatchedRoute(): ?ResponseBody {
         if (count(self::$matchedRoute) == 0) {
             return null;

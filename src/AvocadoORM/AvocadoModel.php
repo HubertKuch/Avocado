@@ -187,7 +187,6 @@ class AvocadoModel extends AvocadoORMSettings {
             $propertyRef = new ReflectionProperty($this->model, $aliasOrName);
             return $propertyRef->getValue($object)?->value;
         } catch (ReflectionException) {
-            var_dump("TEST");
             return null;
         }
     }

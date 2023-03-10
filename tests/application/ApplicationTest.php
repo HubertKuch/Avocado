@@ -5,6 +5,8 @@ namespace Avocado\Tests\Unit\Application;
 use Avocado\Application\Application;
 use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
+use Avocado\HTTP\HTTPMethod;
+use Avocado\HTTP\HttpTemplate;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -24,13 +26,6 @@ class ApplicationTest extends TestCase {
         self::assertFalse(in_array(TestClassToExclude::class, $classes));
     }
 
-    public function testExcludingAvocadoTestsFromProductionApplication(): void {
-        $this->expectException(MissingAnnotationException::class);
-        $_ENV['AVOCADO_ENVIRONMENT'] = "PRODUCTION";
-
-        MockedApplication::init();
-    }
-
     public function testInjectingTwoLeafsOfTheSameType() {
         MockedApplication::init();
 
@@ -45,5 +40,12 @@ class ApplicationTest extends TestCase {
 
         self::assertNotNull($instance->getTest());
         self::assertNotNull($instance->getTest2());
+    }
+
+    public function testGivenNotValidFilter_thenProcess_returnNothing() {
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/");
+        MockedApplicationToTestFilters::init();
+
+        self::assertEmpty(ob_get_contents());
     }
 }

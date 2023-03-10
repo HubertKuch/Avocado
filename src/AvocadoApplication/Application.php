@@ -46,11 +46,14 @@ final class Application {
     private static LeafManager $leafManager;
     private static ?DataSource $dataSource;
     private static Avocado $mainClass;
+    private static string $mainClassName;
     private static HttpConsumer $httpConsumer;
     private static ?ApplicationConfiguration $configuration;
 
-    public static final function run(string $dir): void {
+    public static final function run(string $mainClass, string $dir): void {
         try {
+            self::$mainClassName = $mainClass;
+
             self::loadClasses($dir);
             self::initConfigurations();
             self::initDependencyInjectionsService();
@@ -69,23 +72,10 @@ final class Application {
 
     /**
      * @throws MissingAnnotationException
+     * @throws ReflectionException
      */
     public static final function getMainClass(): Avocado {
-        foreach (self::$declaredClasses as $class) {
-            $avAttr = ReflectionUtils::getAttributeFromClass($class, Avocado::class);
-
-            if ($avAttr) {
-                try {
-                    return new Avocado($class, new ReflectionClass($class));
-                } catch (ReflectionException $e) {
-                    throw new MissingAnnotationException(sprintf("Missing %s annotation on main application class.",
-                        Avocado::class));
-                }
-            }
-        }
-
-        throw new MissingAnnotationException(sprintf("Missing %s annotation on main application class.",
-            Avocado::class));
+        return new Avocado(self::$mainClassName, new ReflectionClass(self::$mainClassName));
     }
 
     private static function getControllers(): array {
@@ -385,7 +375,7 @@ final class Application {
     private static function getRequestFilters(): array {
         $requestFilterClasses = array_filter(self::$filters, fn($class) => ReflectionUtils::implements($class, RequestFilter::class));
 
-        return array_map(fn($class) => DependencyInjectionService::getResourceByType($class), $requestFilterClasses);
+        return array_map(fn($class) => DependencyInjectionService::getResourceByType($class)->getTargetInstance(), $requestFilterClasses);
     }
 
     private static function initFilters(): void {
