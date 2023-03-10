@@ -12,6 +12,8 @@ use Avocado\AvocadoApplication\Attributes\Exclude;
 use Avocado\AvocadoApplication\Attributes\PropertiesSource;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
+use Avocado\AvocadoApplication\Filters\Filter;
+use Avocado\AvocadoApplication\Filters\RequestFilter;
 use Avocado\AvocadoApplication\Leafs\LeafManager;
 use Avocado\AvocadoApplication\PreProcessors\PreProcessor;
 use Avocado\AvocadoApplication\ResponseConsuming\MainHttpConsumer;
@@ -19,6 +21,7 @@ use Avocado\DataSource\DataSource;
 use Avocado\HTTP\HTTPMethod;
 use Avocado\HTTP\Managers\HttpConsumer;
 use Avocado\ORM\AvocadoORMSettings;
+use Avocado\Router\AvocadoRoute;
 use Avocado\Router\AvocadoRouter;
 use Avocado\Utils\Arrays;
 use Avocado\Utils\ClassFinder;
@@ -38,6 +41,8 @@ final class Application {
     private static array $controllers = [];
     private static array $restControllers = [];
     private static array $preProcessors = [];
+    private static array $filters = [];
+    private static array $requestFilters = [];
     private static LeafManager $leafManager;
     private static ?DataSource $dataSource;
     private static Avocado $mainClass;
@@ -54,6 +59,7 @@ final class Application {
 
             self::declareRoutes();
             self::initDataSource();
+            self::initFilters();
             self::consumeHttp();
 
         } catch (Throwable $e) {
@@ -334,6 +340,7 @@ final class Application {
      */
     public static function consumeHttp(): void {
         AvocadoRouter::listen();
+
         $data = AvocadoRouter::invokeMatchedRoute();
 
         if ($data && $data->getData() !== null) {
@@ -361,5 +368,30 @@ final class Application {
 
         self::$controllers = self::getControllers();
         self::$restControllers = self::getRestControllers();
+    }
+
+    /**
+     * @description Returns arrays of class FQNs
+     * @return string[]
+     * */
+    private static function getFilters(): array {
+        return array_filter(self::$declaredClasses, fn($class) => ReflectionUtils::getAttributeFromClass($class, Filter::class) != null);
+    }
+
+    /**
+     * @description Returns arrays of filters
+     * @return RequestFilter[]
+     * */
+    private static function getRequestFilters(): array {
+        $requestFilterClasses = array_filter(self::$filters, fn($class) => ReflectionUtils::implements($class, RequestFilter::class));
+
+        return array_map(fn($class) => DependencyInjectionService::getResourceByType($class), $requestFilterClasses);
+    }
+
+    private static function initFilters(): void {
+        self::$filters = self::getFilters();
+        self::$requestFilters =  self::getRequestFilters();
+
+        AvocadoRouter::registerFilters(self::$requestFilters);
     }
 }

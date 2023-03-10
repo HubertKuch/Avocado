@@ -7,6 +7,7 @@ use Avocado\AvocadoApplication\Attributes\Exceptions\ResponseStatus;
 use Avocado\AvocadoApplication\AutoConfigurations\nested\ServerRouterConfiguration;
 use Avocado\AvocadoApplication\Controller\ParameterProviders\ControllerParametersProcessor;
 use Avocado\AvocadoApplication\Exceptions\PageNotFoundException;
+use Avocado\AvocadoApplication\Filters\RequestFilter;
 use Avocado\AvocadoApplication\Interceptors\Utils\WebRequestHandler;
 use Avocado\AvocadoApplication\Interceptors\WebRequestInterceptorsProcessor;
 use Avocado\AvocadoApplication\Mappings\Produces;
@@ -25,6 +26,10 @@ use Throwable;
 class AvocadoRouter {
     private static array $routesStack = array();
     private static array $settingsStack = array();
+    /**
+     * @var RequestFilter[] $filters
+     * */
+    private static array $filters = [];
     private static bool $isNext = true;
     private static array $matchedRoute = array();
     private static HttpRequest $request;
@@ -153,9 +158,22 @@ class AvocadoRouter {
         }
     }
 
+    public static function matchedAnyRoute(): bool {
+        return count(self::$matchedRoute) !== 0;
+    }
 
     public static function invokeMatchedRoute(): ?ResponseBody {
         if (count(self::$matchedRoute) == 0) {
+            return null;
+        }
+
+        foreach (self::$filters as $filter) {
+            $isValid = $filter->filter(self::$request, self::$response);
+
+            if ($isValid) {
+                continue;
+            }
+
             return null;
         }
 
@@ -287,5 +305,12 @@ class AvocadoRouter {
         } catch (Throwable) {
             return $_SERVER['PHP_SELF'];
         }
+    }
+
+    /**
+     * @param RequestFilter[] $requestFilters
+     * */
+    public static function registerFilters(array $requestFilters): void {
+        self::$filters = $requestFilters;
     }
 }
