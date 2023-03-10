@@ -2,7 +2,13 @@
 
 namespace Avocado\HTTP;
 
+/**
+ * @template T
+ * */
 class ResponseBody {
+    /**
+     * @param class-string<T> $targetClass
+     * */
     public function __construct(
         private readonly mixed $data,
         private readonly HTTPStatus $status,
@@ -10,6 +16,9 @@ class ResponseBody {
         private readonly ?string $targetClass = null
     ) {}
 
+    /**
+     * @returns T
+     * */
     public function getData(): mixed {
         return $this->data;
     }

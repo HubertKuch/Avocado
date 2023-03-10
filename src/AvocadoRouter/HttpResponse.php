@@ -6,7 +6,7 @@ use Avocado\HTTP\HTTPStatus;
 
 class HttpResponse {
 
-    private static string $contentType;
+    private static ?string $contentType = null;
 
     public function write($data): HttpResponse {
         echo $data;
@@ -58,6 +58,6 @@ class HttpResponse {
     }
 
     public static function getContentType(): string {
-        return static::$contentType;
+        return static::$contentType ?? '';
     }
 }

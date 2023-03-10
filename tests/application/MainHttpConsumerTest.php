@@ -3,7 +3,7 @@
 namespace Avocado\AvocadoApplication\ResponseConsuming;
 
 use Avocado\HTTP\HTTPMethod;
-use Avocado\Tests\MockedHttp;
+use Avocado\HTTP\HttpTemplate;
 use Avocado\Tests\Unit\Application\MockedApplication;
 use PHPUnit\Framework\TestCase;
 
@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 class MainHttpConsumerTest extends TestCase {
 
     private function init(string $endpoint) {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, $endpoint);
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, $endpoint);
     }
 
     public function testConsumingAvocadoResponse() {

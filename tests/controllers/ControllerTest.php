@@ -2,17 +2,13 @@
 
 namespace Avocado\Tests\Unit\Application;
 
-use Avocado\AvocadoApplication\Attributes\Configuration;
-use Avocado\AvocadoApplication\AutoConfigurations\nested\EnvironmentConfiguration;
-use Avocado\HTTP\HTTPMethod;
-use Avocado\Tests\MockedHttp;
-use AvocadoApplication\AutoConfigurations\AvocadoConfiguration;
-use ReflectionClass;
-use PHPUnit\Framework\TestCase;
-use Avocado\Application\Controller;
 use Avocado\Application\Application;
+use Avocado\Application\Controller;
+use Avocado\HTTP\HTTPMethod;
+use Avocado\HTTP\HttpTemplate;
 use AvocadoApplication\Mappings\MethodMapping;
-use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Throwable;
 use function PHPUnit\Framework\assertSame;
 
@@ -57,7 +53,7 @@ class ControllerTest extends TestCase {
      * @runInSeparateProcess
      * */
     public function testGetMapping(): void {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/");
         MockedApplication::init();
 
         self::assertSame('["Get Hello World"]', ob_get_contents());
@@ -67,7 +63,7 @@ class ControllerTest extends TestCase {
      * @runInSeparateProcess
      * */
     public function testPostMapping(): void {
-        MockedHttp::mockPlainRequest(HTTPMethod::POST, "/avocado-test");
+        HttpTemplate::mockPlainRequest(HTTPMethod::POST, "/avocado-test");
         MockedApplication::init();
 
         self::assertSame('["Post Hello World"]', ob_get_contents());
@@ -77,7 +73,7 @@ class ControllerTest extends TestCase {
      * @runInSeparateProcess
      * */
     public function testDeleteMapping(): void {
-        MockedHttp::mockPlainRequest(HTTPMethod::DELETE, "/avocado-test");
+        HttpTemplate::mockPlainRequest(HTTPMethod::DELETE, "/avocado-test");
         MockedApplication::init();
 
         self::assertSame('["Delete Hello World"]', ob_get_contents());
@@ -87,7 +83,7 @@ class ControllerTest extends TestCase {
      * @runInSeparateProcess
      * */
     public function testPatchMapping(): void {
-        MockedHttp::mockPlainRequest(HTTPMethod::PATCH, "/avocado-test");
+        HttpTemplate::mockPlainRequest(HTTPMethod::PATCH, "/avocado-test");
         MockedApplication::init();
 
         self::assertSame('["Patch Hello World"]', ob_get_contents());
@@ -97,7 +93,7 @@ class ControllerTest extends TestCase {
      * @runInSeparateProcess
      * */
     public function testPutMapping(): void {
-        MockedHttp::mockPlainRequest(HTTPMethod::PUT, "/avocado-test");
+        HttpTemplate::mockPlainRequest(HTTPMethod::PUT, "/avocado-test");
         MockedApplication::init();
 
         self::assertSame('["Put Hello World"]', ob_get_contents());
@@ -107,42 +103,42 @@ class ControllerTest extends TestCase {
      * @runInSeparateProcess
      * */
     public function testBaseUrlForController(): void {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/array/");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/array/");
         MockedApplication::init();
 
         self::assertSame('["Get Hello World Array"]', ob_get_contents());
     }
 
     public function testExceptionHandlerResource(): void {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/exception/");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/exception/");
         MockedApplication::init();
 
         self::assertSame('{"status":400,"message":"test"}', ob_get_contents());
     }
 
     public function testAutoResponseAfterException(): void {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/exception/auto-response");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/exception/auto-response");
         MockedApplication::init();
 
         self::assertStringContainsString('"message":"auto response","status":409', ob_get_contents());
     }
 
     public function testPageNotFound() {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/random-page/");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/random-page/");
         MockedApplication::init();
 
         self::assertSame('{"message":"Page was not found","status":404}', ob_get_contents());
     }
 
     public function testParamsInRouter() {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/param/4");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/param/4");
         MockedApplication::init();
 
         self::assertSame("4", ob_get_contents());
     }
 
     public function testGetMainDir() {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/param/4");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/param/4");
         MockedApplication::init();
         self::assertTrue(is_dir(Application::getProjectDirectory()));
     }
@@ -163,7 +159,7 @@ class ControllerTest extends TestCase {
             ]
         ];
 
-        MockedHttp::mockPlainRequest(HTTPMethod::POST, "/avocado-test/validate-file");
+        HttpTemplate::mockPlainRequest(HTTPMethod::POST, "/avocado-test/validate-file");
 
         MockedApplication::init();
 
@@ -189,7 +185,7 @@ class ControllerTest extends TestCase {
                 ]
             ];
 
-            MockedHttp::mockPlainRequest(HTTPMethod::POST, "/avocado-test/upload-file");
+            HttpTemplate::mockPlainRequest(HTTPMethod::POST, "/avocado-test/upload-file");
 
             MockedApplication::init();
 
@@ -203,7 +199,7 @@ class ControllerTest extends TestCase {
     }
 
     public function testErrorCatching() {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/error-catching");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/error-catching");
         try {
             MockedApplication::init();
             assertSame(true, true);
@@ -213,28 +209,28 @@ class ControllerTest extends TestCase {
     }
 
     public function testParsingEmptyArray() {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/empty-array");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/empty-array");
         MockedApplication::init();
 
         assertSame("[]", ob_get_contents());
     }
 
     public function testInterceptor() {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/interceptor-test");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/interceptor-test");
         MockedApplication::init();
 
         self::assertStringContainsString("Hello from interceptor", ob_get_contents());
     }
 
     public function testParsingPrivateProperties() {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/private-properties");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/private-properties");
         MockedApplication::init();
 
         self::assertStringContainsString('{"test":4}', ob_get_contents());
     }
 
     public function testStatusCode() {
-        MockedHttp::mockPlainRequest(HTTPMethod::GET, "/avocado-test/exception/auto-response");
+        HttpTemplate::mockPlainRequest(HTTPMethod::GET, "/avocado-test/exception/auto-response");
         MockedApplication::init();
 
         assertSame(409, http_response_code());

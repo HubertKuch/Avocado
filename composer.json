@@ -8,8 +8,7 @@
     "psr-4": {
       "Avocado\\": "src/",
       "Avocado\\ORM\\": "src/AvocadoORM/",
-      "Avocado\\Router\\": "src/AvocadoRouter/",
-      "Avocado\\AvocadoView\\": "src/AvocadoView/"
+      "Avocado\\Router\\": "src/AvocadoRouter/"
     }
   },
   "autoload-dev": {
@@ -32,29 +31,12 @@
     "ext-pdo": "*",
     "php": ">=8.1",
     "nette/robot-loader": "^3.4",
-    "symplely/yaml": "^1.0"
+    "symplely/yaml": "^1.0",
+    "guzzlehttp/guzzle": "^7.0"
   },
   "require-dev": {
     "phpunit/phpunit": "9.5.18",
     "phpstan/phpstan": "1.9.14",
     "hubert/avocado-mysql-driver": "v2.0.0"
-  },
-  "scripts": {
-    "post-autoload-dump": [
-      "@php bin/cleanup.php",
-      "composer install --ignore-platform-reqs --classmap-authoritative --no-dev --quiet"
-    ],
-    "post-update-cmd": [
-      "@php bin/cleanup.php",
-      "composer install --ignore-platform-reqs --classmap-authoritative --no-dev --quiet"
-    ],
-    "post-install-cmd": [
-      "@php bin/cleanup.php",
-      "composer install --ignore-platform-reqs --classmap-authoritative --no-dev --quiet"
-    ],
-    "post-package-install": [
-      "@php bin/cleanup.php",
-      "composer install --ignore-platform-reqs --classmap-authoritative --no-dev --quiet"
-    ]
   }
 }
