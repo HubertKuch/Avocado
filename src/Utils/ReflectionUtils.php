@@ -62,6 +62,8 @@ class ReflectionUtils {
                     $propertyRef->setValue($instance, null);
 
                     continue;
+                } else if ($propertyRef->getDefaultValue()) {
+                    continue;
                 } else {
                     throw new MissingKeyException("Missing `{$propertyRef->getName()}` key in `{$propertyRef->getDeclaringClass()->getName()}` class");
                 }
@@ -183,6 +185,14 @@ class ReflectionUtils {
             $typeName = $property->getType()->getName();
 
             if (enum_exists($typeName)) {
+                if ($property->getDefaultValue()) {
+                    continue;
+                }
+
+                if ($property->getType()->allowsNull()) {
+                    $property->setValue($currentInstance, null);
+                }
+
                 continue;
             }
 
@@ -193,11 +203,7 @@ class ReflectionUtils {
                 continue;
             }
 
-            if ($property->getDefaultValue()) {
-                continue;
-            }
-
-            if ($property->getType()->allowsNull() && !$property->getDefaultValue()) {
+            if ($property->getType()->allowsNull() && !$property->getDefaultValue() && $property->getType()->allowsNull()) {
                 $property->setValue($currentInstance, null);
             }
         }

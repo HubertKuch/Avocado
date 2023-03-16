@@ -7,6 +7,7 @@ use Avocado\DataSource\DataSourceBuilder;
 use Avocado\MysqlDriver\MySQLDriver;
 use Avocado\MysqlDriver\MySQLMapper;
 use Avocado\ORM\AvocadoModelException;
+use Avocado\ORM\AvocadoORMSettings;
 use Avocado\ORM\AvocadoRepository;
 use PHPUnit\Framework\TestCase;
 use ReflectionObject;
@@ -27,6 +28,8 @@ class AvocadoRepositoryTest extends TestCase {
                                                      ->port(3306)
                                                      ->server("172.17.0.2")
                                                      ->build();
+
+        AvocadoORMSettings::fromExistingSource($this->dataSource);
     }
 
     public function testCreatingNewModelInstancesByEntity() {
@@ -136,5 +139,13 @@ class AvocadoRepositoryTest extends TestCase {
         $usersRepo->method('findFirst')->willReturn(null);
 
         self::assertNull($usersRepo->findFirst(array("username" => "test1")));
+    }
+
+    public function testGivenModelWithOneToManyRelation_thenQuery_returnValidParsedJoinedObjects() {
+        $repo = new AvocadoRepository(TestUserWithOneToMany::class);
+        $users = $repo->findMany();
+
+        self::assertTrue($users[0] instanceof TestUserWithOneToMany);
+        self::assertTrue($users[0]->getBooks() instanceof TestBook);
     }
 }

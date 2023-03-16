@@ -20,10 +20,10 @@ class AnnotationUtils {
     }
 
     /**
-     * @template T of object
-     * @phpstan-param class-string<T> $annotation
-     * @return object
-     * @phpstan-return T
+     * @template T
+     * @param ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionEnum|ReflectionObject|ReflectionFunction|ReflectionParameter $on
+     * @param class-string<T> $class
+     * @return T
      */
     public static function getInstance(ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionEnum|ReflectionObject|ReflectionFunction|ReflectionParameter $on, string $class): object {
         $ann = $on->getAttributes($class);
@@ -31,6 +31,12 @@ class AnnotationUtils {
         return $ann[0]->newInstance();
     }
 
+    /**
+     * @template T
+     * @param ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionEnum|ReflectionObject|ReflectionFunction|ReflectionParameter $on
+     * @param class-string<T> $annotation
+     * @return T[]
+     */
     public static function getInstances(ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionEnum|ReflectionObject|ReflectionFunction|ReflectionParameter $on, string $annotation): array {
         $annotations = $on->getAttributes($annotation);
 

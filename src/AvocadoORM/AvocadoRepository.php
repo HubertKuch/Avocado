@@ -3,11 +3,15 @@
 namespace Avocado\ORM;
 
 use Avocado\AvocadoORM\Actions\Actions;
+use Avocado\AvocadoORM\Attributes\JoinDirection;
+use Avocado\AvocadoORM\Attributes\Relations\JoinColumn;
+use Avocado\AvocadoORM\Attributes\Relations\OneToMany;
 use Avocado\AvocadoORM\Order;
-use Avocado\Tests\Unit\TestUser;
+use Avocado\DataSource\Builder\Builder;
+use Avocado\Utils\AnnotationUtils;
 use Avocado\Utils\TypesUtils;
+use mysql_xdevapi\BaseResult;
 use ReflectionClass;
-use ReflectionException;
 
 /**
  * @template T
@@ -52,10 +56,19 @@ class AvocadoRepository extends AvocadoModel implements Actions {
      * @param array $criteria
      * @param string|null $orderBy
      * @param Order $order
-     * @return array<T>
+     * @return T[]
      */
     public function findMany(array $criteria = [], string $orderBy = null, Order $order = Order::ASCENDING): array {
         $query = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria, []);
+
+        $oneToManyColumns = parent::getJoinedProperties(OneToMany::class);
+
+        foreach ($oneToManyColumns as $column) {
+            $joinColumn = AnnotationUtils::getInstance($column, JoinColumn::class);
+            $oneToMany = AnnotationUtils::getInstance($column, OneToMany::class);
+
+            $query->join($oneToMany->getJoinedTable(), $joinColumn->getName(), $joinColumn->getReferencedName());
+        }
 
         if ($orderBy !== null) {
             $query->orderBy($orderBy, $order);

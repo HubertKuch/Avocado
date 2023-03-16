@@ -11,6 +11,7 @@ use Avocado\AvocadoApplication\Attributes\Configuration;
 use Avocado\AvocadoApplication\Attributes\Exclude;
 use Avocado\AvocadoApplication\Attributes\PropertiesSource;
 use Avocado\AvocadoApplication\Cache\CacheProvider;
+use Avocado\AvocadoApplication\Cache\FileCacheProvider;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
 use Avocado\AvocadoApplication\Filters\Filter;
@@ -22,7 +23,6 @@ use Avocado\DataSource\DataSource;
 use Avocado\HTTP\HTTPMethod;
 use Avocado\HTTP\Managers\HttpConsumer;
 use Avocado\ORM\AvocadoORMSettings;
-use Avocado\Router\AvocadoRoute;
 use Avocado\Router\AvocadoRouter;
 use Avocado\Utils\Arrays;
 use Avocado\Utils\ClassFinder;
@@ -50,7 +50,7 @@ final class Application {
     private static string $mainClassName;
     private static HttpConsumer $httpConsumer;
     private static ?ApplicationConfiguration $configuration;
-    private static CacheProvider $cacheProvider;
+    private static FileCacheProvider $cacheProvider;
 
     public static final function run(string $mainClass, string $dir): void {
         try {
@@ -60,7 +60,7 @@ final class Application {
             self::initConfigurations();
             self::initDependencyInjectionsService();
 
-            self::initCache();
+            self::initCacheProvider();
 
             self::initRestControllers();
 
@@ -75,7 +75,6 @@ final class Application {
     }
 
     /**
-     * @throws MissingAnnotationException
      * @throws ReflectionException
      */
     public static final function getMainClass(): Avocado {
@@ -285,7 +284,8 @@ final class Application {
         self::$preProcessors = self::getPreProcessors();
         self::$configurations = self::getConfigurations();
 
-        $propertiesSourceAttribute = ReflectionUtils::getAttributeFromClass(self::$mainClass->getReflectionClass(),PropertiesSource::class);
+        $propertiesSourceAttribute = ReflectionUtils::getAttributeFromClass(self::$mainClass->getReflectionClass(),
+            PropertiesSource::class);
 
         if ($propertiesSourceAttribute) {
             self::$configuration = self::initConfiguration($propertiesSourceAttribute->newInstance()->getPath());
@@ -311,7 +311,7 @@ final class Application {
         $excludedAttribute = ReflectionUtils::getAttributeFromClass(self::$mainClass->getClassName(), Exclude::class);
         $toExclude = ($excludedAttribute?->newInstance()->getClasses()) ?? [];
 
-        self::$declaredClasses = ClassFinder::getDeclaredClasses($dir, $toExclude);
+        self::$declaredClasses = ClassFinder::getDeclaredClasses($dir, $toExclude, true);
     }
 
     /**
@@ -368,7 +368,8 @@ final class Application {
      * @return string[]
      * */
     private static function getFilters(): array {
-        return array_filter(self::$declaredClasses, fn($class) => ReflectionUtils::getAttributeFromClass($class, Filter::class) != null);
+        return array_filter(self::$declaredClasses,
+            fn($class) => ReflectionUtils::getAttributeFromClass($class, Filter::class) != null);
     }
 
     /**
@@ -376,26 +377,26 @@ final class Application {
      * @return RequestFilter[]
      * */
     private static function getRequestFilters(): array {
-        $requestFilterClasses = array_filter(self::$filters, fn($class) => ReflectionUtils::implements($class, RequestFilter::class));
+        $requestFilterClasses = array_filter(self::$filters,
+            fn($class) => ReflectionUtils::implements($class, RequestFilter::class));
 
-        return array_map(fn($class) => DependencyInjectionService::getResourceByType($class)->getTargetInstance(), $requestFilterClasses);
+        return array_map(fn($class) => DependencyInjectionService::getResourceByType($class)->getTargetInstance(),
+            $requestFilterClasses);
     }
 
     private static function initFilters(): void {
         self::$filters = self::getFilters();
-        self::$requestFilters =  self::getRequestFilters();
+        self::$requestFilters = self::getRequestFilters();
 
         AvocadoRouter::registerFilters(self::$requestFilters);
-    }
-
-    private static function initCache(): void {
-        $cacheProvider = DependencyInjectionService::getResourceByType(CacheProvider::class)->getTargetInstance();
-        $cacheProvider->init();
-
-        self::$cacheProvider = $cacheProvider;
     }
 
     public static function getCacheProvider(): CacheProvider {
         return self::$cacheProvider;
     }
+
+    private static function initCacheProvider(): void {
+        self::$cacheProvider = DependencyInjectionService::getResourceByType(CacheProvider::class)->getTargetInstance();
+    }
+
 }

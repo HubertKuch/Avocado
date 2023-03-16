@@ -2,16 +2,19 @@
 
 namespace Avocado\ORM;
 
+use Avocado\AvocadoORM\Attributes\Relations\JoinColumn;
+use Avocado\Utils\AnnotationUtils;
 use Exception;
+use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionProperty;
 use ReflectionException;
+use ReflectionProperty;
 
 class AvocadoModel extends AvocadoORMSettings {
-    const TABLE = __NAMESPACE__."\Attributes\Table";
-    const ID = __NAMESPACE__."\Attributes\Id";
-    const FIELD = __NAMESPACE__."\Attributes\Field";
-    const IGNORE_FIELD_TYPE = __NAMESPACE__."\Attributes\IgnoreFieldType";
+    const TABLE = __NAMESPACE__ . "\Attributes\Table";
+    const ID = __NAMESPACE__ . "\Attributes\Id";
+    const FIELD = __NAMESPACE__ . "\Attributes\Field";
+    const IGNORE_FIELD_TYPE = __NAMESPACE__ . "\Attributes\IgnoreFieldType";
 
     /**
      * @param class-string<T> $model
@@ -23,21 +26,27 @@ class AvocadoModel extends AvocadoORMSettings {
     }
 
     protected ReflectionClass $ref;
+    /**
+     * @var ReflectionAttribute[] $properties
+     * */
     private array $attrs;
+    /**
+     * @var ReflectionProperty[] $properties
+     * */
     private array $properties;
-
     protected string $primaryKey;
     protected string $tableName;
 
     public function __construct(string $model) {
         try {
-            $this -> model = $model;
-            $this -> ref = new ReflectionClass($model);
-            $this -> attrs = $this -> ref -> getAttributes();
-            $this -> properties = $this -> ref -> getProperties();
-            $this -> tableName = $this->getTableName();
-            $this -> primaryKey = $this->getPrimaryKey();
-        } catch (Exception $e) {}
+            $this->model = $model;
+            $this->ref = new ReflectionClass($model);
+            $this->attrs = $this->ref->getAttributes();
+            $this->properties = $this->ref->getProperties();
+            $this->tableName = $this->getTableName();
+            $this->primaryKey = $this->getPrimaryKey();
+        } catch (Exception $e) {
+        }
     }
 
     /**
@@ -46,7 +55,7 @@ class AvocadoModel extends AvocadoORMSettings {
     private function getTableName() {
         $tableName = '';
 
-        foreach($this->attrs as $attr) {
+        foreach ($this->attrs as $attr) {
             if ($attr->getName() == self::TABLE) {
                 $val = $attr->getArguments();
                 if (!empty($val)) {
@@ -67,13 +76,15 @@ class AvocadoModel extends AvocadoORMSettings {
         $attr = null;
         $propertyTarget = null;
 
-        foreach($this->properties as $property) {
+        foreach ($this->properties as $property) {
             $ref = new ReflectionProperty($this->model, $property->getName());
             $idAttr = $ref->getAttributes(self::ID);
 
             if (!empty($idAttr)) {
                 if (count($idAttr) > 1) {
-                    throw new AvocadoModelException(sprintf("Primary key must one for model. %s has %s primary keys.", $this->model, count($idAttr)));
+                    throw new AvocadoModelException(sprintf("Primary key must one for model. %s has %s primary keys.",
+                        $this->model,
+                        count($idAttr)));
                 }
 
                 $attr = $idAttr[0];
@@ -99,7 +110,7 @@ class AvocadoModel extends AvocadoORMSettings {
             foreach ($this->ref->getProperties() as $reflectionProperty) {
                 $attr = $reflectionProperty->getAttributes(self::FIELD);
                 if (!empty($attr) && !empty($attr[0]->getArguments())) {
-                    $hasProperty = ($attr[0] -> getArguments()[0] == $property);
+                    $hasProperty = ($attr[0]->getArguments()[0] == $property);
                 }
             }
         }
@@ -119,10 +130,9 @@ class AvocadoModel extends AvocadoORMSettings {
                 return true;
             }
 
-            $propertyType = $reflectionProperty -> getType() -> getName();
+            $propertyType = $reflectionProperty->getType()->getName();
 
-            if ($this->isPropertyIsEnum($reflectionProperty->getName()))
-                $propertyType = "object";
+            if ($this->isPropertyIsEnum($reflectionProperty->getName())) $propertyType = "object";
 
 
             $type = match ($type) {
@@ -189,5 +199,20 @@ class AvocadoModel extends AvocadoORMSettings {
         } catch (ReflectionException) {
             return null;
         }
+    }
+
+    /**
+     * @return ReflectionProperty[]
+     * */
+    protected function getJoinedProperties(string $relationAnnotation = null): array {
+        if ($relationAnnotation === null) {
+            return array_filter($this->properties,
+                fn($property) => AnnotationUtils::isAnnotated($property, JoinColumn::class));
+        }
+
+        $properties = array_filter($this->properties,
+            fn($property) => AnnotationUtils::isAnnotated($property, JoinColumn::class));
+
+        return array_filter($properties, fn($property) => AnnotationUtils::isAnnotated($property, $relationAnnotation));
     }
 }

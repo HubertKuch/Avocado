@@ -20,6 +20,7 @@ class ParsingDataConsumingStrategy implements HttpConsumingStrategy {
         if ($responseBody->getContentType() === ContentType::APPLICATION_JSON) {
             $parsedData = JsonSerializer::serialize($responseBody->getData());
 
+
             (new HttpResponse())
                 ->setHeader("Content-Type", ContentType::APPLICATION_JSON->value)
                 ->write($parsedData)

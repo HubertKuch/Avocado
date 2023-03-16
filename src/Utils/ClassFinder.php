@@ -16,7 +16,7 @@ class ClassFinder {
 
         $loader->addDirectory($dir);
         $loader->setTempDirectory(sys_get_temp_dir());
-        $loader->excludeDirectory($dir."/vendor");
+        $loader->excludeDirectory($dir . "/vendor");
         $loader->register();
 
         if (file_exists($dir . "/vendor/hubert/")) {
@@ -41,7 +41,7 @@ class ClassFinder {
             self::$classes = self::excludeNamespace("Avocado\\Tests\\");
         }
 
-        foreach ($files as  $path) {
+        foreach ($files as $path) {
             try {
                 require_once $path;
             } catch (Throwable $e) {

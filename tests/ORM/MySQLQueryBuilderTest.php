@@ -2,10 +2,16 @@
 
 namespace Avocado\DataSource\Builder;
 
+use Avocado\DataSource\DataSource;
+use Avocado\MysqlDriver\MySQLDriver;
 use Avocado\MysqlDriver\MySQLQueryBuilder;
-use PHPUnit\Framework\TestCase;
-use Avocado\Tests\Unit\UserRole;
+use Avocado\ORM\AvocadoORMSettings;
+use Avocado\ORM\AvocadoRepository;
 use Avocado\Tests\Unit\TableWithIgnoringType;
+use Avocado\Tests\Unit\TestBook;
+use Avocado\Tests\Unit\TestUserWithOneToMany;
+use Avocado\Tests\Unit\UserRole;
+use PHPUnit\Framework\TestCase;
 
 class MySQLQueryBuilderTest extends TestCase {
 
@@ -18,31 +24,22 @@ class MySQLQueryBuilderTest extends TestCase {
     public function testFindWithCriteria() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertStringContainsString("SELECT * FROM test WHERE  a = 2 AND  b LIKE \"asd\" AND c = null",
-            $builder->find("test", ["a" => 2, "b" => "asd", "c" => null])->get()
-        );
+        self::assertStringContainsString("SELECT * FROM test WHERE  a = 2 AND  b LIKE \"asd\" AND c = NULL",
+            $builder->find("test", ["a" => 2, "b" => "asd", "c" => null])->get());
     }
 
     public function testUpdate() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertStringContainsString('UPDATE test SET  a = 24,  b = "null" ', $builder->update(
-            "test",
-            [
-                "a" => 24,
-                "b" => "null"
-            ]
-        )->get());
+        self::assertStringContainsString('UPDATE test SET  a = 24,  b = "null" ',
+            $builder->update("test", ["a" => 24, "b" => "null"])->get());
     }
 
     public function testUpdateWithCriteria() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertStringContainsString('UPDATE test SET  a = 2,  b = "asd"  test = 12 AND  test2 = null',
-            $builder->update("test",
-                ["a" => 2, "b" => "asd"],
-                ["test" => 12, "test2" => null]
-            )->get());
+        self::assertStringContainsString('UPDATE test SET  a = 2,  b = "asd"  test = 12 AND  test2 = NULL',
+            $builder->update("test", ["a" => 2, "b" => "asd"], ["test" => 12, "test2" => null])->get());
     }
 
     public function testDelete() {
@@ -54,7 +51,8 @@ class MySQLQueryBuilderTest extends TestCase {
     public function testDeleteWithCriteria() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertStringContainsString('DELETE FROM test  WHERE  a = 2 AND  b LIKE "asd"', $builder->delete("test", ["a" => 2, "b" => "asd"])->get());
+        self::assertStringContainsString('DELETE FROM test  WHERE  a = 2 AND  b LIKE "asd"',
+            $builder->delete("test", ["a" => 2, "b" => "asd"])->get());
     }
 
     public function testSave() {
