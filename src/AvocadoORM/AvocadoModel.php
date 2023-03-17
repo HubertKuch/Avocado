@@ -200,19 +200,4 @@ class AvocadoModel extends AvocadoORMSettings {
             return null;
         }
     }
-
-    /**
-     * @return ReflectionProperty[]
-     * */
-    protected function getJoinedProperties(string $relationAnnotation = null): array {
-        if ($relationAnnotation === null) {
-            return array_filter($this->properties,
-                fn($property) => AnnotationUtils::isAnnotated($property, JoinColumn::class));
-        }
-
-        $properties = array_filter($this->properties,
-            fn($property) => AnnotationUtils::isAnnotated($property, JoinColumn::class));
-
-        return array_filter($properties, fn($property) => AnnotationUtils::isAnnotated($property, $relationAnnotation));
-    }
 }

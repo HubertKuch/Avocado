@@ -14,8 +14,8 @@ class TestUserWithOneToMany {
     private int $id;
     #[Field]
     private string $username;
-    #[JoinColumn(name: 'user_id')]
-    #[OneToMany(joinedTable: "books", class: TestBook::class)]
+    #[OneToMany(class: TestBook::class)]
+    #[JoinColumn(table: "", name: 'user_id')]
     private array $books;
 
     public function getBooks(): array {

@@ -61,15 +61,6 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     public function findMany(array $criteria = [], string $orderBy = null, Order $order = Order::ASCENDING): array {
         $query = parent::getConnection()->queryBuilder()->find($this->tableName, $criteria, []);
 
-//        $oneToManyColumns = parent::getJoinedProperties(OneToMany::class);
-
-//        foreach ($oneToManyColumns as $column) {
-//            $joinColumn = AnnotationUtils::getInstance($column, JoinColumn::class);
-//            $oneToMany = AnnotationUtils::getInstance($column, OneToMany::class);
-//
-//            $query->join($oneToMany->getJoinedTable(), $joinColumn->getName(), $joinColumn->getReferencedName());
-//        }
-
         if ($orderBy !== null) {
             $query->orderBy($orderBy, $order);
         }
