@@ -1,0 +1,7 @@
+<?php return
+ array (
+  0 => 'Avocado\\Tests\\Unit\\Application\\MockedLeafController',
+  1 => 'Avocado\\Tests\\Unit\\Application\\MockedController',
+  2 => 'Avocado\\Tests\\Unit\\Application\\MockedTestUserController',
+  3 => 'Avocado\\Tests\\Unit\\Application\\MockedControllerWithTopLevelMiddleware',
+);

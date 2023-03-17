@@ -12,7 +12,11 @@ class FileCacheProvider implements CacheProvider {
     #[Autowired]
     private readonly CacheConfiguration $cacheConfiguration;
 
-    public function saveItem(string $key, mixed $value, bool $override = false): bool {
+    public function saveItem(string|object $key, mixed $value, bool $override = false): bool {
+        if (!is_string($key) && enum_exists($key::class)) {
+            $key = $key->value;
+        }
+
         $fullPath = $this->generateFullFilePath($key);
 
         if (file_exists($fullPath) && !$override) {
@@ -25,7 +29,11 @@ class FileCacheProvider implements CacheProvider {
         return (bool)file_put_contents($fullPath, $phpCode, LOCK_EX);
     }
 
-    public function getItem(string $key): mixed {
+    public function getItem(string|object $key): mixed {
+        if (!is_string($key) && enum_exists($key::class)) {
+            $key = $key->value;
+        }
+
         $fullFilePath = $this->generateFullFilePath($key);
 
         if (!file_exists($fullFilePath)) {
@@ -35,7 +43,11 @@ class FileCacheProvider implements CacheProvider {
         return @include $fullFilePath;
     }
 
-    public function isExists(string $key): bool {
+    public function isExists(string|object $key): bool {
+        if (!is_string($key) && enum_exists($key::class)) {
+            $key = $key->value;
+        }
+
         return file_exists($this->generateFullFilePath($key));
     }
 
@@ -47,7 +59,11 @@ class FileCacheProvider implements CacheProvider {
         return Application::getProjectDirectory() . "/" . $this->cacheConfiguration->getCacheDir() . "/" . $this->generateFileName($key);
     }
 
-    public function delete(string $key): bool {
+    public function delete(string|object $key): bool {
+        if (!is_string($key) && enum_exists($key::class)) {
+            $key = $key->value;
+        }
+
         $fullPath = $this->generateFullFilePath($key);
 
         return unlink($fullPath);

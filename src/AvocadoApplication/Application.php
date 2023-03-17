@@ -12,6 +12,7 @@ use Avocado\AvocadoApplication\Attributes\Exclude;
 use Avocado\AvocadoApplication\Attributes\PropertiesSource;
 use Avocado\AvocadoApplication\Cache\CacheProvider;
 use Avocado\AvocadoApplication\Cache\FileCacheProvider;
+use Avocado\AvocadoApplication\Cache\Internal\InternalCacheKeys;
 use Avocado\AvocadoApplication\Exceptions\ClassNotFoundException;
 use Avocado\AvocadoApplication\Exceptions\MissingAnnotationException;
 use Avocado\AvocadoApplication\Filters\Filter;
@@ -82,20 +83,24 @@ final class Application {
     }
 
     private static function getControllers(): array {
-        $declaredClasses = self::$declaredClasses;
+        $classes = self::$declaredClasses;
+        $controllersClasses = [];
         $controllers = [];
 
-        foreach ($declaredClasses as $class) {
-            try {
-                $reflection = new ReflectionClass($class);
+        if (self::$cacheProvider->isExists(InternalCacheKeys::CONTROLLERS)) {
+            $classes = self::$cacheProvider->getItem(InternalCacheKeys::CONTROLLERS);
+        }
 
-                if (Controller::isController($reflection)) {
-                    $controllers[] = new Controller($class, $reflection);
-                }
-            } catch (ReflectionException) {
-                continue;
+        foreach ($classes as $class) {
+            $reflection = ClassFinder::getClassReflectionByName($class);
+
+            if (Controller::isController($reflection)) {
+                $controllersClasses[] = $class;
+                $controllers[] = new Controller($class, $reflection);
             }
         }
+
+        self::$cacheProvider->saveItem(InternalCacheKeys::CONTROLLERS, $controllersClasses, true);
 
         return $controllers;
     }
