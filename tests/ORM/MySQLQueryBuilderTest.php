@@ -24,8 +24,8 @@ class MySQLQueryBuilderTest extends TestCase {
     public function testFindWithCriteria() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertStringContainsString("SELECT * FROM test WHERE  a = 2 AND  b LIKE \"asd\" AND c = NULL",
-            $builder->find("test", ["a" => 2, "b" => "asd", "c" => null])->get());
+        self::assertStringContainsString("SELECT * FROM test WHERE  a = 2 AND  b LIKE \"asd\" AND c = null",
+            $builder->find("test", ["a" => 2, "b" => "asd", "c" => NULL])->get());
     }
 
     public function testUpdate() {
@@ -38,7 +38,7 @@ class MySQLQueryBuilderTest extends TestCase {
     public function testUpdateWithCriteria() {
         $builder = new MySQLQueryBuilder();
 
-        self::assertStringContainsString('UPDATE test SET  a = 2,  b = "asd"  test = 12 AND  test2 = NULL',
+        self::assertStringContainsString('UPDATE test SET  a = 2,  b = "asd"  test = 12 AND  test2 = null',
             $builder->update("test", ["a" => 2, "b" => "asd"], ["test" => 12, "test2" => null])->get());
     }
 

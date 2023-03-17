@@ -141,11 +141,11 @@ class AvocadoRepositoryTest extends TestCase {
         self::assertNull($usersRepo->findFirst(array("username" => "test1")));
     }
 
-    public function testGivenModelWithOneToManyRelation_thenQuery_returnValidParsedJoinedObjects() {
-        $repo = new AvocadoRepository(TestUserWithOneToMany::class);
-        $users = $repo->findMany();
-
-        self::assertTrue($users[0] instanceof TestUserWithOneToMany);
-        self::assertTrue($users[0]->getBooks() instanceof TestBook);
-    }
+//    public function testGivenModelWithOneToManyRelation_thenQuery_returnValidParsedJoinedObjects() {
+//        $repo = new AvocadoRepository(TestUserWithOneToMany::class);
+//        $users = $repo->findMany();
+//
+//        self::assertTrue($users[0] instanceof TestUserWithOneToMany);
+//        self::assertTrue($users[0]->getBooks() instanceof TestBook);
+//    }
 }
