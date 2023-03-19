@@ -10,8 +10,7 @@ interface Builder {
     public static function update(string $tableName, array $updateCriteria, array $findCriteria): Builder;
     public static function delete(string $tableName, array $criteria): Builder;
     public static function save(string $tableName, object $object): Builder;
-//    public function join(string $table, string $columnName, string $referencedColumnName, JoinDirection $joinDirection = JoinDirection::LEFT): Builder;
-
+    public function join(string $table, string $columnName, string $referencedColumnName, JoinDirection $joinDirection = JoinDirection::LEFT): Builder;
     public function limit(int $limit): Builder;
     public function offset(int $offset): Builder;
     public function orderBy(string $field, Order $order): Builder;

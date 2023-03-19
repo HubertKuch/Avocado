@@ -38,6 +38,6 @@
   "require-dev": {
     "phpunit/phpunit": "9.5.18",
     "phpstan/phpstan": "1.9.14",
-    "hubert/avocado-mysql-driver": "v2.0.0"
+    "hubert/avocado-mysql-driver": "v3.0.1"
   }
 }

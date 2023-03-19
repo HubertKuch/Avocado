@@ -9,15 +9,15 @@ class JoinColumn {
     public function __construct(
         private string $table,
         private string $name,
-        private string $referencedName = 'id'
+        private string $referencesTo = 'id'
     ) {}
 
     public function getName(): string {
         return $this->name;
     }
 
-    public function getReferencedName(): string {
-        return $this->referencedName;
+    public function getReferencesTo(): string {
+        return $this->referencesTo;
     }
 
     public function getTable(): string {

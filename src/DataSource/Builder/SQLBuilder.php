@@ -8,7 +8,7 @@ use Avocado\AvocadoORM\Order;
 interface SQLBuilder extends Builder {
     public static function find(string $tableName, array $criteria, ?array $special): Builder;
 
-//    public function join(string $table, string $columnName, string $referencedColumnName, JoinDirection $joinDirection = JoinDirection::LEFT): Builder;
+    public function join(string $table, string $columnName, string $referencedColumnName, JoinDirection $joinDirection = JoinDirection::LEFT): Builder;
 
     public static function update(string $tableName, array $updateCriteria, array $findCriteria): Builder;
 

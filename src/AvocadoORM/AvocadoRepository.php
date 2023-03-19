@@ -3,15 +3,13 @@
 namespace Avocado\ORM;
 
 use Avocado\AvocadoORM\Actions\Actions;
-use Avocado\AvocadoORM\Attributes\JoinDirection;
 use Avocado\AvocadoORM\Attributes\Relations\JoinColumn;
 use Avocado\AvocadoORM\Attributes\Relations\OneToMany;
 use Avocado\AvocadoORM\Order;
-use Avocado\DataSource\Builder\Builder;
 use Avocado\Utils\AnnotationUtils;
 use Avocado\Utils\TypesUtils;
-use mysql_xdevapi\BaseResult;
 use ReflectionClass;
+use ReflectionObject;
 
 /**
  * @template T
@@ -40,7 +38,25 @@ class AvocadoRepository extends AvocadoModel implements Actions {
         $mapper = self::getConnection()->mapper();
 
         foreach ($data as $entity) {
-            $entities[] = $mapper->entityToObject($this, $entity);
+            $mappedEntity = $mapper->entityToObject($this, $entity);
+            $ref = new ReflectionObject($mappedEntity);
+
+            $oneToManyColumns = parent::getJoinedProperties(OneToMany::class);
+
+            foreach ($oneToManyColumns as $column) {
+                $joinColumn = AnnotationUtils::getInstance($column, JoinColumn::class);
+                $oneToMany = AnnotationUtils::getInstance($column, OneToMany::class);
+
+                $query = self::getConnection()->queryBuilder()::find($joinColumn->getTable(),
+                    [$joinColumn->getName() => $entity->{$joinColumn->getReferencesTo()}],
+                    [])->get();
+
+                $dataToJoin = (new AvocadoRepository($oneToMany->getClass()))->customWithDataset($query);
+
+                $column->setValue($mappedEntity, $dataToJoin);
+            }
+
+            $entities[] = $mappedEntity;
         }
 
         return $entities;

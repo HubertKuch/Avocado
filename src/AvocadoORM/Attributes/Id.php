@@ -2,7 +2,9 @@
 
 namespace Avocado\ORM\Attributes;
 
-#[\Attribute]
+use Attribute;
+
+#[Attribute]
 class Id {
     protected string $field;
     protected string $type;
@@ -13,15 +15,15 @@ class Id {
         $this->type = $type;
     }
 
-    protected function getField(): string {
+    public function getField(): string {
         return $this->field;
     }
 
-    protected function getType(): string {
+    public function getType(): string {
         return $this->type;
     }
 
-    protected function getConstraint(): string {
+    public function getConstraint(): string {
         return $this->constraint;
     }
 }

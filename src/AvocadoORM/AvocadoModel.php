@@ -3,7 +3,10 @@
 namespace Avocado\ORM;
 
 use Avocado\AvocadoORM\Attributes\Relations\JoinColumn;
+use Avocado\ORM\Attributes\Field;
+use Avocado\ORM\Attributes\Id;
 use Avocado\Utils\AnnotationUtils;
+use Avocado\Utils\Arrays;
 use Exception;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -118,6 +121,14 @@ class AvocadoModel extends AvocadoORMSettings {
         return $hasProperty;
     }
 
+    protected function getPropertyByNameOrAlias(string $nameOrAlias): ?ReflectionProperty {
+        if (!$this->ref->hasProperty($nameOrAlias)) {
+            return $this->getPropertyByAlias($nameOrAlias);
+        } else {
+            return $this->getPropertyByName($nameOrAlias);
+        }
+    }
+
     protected function isModelPropertyIsType(string $property, string $type): bool {
         try {
             if (!$this->ref->hasProperty($property)) {
@@ -155,23 +166,16 @@ class AvocadoModel extends AvocadoORMSettings {
     }
 
     protected function getPropertyByAlias(string $alias): ReflectionProperty {
-        $targetProperty = null;
+        return Arrays::find($this->properties, function($property) use ($alias) {
+            return  AnnotationUtils::getInstance($property, Field::class)?->getField() === $alias ||
+                    AnnotationUtils::getInstance($property, Id::class)?->getField() === $alias;
+        });
+    }
 
-        foreach ($this->properties as $property) {
-            $propertyFieldAttribute = $property->getAttributes(self::FIELD);
-            $propertyFieldAttribute = !empty($propertyFieldAttribute) ? $propertyFieldAttribute[0] : null;
-
-            $propertyIDAttribute = $property->getAttributes(self::ID);
-            $propertyIDAttribute = !empty($propertyIDAttribute) ? $propertyIDAttribute[0] : null;
-
-            if ($propertyFieldAttribute && !empty($propertyFieldAttribute->getArguments()) && $propertyFieldAttribute->getArguments()[0] === $alias) {
-                $targetProperty = $property;
-            } else if ($propertyIDAttribute && !empty($propertyIDAttribute->getArguments()) && $propertyIDAttribute->getArguments()[0] === $alias) {
-                $targetProperty = $property;
-            }
-        }
-
-        return $targetProperty;
+    protected function getPropertyByName(string $name): ReflectionProperty {
+        return Arrays::find($this->properties, function($property) use ($name) {
+            return $property->getName() === $name;
+        });
     }
 
     public function isPropertyIsEnum(string $aliasOrName): bool {
@@ -199,5 +203,20 @@ class AvocadoModel extends AvocadoORMSettings {
         } catch (ReflectionException) {
             return null;
         }
+    }
+
+    /**
+     * @return ReflectionProperty[]
+     * */
+    protected function getJoinedProperties(string $relationAnnotation = null): array {
+        if ($relationAnnotation === null) {
+            return array_filter($this->properties,
+                fn($property) => AnnotationUtils::isAnnotated($property, JoinColumn::class));
+        }
+
+        $properties = array_filter($this->properties,
+            fn($property) => AnnotationUtils::isAnnotated($property, JoinColumn::class));
+
+        return array_filter($properties, fn($property) => AnnotationUtils::isAnnotated($property, $relationAnnotation));
     }
 }
