@@ -5,6 +5,6 @@ namespace Avocado\AvocadoORM\Attributes\Relations;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
-class OneToOne {
+class ManyToOne {
     public function __construct() {}
 }

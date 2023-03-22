@@ -4,6 +4,7 @@ namespace Avocado\ORM;
 
 use Avocado\AvocadoORM\Actions\Actions;
 use Avocado\AvocadoORM\Attributes\Relations\JoinColumn;
+use Avocado\AvocadoORM\Attributes\Relations\ManyToOne;
 use Avocado\AvocadoORM\Attributes\Relations\OneToMany;
 use Avocado\AvocadoORM\Attributes\Relations\OneToOne;
 use Avocado\AvocadoORM\Order;
@@ -52,6 +53,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     private function resolveRelations(stdClass $plain, object $mappedEntity): object {
         $oneToManyColumns = parent::getJoinedProperties(OneToMany::class);
         $oneToOneColumns = parent::getJoinedProperties(OneToOne::class);
+        $manyToOneColumns = parent::getJoinedProperties(ManyToOne::class);
 
         foreach ($oneToManyColumns as $column) {
             $joinColumn = AnnotationUtils::getInstance($column, JoinColumn::class);
@@ -78,6 +80,18 @@ class AvocadoRepository extends AvocadoModel implements Actions {
 
             $dataToJoin = (new AvocadoRepository($type))->customWithSingleDataset($query, $type);
 
+            $column->setValue($mappedEntity, $dataToJoin);
+        }
+
+        foreach ($manyToOneColumns as $column) {
+            $joinColumn = AnnotationUtils::getInstance($column, JoinColumn::class);
+
+            $query = self::getConnection()->queryBuilder()::find($joinColumn->getTable(),
+                [$joinColumn->getReferencesTo() => $plain->{$joinColumn->getName()}],
+                [])->get();
+
+            $type = $column->getType()->getName();
+            $dataToJoin = (new AvocadoRepository($type))->customWithSingleDataset($query, $type);
             $column->setValue($mappedEntity, $dataToJoin);
         }
 

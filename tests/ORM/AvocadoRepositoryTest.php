@@ -156,4 +156,13 @@ class AvocadoRepositoryTest extends TestCase {
         self::assertTrue($books[0] instanceof TestBook);
         self::assertTrue($books[0]->getDetails() instanceof TestBookDetails);
     }
+
+    public function testGivenModelWithManyToOneRelation_thenQuery_returnValidParsedJoinedObjects() {
+        $repo = new AvocadoRepository(TestBookWithManyToOneRelation::class);
+        $books = $repo->findMany();
+
+        self::assertTrue($books[0] instanceof TestBookWithManyToOneRelation);
+        self::assertTrue($books[0]->getDetails() instanceof TestBookDetails);
+        self::assertTrue($books[0]->getUser() instanceof TestUser);
+    }
 }
