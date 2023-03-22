@@ -5,11 +5,13 @@ namespace Avocado\ORM;
 use Avocado\AvocadoORM\Actions\Actions;
 use Avocado\AvocadoORM\Attributes\Relations\JoinColumn;
 use Avocado\AvocadoORM\Attributes\Relations\OneToMany;
+use Avocado\AvocadoORM\Attributes\Relations\OneToOne;
 use Avocado\AvocadoORM\Order;
 use Avocado\Utils\AnnotationUtils;
 use Avocado\Utils\TypesUtils;
 use ReflectionClass;
 use ReflectionObject;
+use stdClass;
 
 /**
  * @template T
@@ -41,25 +43,45 @@ class AvocadoRepository extends AvocadoModel implements Actions {
             $mappedEntity = $mapper->entityToObject($this, $entity);
             $ref = new ReflectionObject($mappedEntity);
 
-            $oneToManyColumns = parent::getJoinedProperties(OneToMany::class);
-
-            foreach ($oneToManyColumns as $column) {
-                $joinColumn = AnnotationUtils::getInstance($column, JoinColumn::class);
-                $oneToMany = AnnotationUtils::getInstance($column, OneToMany::class);
-
-                $query = self::getConnection()->queryBuilder()::find($joinColumn->getTable(),
-                    [$joinColumn->getName() => $entity->{$joinColumn->getReferencesTo()}],
-                    [])->get();
-
-                $dataToJoin = (new AvocadoRepository($oneToMany->getClass()))->customWithDataset($query);
-
-                $column->setValue($mappedEntity, $dataToJoin);
-            }
-
-            $entities[] = $mappedEntity;
+            $entities[] = $this->resolveRelations($entity, $mappedEntity);
         }
 
         return $entities;
+    }
+
+    private function resolveRelations(stdClass $plain, object $mappedEntity): object {
+        $oneToManyColumns = parent::getJoinedProperties(OneToMany::class);
+        $oneToOneColumns = parent::getJoinedProperties(OneToOne::class);
+
+        foreach ($oneToManyColumns as $column) {
+            $joinColumn = AnnotationUtils::getInstance($column, JoinColumn::class);
+            $oneToMany = AnnotationUtils::getInstance($column, OneToMany::class);
+
+            $query = self::getConnection()->queryBuilder()::find($joinColumn->getTable(),
+                [$joinColumn->getName() => $plain->{$joinColumn->getReferencesTo()}],
+                [])->get();
+
+            $dataToJoin = (new AvocadoRepository($oneToMany->getClass()))->customWithDataset($query);
+
+            $column->setValue($mappedEntity, $dataToJoin);
+        }
+
+        foreach ($oneToOneColumns as $column) {
+            $joinColumn = AnnotationUtils::getInstance($column, JoinColumn::class);
+            $oneToOne = AnnotationUtils::getInstance($column, OneToOne::class);
+
+            $query = self::getConnection()->queryBuilder()::find($joinColumn->getTable(),
+                [$joinColumn->getReferencesTo() => $plain->{$joinColumn->getName()}],
+                [])->get();
+
+            $type = $column->getType()->getName();
+
+            $dataToJoin = (new AvocadoRepository($type))->customWithSingleDataset($query, $type);
+
+            $column->setValue($mappedEntity, $dataToJoin);
+        }
+
+        return $mappedEntity;
     }
 
     private function query(string $query): array {
