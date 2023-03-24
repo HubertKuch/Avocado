@@ -10,7 +10,6 @@ use Avocado\AvocadoORM\Attributes\Relations\OneToOne;
 use Avocado\AvocadoORM\Order;
 use Avocado\Utils\AnnotationUtils;
 use Avocado\Utils\TypesUtils;
-use Exception;
 use ReflectionClass;
 use ReflectionObject;
 use stdClass;
@@ -246,10 +245,17 @@ class AvocadoRepository extends AvocadoModel implements Actions {
         $manyToOneColumns = parent::getJoinedProperties(ManyToOne::class);
 
         foreach ([...$oneToOneColumns, ...$manyToOneColumns] as $column) {
+            $value = $column->getValue($entity);
+            $valueRef = new ReflectionObject($value);
+            $join = AnnotationUtils::getInstance($column, JoinColumn::class);
+
+            $valueRef->getProperty($join->getReferencesTo())
+                     ->setValue($value, $this->ref->getProperty($join->getName())->getValue($entity));
+
             $type = $column->getType()->getName();
             $repo = new AvocadoRepository($type);
 
-            $repo->save($column->getValue($entity));
+            $repo->save($value);
         }
 
         foreach ($oneToManyColumns as $column) {
@@ -272,7 +278,8 @@ class AvocadoRepository extends AvocadoModel implements Actions {
                 $this->save($entity);
 
                 self::getConnection()->transactionManager()->commit();
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                var_dump($throwable);
                 self::getConnection()->transactionManager()->rollback();
             }
         }

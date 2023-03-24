@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d53cdf2ccf7140902824eda6c704145",
+    "content-hash": "bcc07b24f10d5fdcab167597f4d0bbb9",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -1228,16 +1228,16 @@
         },
         {
             "name": "hubert/avocado-mysql-driver",
-            "version": "v3.0.1",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/HubertKuch/avocado-mysql-driver.git",
-                "reference": "a11627632e7d8ded8b819d820d84649cf0584889"
+                "reference": "c2856205dd23d14816a0e90fce395ccb0b021211"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HubertKuch/avocado-mysql-driver/zipball/a11627632e7d8ded8b819d820d84649cf0584889",
-                "reference": "a11627632e7d8ded8b819d820d84649cf0584889",
+                "url": "https://api.github.com/repos/HubertKuch/avocado-mysql-driver/zipball/c2856205dd23d14816a0e90fce395ccb0b021211",
+                "reference": "c2856205dd23d14816a0e90fce395ccb0b021211",
                 "shasum": ""
             },
             "require": {
@@ -1269,9 +1269,9 @@
             ],
             "support": {
                 "issues": "https://github.com/HubertKuch/avocado-mysql-driver/issues",
-                "source": "https://github.com/HubertKuch/avocado-mysql-driver/tree/v3.0.1"
+                "source": "https://github.com/HubertKuch/avocado-mysql-driver/tree/v3.1.1"
             },
-            "time": "2023-03-19T11:14:38+00:00"
+            "time": "2023-03-24T13:44:50+00:00"
         },
         {
             "name": "myclabs/deep-copy",

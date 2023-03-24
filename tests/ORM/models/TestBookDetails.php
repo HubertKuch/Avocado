@@ -6,16 +6,19 @@ use Avocado\ORM\Attributes\Field;
 use Avocado\ORM\Attributes\Id;
 use Avocado\ORM\Attributes\Table;
 
-#[Table('books')]
+#[Table('book_details')]
 class TestBookDetails {
-    public function __construct(
-        #[Id]
-        private int $id,
-        #[Field("written_at")]
-        private string $writtenAt,
-        #[Field("added_at")]
-        private string $addedAt
-    ) {}
+    #[Id]
+    private int $id;
+    #[Field("written_at")]
+    private string $writtenAt;
+    #[Field("added_at")]
+    private string $addedAt;
+
+    public function __construct(string $writtenAt, string $addedAt) {
+        $this->writtenAt = $writtenAt;
+        $this->addedAt = $addedAt;
+    }
 
     public function getId(): int {
         return $this->id;
