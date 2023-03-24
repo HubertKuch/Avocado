@@ -12,6 +12,7 @@ interface Connection {
     public function prepare(string $sql): Statement;
     public function queryBuilder(): Builder;
     public function mapper(): Mapper;
+$this->db->commit();
     public function transactionManager(): TransactionManager;
     public function close(): void;
 }
