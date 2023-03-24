@@ -235,14 +235,38 @@ class AvocadoRepository extends AvocadoModel implements Actions {
     }
 
     /**
-     * @param object $entity
+     * @param T $entity
      * @return void
      */
     public function save(object $entity): void {
+        $oneToManyColumns = parent::getJoinedProperties(OneToMany::class);
+        $oneToOneColumns = parent::getJoinedProperties(OneToOne::class);
+        $manyToOneColumns = parent::getJoinedProperties(ManyToOne::class);
+
+        foreach ([...$oneToOneColumns, ...$manyToOneColumns] as $column) {
+            $type = $column->getType()->getName();
+            $repo = new AvocadoRepository($type);
+
+            $repo->save($column->getValue($entity));
+        }
+
+        foreach ($oneToManyColumns as $column) {
+            $oneToMany = AnnotationUtils::getInstance($column, OneToMany::class);
+            $type = $oneToMany->getClass();
+
+            $repo = new AvocadoRepository($type);
+
+            $repo->saveMany($column->getValue($entity));
+        }
+
         $query = parent::getConnection()->queryBuilder()::save($this->tableName, $entity)->get();
 
         parent::getConnection()->prepare($query)->execute();
     }
+
+    public function transactionSave(object $entity) {}
+
+    public function transactionSaveMany(array $entities) {}
 
     /**
      * @param ...$entities

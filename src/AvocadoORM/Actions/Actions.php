@@ -34,10 +34,12 @@ interface Actions {
      * @param T $entity
      */
     public function save(object $entity);
+    public function transactionSave(object $entity);
     /**
      * @param T[] $entities
      * */
     public function saveMany(array $entities);
+    public function transactionSaveMany(array $entities);
     /**
      * @template V
      * @param class-string<V> $type
