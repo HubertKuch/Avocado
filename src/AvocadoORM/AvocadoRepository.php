@@ -10,9 +10,11 @@ use Avocado\AvocadoORM\Attributes\Relations\OneToOne;
 use Avocado\AvocadoORM\Order;
 use Avocado\Utils\AnnotationUtils;
 use Avocado\Utils\TypesUtils;
+use Exception;
 use ReflectionClass;
 use ReflectionObject;
 use stdClass;
+use Throwable;
 
 /**
  * @template T
@@ -264,9 +266,29 @@ class AvocadoRepository extends AvocadoModel implements Actions {
         parent::getConnection()->prepare($query)->execute();
     }
 
-    public function transactionSave(object $entity) {}
+    public function transactionSave(object $entity) {
+        if (self::getConnection()->transactionManager()->begin()) {
+            try {
+                $this->save($entity);
 
-    public function transactionSaveMany(array $entities) {}
+                self::getConnection()->transactionManager()->commit();
+            } catch (Throwable) {
+                self::getConnection()->transactionManager()->rollback();
+            }
+        }
+    }
+
+    public function transactionSaveMany(array $entities) {
+        if (self::getConnection()->transactionManager()->begin()) {
+            try {
+                $this->saveMany($entities);
+
+                self::getConnection()->transactionManager()->commit();
+            } catch (Throwable) {
+                self::getConnection()->transactionManager()->rollback();
+            }
+        }
+    }
 
     /**
      * @param ...$entities
