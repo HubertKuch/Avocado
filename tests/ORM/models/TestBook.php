@@ -13,7 +13,9 @@ use Avocado\ORM\Attributes\Table;
 class TestBook {
     #[Id]
     private int $id;
+    #[Field]
     private string $name;
+    #[Field]
     private string $description;
     #[OneToOne]
     #[JoinColumn(table: "book_details", name: "id", referencesTo: "id")]

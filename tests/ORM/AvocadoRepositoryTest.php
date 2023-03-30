@@ -166,18 +166,19 @@ class AvocadoRepositoryTest extends TestCase {
         self::assertTrue($books[0]->getUser() instanceof TestUser);
     }
 
-    public function testGivenValidEntityWithOneToOneRelation_thenSave_endWithoutExceptions() {
-        $bookRepo = new AvocadoRepository(TestBook::class);
+    public function testGivenValidEntityWithOneToOneAndManyToOneRelation_thenSave_endWithoutExceptions() {
+        $bookRepo = new AvocadoRepository(TestBookWithManyToOneRelation::class);
+        $userRepo = new AvocadoRepository(TestUser::class);
         $bookDetailsRepo = new AvocadoRepository(TestBookDetails::class);
 
         $bookId = rand(1, 1000);
 
         try {
-            $book = new TestBook($bookId,
+            $book = new TestBookWithManyToOneRelation($bookId,
                 "No longer human",
                 "",
                 new TestBookDetails('2023-03-22 09:13:52', '2023-03-22 09:13:52'),
-                1);
+                $userRepo->findById(1));
 
             $bookRepo->transactionSave($book);
 
@@ -190,6 +191,4 @@ class AvocadoRepositoryTest extends TestCase {
     }
 
     public function testGivenValidEntityWithOneToManyRelation_thenSave_endWithoutExceptions() {}
-
-    public function testGivenValidEntityWithManyToOneRelation_thenSave_endWithoutExceptions() {}
 }

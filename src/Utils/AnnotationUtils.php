@@ -25,10 +25,10 @@ class AnnotationUtils {
      * @param class-string<T> $class
      * @return T
      */
-    public static function getInstance(ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionEnum|ReflectionObject|ReflectionFunction|ReflectionParameter $on, string $class): object {
+    public static function getInstance(ReflectionClass|ReflectionProperty|ReflectionMethod|ReflectionEnum|ReflectionObject|ReflectionFunction|ReflectionParameter $on, string $class): object|null {
         $ann = $on->getAttributes($class);
 
-        return $ann[0]->newInstance();
+        return empty($ann) ? null : $ann[key($ann)]->newInstance();
     }
 
     /**

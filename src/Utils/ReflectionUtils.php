@@ -3,7 +3,9 @@
 namespace Avocado\Utils;
 
 use Avocado\AvocadoApplication\Exceptions\MissingKeyException;
+use Avocado\AvocadoORM\Attributes\Relations\JoinColumn;
 use Avocado\ORM\Attributes\Field;
+use Avocado\ORM\Attributes\Id;
 use AvocadoApplication\Attributes\Nullable;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -15,7 +17,7 @@ use Utils\Strings;
 
 class ReflectionUtils {
 
-    public static function modelFieldsToArray(object $object): array {
+    public static function modelFieldsToArray(object $object, bool $relationsToValue = false): array {
         $ref = new ReflectionClass($object);
 
         $fields = [];
@@ -23,13 +25,40 @@ class ReflectionUtils {
         foreach ($ref->getProperties() as $property) {
             $propertyName = $property->getName();
 
-            if (!empty($property->getAttributes(Field::class))) {
-                if (!empty($property->getAttributes(Field::class)[0]->getArguments())) {
-                    $propertyName = $property->getAttributes(Field::class)[0]->getArguments()[0];
+            $field = AnnotationUtils::getInstance($property, Field::class);
+            $id = AnnotationUtils::getInstance($property, Id::class);
+            $join = AnnotationUtils::getInstance($property, JoinColumn::class);
+
+            if ($field) {
+                $name = empty($field->getField()) ? $propertyName : $field->getField();
+                $value = $property->getValue($object);
+
+                if (is_object($value) && enum_exists(get_class($value))) {
+                    $value = $value->value;
                 }
+
+                $fields += [$name => $value];
+            } else if ($id) {
+                $name = empty($id->getField()) ? $propertyName : $id->getField();
+
+                $fields += [$name => $property->getValue($object)];
             }
 
-            $fields += [$propertyName => $property->getValue($object)];
+            if ($join) {
+                $name = $join->getName();
+                $value = $property->getValue($object);
+                $class = get_class($value);
+
+                if (class_exists($class) && !enum_exists($class)) {
+                    $value = self::modelFieldsToArray($value, true);
+                }
+
+                if ($relationsToValue) {
+                    $value = $value[$join->getReferencesTo()];
+                }
+
+                $fields += [$name => $value];
+            }
         }
 
         return $fields;
@@ -203,7 +232,8 @@ class ReflectionUtils {
                 continue;
             }
 
-            if ($property->getType()->allowsNull() && !$property->getDefaultValue() && $property->getType()->allowsNull()) {
+            if ($property->getType()->allowsNull() && !$property->getDefaultValue() && $property->getType()
+                                                                                                ->allowsNull()) {
                 $property->setValue($currentInstance, null);
             }
         }

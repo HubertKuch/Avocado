@@ -12,8 +12,8 @@ class ReflectionUtilsTest extends TestCase {
     public function testModelFieldsToArray() {
         $test = new TableWithIgnoringType(24, UserRole::ADMIN);
 
-        $fields = ReflectionUtils::modelFieldsToArray($test);
-        $expected = ["id" => 24, "role" => UserRole::ADMIN];
+        $fields = ReflectionUtils::modelFieldsToArray($test, true);
+        $expected = ["id" => 24, "role" => 'admin'];
 
         self::assertEquals($expected, $fields);
     }

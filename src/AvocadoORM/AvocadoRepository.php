@@ -9,6 +9,7 @@ use Avocado\AvocadoORM\Attributes\Relations\OneToMany;
 use Avocado\AvocadoORM\Attributes\Relations\OneToOne;
 use Avocado\AvocadoORM\Order;
 use Avocado\Utils\AnnotationUtils;
+use Avocado\Utils\ReflectionUtils;
 use Avocado\Utils\TypesUtils;
 use ReflectionClass;
 use ReflectionObject;
@@ -244,13 +245,23 @@ class AvocadoRepository extends AvocadoModel implements Actions {
         $oneToOneColumns = parent::getJoinedProperties(OneToOne::class);
         $manyToOneColumns = parent::getJoinedProperties(ManyToOne::class);
 
-        foreach ([...$oneToOneColumns, ...$manyToOneColumns] as $column) {
+        foreach ($oneToOneColumns as $column) {
             $value = $column->getValue($entity);
             $valueRef = new ReflectionObject($value);
             $join = AnnotationUtils::getInstance($column, JoinColumn::class);
 
             $valueRef->getProperty($join->getReferencesTo())
                      ->setValue($value, $this->ref->getProperty($join->getName())->getValue($entity));
+
+            $type = $column->getType()->getName();
+            $repo = new AvocadoRepository($type);
+
+            $repo->save($value);
+        }
+
+        foreach ($manyToOneColumns as $column) {
+            $value = $column->getValue($entity);
+            $join = AnnotationUtils::getInstance($column, JoinColumn::class);
 
             $type = $column->getType()->getName();
             $repo = new AvocadoRepository($type);
@@ -267,25 +278,35 @@ class AvocadoRepository extends AvocadoModel implements Actions {
             $repo->saveMany($column->getValue($entity));
         }
 
-        $query = parent::getConnection()->queryBuilder()::save($this->tableName, $entity)->get();
+        $primaryKeyValue = $this->ref->getProperty($this->primaryKey)->getValue($entity);
+
+        if ($this->findFirst([$this->primaryKey => $primaryKeyValue]) === null) {
+            $query = parent::getConnection()->queryBuilder()::save($this->tableName, $entity)->get();
+        } else {
+            $updateCriteria = ReflectionUtils::modelFieldsToArray($entity, true);
+
+            $query = parent::getConnection()->queryBuilder()::update($this->tableName,
+                $updateCriteria,
+                [$this->primaryKey => $primaryKeyValue])->get();
+        }
 
         parent::getConnection()->prepare($query)->execute();
     }
 
-    public function transactionSave(object $entity) {
+    public function transactionSave(object $entity): void {
         if (self::getConnection()->transactionManager()->begin()) {
             try {
                 $this->save($entity);
 
                 self::getConnection()->transactionManager()->commit();
             } catch (Throwable $throwable) {
-                var_dump($throwable);
                 self::getConnection()->transactionManager()->rollback();
+                throw $throwable;
             }
         }
     }
 
-    public function transactionSaveMany(array $entities) {
+    public function transactionSaveMany(array $entities): void {
         if (self::getConnection()->transactionManager()->begin()) {
             try {
                 $this->saveMany($entities);
