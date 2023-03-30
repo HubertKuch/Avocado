@@ -12,6 +12,7 @@ use Avocado\ORM\AvocadoRepository;
 use PHPUnit\Framework\TestCase;
 use ReflectionObject;
 use stdClass;
+use function PHPUnit\Framework\assertNotNull;
 
 class AvocadoRepositoryTest extends TestCase {
     private DataSource $dataSource;
@@ -190,5 +191,33 @@ class AvocadoRepositoryTest extends TestCase {
         }
     }
 
-    public function testGivenValidEntityWithOneToManyRelation_thenSave_endWithoutExceptions() {}
+    public function testGivenValidEntityWithOneToManyRelation_thenSave_endWithoutExceptions() {
+        $bookRepo = new AvocadoRepository(TestBookWithManyToOneRelation::class);
+        $userRepo = new AvocadoRepository(TestUserWithOneToMany::class);
+        $bookDetailsRepo = new AvocadoRepository(TestBookDetails::class);
+
+        $userId = rand(1, 1000);
+        $bookId = rand(1001, 2001);
+
+        try {
+            $user = new TestUserWithOneToMany($userId,
+                'test_user',
+                'test',
+                [new TestBook($bookId,
+                    'Miracle Morning',
+                    '',
+                    new TestBookDetails('2023-03-22 09:13:52', '2023-03-22 09:13:52'),
+                    1)]);
+
+            $userRepo->save($user);
+
+            assertNotNull($bookDetailsRepo->findById($bookId));
+            assertNotNull($bookRepo->findById($bookId));
+            assertNotNull($userRepo->findById($userId));
+        } finally {
+            $bookDetailsRepo->deleteOneById($bookId);
+            $bookRepo->deleteOneById($bookId);
+            $userRepo->deleteOneById($userId);
+        }
+    }
 }

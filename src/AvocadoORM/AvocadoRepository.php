@@ -275,7 +275,7 @@ class AvocadoRepository extends AvocadoModel implements Actions {
 
             $repo = new AvocadoRepository($type);
 
-            $repo->saveMany($column->getValue($entity));
+            $repo->saveMany(...$column->getValue($entity));
         }
 
         $primaryKeyValue = $this->ref->getProperty($this->primaryKey)->getValue($entity);

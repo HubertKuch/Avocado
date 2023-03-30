@@ -14,6 +14,7 @@ use ReflectionException;
 use ReflectionMethod;
 use ReflectionObject;
 use Utils\Strings;
+use function PHPUnit\Framework\containsEqual;
 
 class ReflectionUtils {
 
@@ -47,15 +48,37 @@ class ReflectionUtils {
             if ($join) {
                 $name = $join->getName();
                 $value = $property->getValue($object);
-                $class = get_class($value);
+
+                if (is_array($value) && empty($value)) {
+                    $fields += [$name => $value];
+                    continue;
+                } else if (is_array($value)) {
+                    $class = get_class($value[0]);
+                } else {
+                    $class = get_class($value);
+                }
 
                 if (class_exists($class) && !enum_exists($class)) {
-                    $value = self::modelFieldsToArray($value, true);
+                    if (!is_array($value)) {
+                        $value = self::modelFieldsToArray($value, true);
+
+                        if ($relationsToValue) {
+                            $value = $value[$join->getReferencesTo()];
+                        }
+                    } else {
+                        $value = array_map(function($entity) use ($relationsToValue, $join) {
+                            $value = self::modelFieldsToArray($entity);
+
+                            if ($relationsToValue) {
+                                $value = $value[$join->getReferencesTo()];
+                            }
+
+                            return $value;
+                        }, $value);
+                    }
                 }
 
-                if ($relationsToValue) {
-                    $value = $value[$join->getReferencesTo()];
-                }
+
 
                 $fields += [$name => $value];
             }
