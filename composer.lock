@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bcc07b24f10d5fdcab167597f4d0bbb9",
+    "content-hash": "46443dba0edbff6538eb7b648cc0c83e",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -1228,16 +1228,16 @@
         },
         {
             "name": "hubert/avocado-mysql-driver",
-            "version": "v3.1.1",
+            "version": "v3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/HubertKuch/avocado-mysql-driver.git",
-                "reference": "c2856205dd23d14816a0e90fce395ccb0b021211"
+                "reference": "a39d6f93e1d15b4adc3cdee6dd624fab61dcb181"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HubertKuch/avocado-mysql-driver/zipball/c2856205dd23d14816a0e90fce395ccb0b021211",
-                "reference": "c2856205dd23d14816a0e90fce395ccb0b021211",
+                "url": "https://api.github.com/repos/HubertKuch/avocado-mysql-driver/zipball/a39d6f93e1d15b4adc3cdee6dd624fab61dcb181",
+                "reference": "a39d6f93e1d15b4adc3cdee6dd624fab61dcb181",
                 "shasum": ""
             },
             "require": {
@@ -1269,9 +1269,9 @@
             ],
             "support": {
                 "issues": "https://github.com/HubertKuch/avocado-mysql-driver/issues",
-                "source": "https://github.com/HubertKuch/avocado-mysql-driver/tree/v3.1.1"
+                "source": "https://github.com/HubertKuch/avocado-mysql-driver/tree/v3.1.2"
             },
-            "time": "2023-03-24T13:44:50+00:00"
+            "time": "2023-03-30T10:06:29+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -1611,16 +1611,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.7.0",
+            "version": "1.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5"
+                "reference": "dfc078e8af9c99210337325ff5aa152872c98714"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5",
-                "reference": "1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/dfc078e8af9c99210337325ff5aa152872c98714",
+                "reference": "dfc078e8af9c99210337325ff5aa152872c98714",
                 "shasum": ""
             },
             "require": {
@@ -1663,9 +1663,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.0"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.1"
             },
-            "time": "2023-03-12T10:13:29+00:00"
+            "time": "2023-03-27T19:02:04+00:00"
         },
         {
             "name": "phpspec/prophecy",
